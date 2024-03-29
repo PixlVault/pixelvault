@@ -13,7 +13,7 @@ router.get('/:projectId', async (req, res) => {
   } catch (error) {
     console.error(error);
     // TODO: May not be wise to send verbatim error back?
-    return res.status(400).json({ error });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -83,7 +83,7 @@ router.delete('/:projectId', async (req, res) => {
     return res.status(204).send();
   } catch (error) {
     console.error(error);
-    return res.status(400).json({ error });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -98,7 +98,7 @@ router.post('/', async (req, res) => {
     return res.status(201).json({ projectId: result.project_id });
   } catch (error) {
     console.error(error);
-    return res.status(400).json({ error });
+    return res.status(400).json({ error: error.message });
   }
 });
 

@@ -2,8 +2,8 @@ require('dotenv').config();
 
 const http = require('http');
 
-const app = require('./app.js');
-const { attachWebSocketService } = require('./ws/wss.js');
+const app = require('./app');
+const { attachWebSocketService } = require('./ws/wss');
 
 const server = http.createServer(app);
 server.listen(process.env.PORT, () => {

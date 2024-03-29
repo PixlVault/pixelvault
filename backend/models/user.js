@@ -8,11 +8,14 @@ const User = {
    * @param {*} username The username to query.
    */
   get: (username) => new Promise((resolve, reject) => {
-    if (username === undefined) { return reject('Invalid username provided'); }
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
 
     db.query('SELECT username, biography, experience, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
-      if (err) { reject(err); }
-      else { resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0]))); }
+      if (err) reject(err);
+      else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
     });
   }),
 
@@ -20,6 +23,7 @@ const User = {
    * Get a list of usernames followed by one user.
    */
   getFollowing: (userId) => {
+    console.error('TODO function `getFollowing` called with:', userId);
     throw new Error('TODO');
   },
 
@@ -29,6 +33,7 @@ const User = {
    * @param targetId The ID of the person being 'followed'.
    */
   follow: (userId, targetId) => {
+    console.error('TODO function `follow` called with:', userId, targetId);
     throw new Error('TODO');
   },
 
@@ -38,6 +43,7 @@ const User = {
    * @param targetId The ID of the person being 'followed'.
    */
   unfollow: (userId, targetId) => {
+    console.error('TODO function `unfollow` called with:', userId, targetId);
     throw new Error('TODO');
   },
 
@@ -47,10 +53,14 @@ const User = {
    * @param {*} username The username to query.
    */
   getDetails: (username) => new Promise((resolve, reject) => {
-    if (username === undefined) { return reject('Invalid username provided'); }
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
     db.query('SELECT username, password_hash, email, biography, experience, is_verified = 1 AS is_verified, is_banned = 1 AS is_banned, is_admin = 1 AS is_admin, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
-      if (err) { reject(err); }
-      else { resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0]))); }
+      if (err) reject(err);
+      else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
     });
   }),
 
@@ -60,18 +70,36 @@ const User = {
    * @param {*} passwordHash The hashed form of their password.
    * @param {*} email The user's email address.
    */
-  insert: (username, password, email) => new Promise(async (resolve, reject) => {
-    if (username === undefined) { return reject('No username provided'); }
-    if (password === undefined) { return reject('No password provided'); }
-    if (email === undefined) { return reject('No email provided'); }
+  insert: (username, password, email) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('No username provided'));
+      return;
+    }
+    if (password === undefined) {
+      reject(new Error('No password provided'));
+      return;
+    }
+    if (email === undefined) {
+      reject(new Error('No email provided'));
+      return;
+    }
 
     // Hash password and try to insert the new user:
-    const passwordHash = await argon2.hash(password);
-
-    db.query('INSERT INTO user (username, password_hash, email) VALUES (?, ?, ?);', [username, passwordHash, email], (err, result) => {
-      if (err) { reject(err); }
-      else { resolve(result); }
-    });
+    argon2.hash(password)
+      .then((passwordHash) => {
+        db.query(
+          'INSERT INTO user (username, password_hash, email) VALUES (?, ?, ?);',
+          [username, passwordHash, email],
+          (err, result) => {
+            if (err) reject(err);
+            else resolve(result);
+          },
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        reject(new Error('Error in generating password hash.'));
+      });
   }),
 };
 

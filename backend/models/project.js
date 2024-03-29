@@ -9,16 +9,17 @@ const Project = {
    */
   get: (projectId) => new Promise((resolve, reject) => {
     if (!isValidUuid(projectId)) {
-      return reject('Invalid Project ID provided');
+      reject(new Error('Invalid Project ID provided'));
+      return;
     }
 
     db.query(
       'SELECT *, BIN_TO_UUID(project_id, TRUE) AS project_id FROM project WHERE project_id = UUID_TO_BIN(?, TRUE);',
       [projectId],
       (err, result) => {
-        if (err) { reject(err); }
-        else { resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0]))); }
-      }
+        if (err !== null) reject(err);
+        else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
+      },
     );
   }),
 
@@ -28,33 +29,39 @@ const Project = {
    */
   getCollaborators: (projectId) => new Promise((resolve, reject) => {
     if (!isValidUuid(projectId)) {
-      return reject('Invalid Project ID provided');
+      reject(new Error('Invalid Project ID provided'));
+      return;
     }
 
     db.query(
       `SELECT created_by AS username FROM project WHERE project_id = UUID_TO_BIN(?, TRUE)
        UNION
        SELECT username FROM project_invite WHERE project_id = UUID_TO_BIN(?, TRUE) AND status = 'accepted';`,
-      [projectId, projectId], (err, result) => {
-        if (err) { reject(err); }
-        else { resolve(result.map(u => u.username)); }
-      });
+      [projectId, projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result.map((u) => u.username));
+      },
+    );
   }),
 
   getCreatedBy: (username) => new Promise((resolve, reject) => {
     db.query(
       'SELECT *, BIN_TO_UUID(project_id, TRUE) as project_id FROM project WHERE created_by = ?',
-      [username], (err, result) => {
-        if (err) { reject(err); }
+      [username],
+      (err, result) => {
+        if (err !== null) reject(err);
         else {
-          let objects = result.map(r => JSON.parse(JSON.stringify(r)));
-          objects.filter(o => o.image_data != null).forEach((o, _) => {
-            o.image_data.data = new TextDecoder().decode(new Uint8Array(o.image_data.data));
-          });
-
+          const objects = result.map((r) => JSON.parse(JSON.stringify(r)));
+          objects
+            .filter((o) => o.image_data != null)
+            .forEach((o) => {
+              o.image_data.data = new TextDecoder().decode(new Uint8Array(o.image_data.data));
+            });
           resolve(objects);
         }
-      });
+      },
+    );
   }),
 
   /**
@@ -63,19 +70,29 @@ const Project = {
    * @param {*} author The username of the author.
    */
   insert: (title, author, imageData) => new Promise((resolve, reject) => {
-    if (title === undefined) { return reject('No project title provided'); }
-    if (author === undefined) { return reject('No project author provided'); }
-    if (imageData === undefined) { return reject('No image data provided'); }
+    if (title === undefined) {
+      reject(new Error('No project title provided'));
+      return;
+    }
+    if (author === undefined) {
+      reject(new Error('No project author provided'));
+      return;
+    }
+    if (imageData === undefined) {
+      reject(new Error('No image data provided'));
+      return;
+    }
 
     console.log(imageData, typeof imageData);
 
     const id = uuid();
     db.query(
       'INSERT INTO project (project_id, title, created_by, image_data) VALUES (UUID_TO_BIN(?, TRUE), ?, ?, ?);',
-      [id, title, author, Buffer.from(imageData)], (err, _result) => {
-        if (err) { reject(err); }
-        else { resolve({ project_id: id }); }
-      }
+      [id, title, author, Buffer.from(imageData)],
+      (err) => {
+        if (err !== null) reject(err);
+        else resolve({ project_id: id });
+      },
     );
   }),
 
@@ -85,14 +102,17 @@ const Project = {
    */
   delete: (projectId) => new Promise((resolve, reject) => {
     if (!isValidUuid(projectId)) {
-      return reject('Invalid Project ID provided');
+      reject(new Error('Invalid Project ID provided'));
+      return;
     }
 
     db.query(
-      'DELETE FROM project WHERE project_id = ?;', [projectId], (err, result) => {
-        if (err) { reject(err); }
-        else { resolve(result); }
-      }
+      'DELETE FROM project WHERE project_id = ?;',
+      [projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
     );
   }),
 
@@ -101,14 +121,18 @@ const Project = {
    * @param {*} projectId The ID of the project to query.
    */
   getImageData: (projectId) => new Promise((resolve, reject) => {
-    if (!isValidUuid(projectId)) { return reject('Invalid UUID provided'); };
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
+    }
+
     db.query(
       'SELECT image_data FROM project WHERE project_id = UUID_TO_BIN(?, TRUE);',
       [projectId],
       (err, result) => {
-        if (err) { reject(err); }
-        else { resolve(result[0].image_data) }
-      }
+        if (err) reject(err);
+        else resolve(result[0].image_data);
+      },
     );
   }),
 
@@ -118,14 +142,18 @@ const Project = {
     * @param {*} imageData Binary representing the new image state.
     */
   setImageData: (projectId, imageData) => new Promise((resolve, reject) => {
-    if (!isValidUuid(projectId)) { return reject('Invalid UUID provided'); };
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
+    }
+
     db.query(
       'UPDATE project SET image_data = ? WHERE project_id = UUID_TO_BIN(?, TRUE);',
       [imageData, projectId],
       (err, result) => {
-        if (err) { reject(err); }
-        else { resolve(result) }
-      }
+        if (err) reject(err);
+        else resolve(result);
+      },
     );
   }),
 
@@ -138,33 +166,37 @@ const Project = {
    * @returns
    */
   update: (projectId, title = null, imageData = null) => new Promise((resolve, reject) => {
-    if (!isValidUuid(projectId)) { return reject('Invalid UUID provided'); };
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
+    }
 
     const queryParams = [];
     const queryComponents = [];
 
     if (title) {
-      queryComponents.push(`title = ?`);
+      queryComponents.push('title = ?');
       queryParams.push(title);
     }
 
     if (imageData) {
-      queryComponents.push(`image_data = ?`);
+      queryComponents.push('image_data = ?');
       queryParams.push(imageData);
     }
 
     if (queryParams.length === 0) {
-      return reject('Cannot execute an update action with no changes');
+      reject(new Error('Cannot execute an update action with no changes'));
+      return;
     }
 
     queryParams.push(projectId);
-    const query = 'UPDATE project SET ' + queryComponents.join(', ') + ' WHERE project_id = UUID_TO_BIN(?, TRUE);';
+    const query = `UPDATE project SET ${queryComponents.join(', ')} WHERE project_id = UUID_TO_BIN(?, TRUE);`;
 
     db.query(query, queryParams, (err, result) => {
-      if (err) { reject(err); }
-      else { resolve(result); }
+      if (err) reject(err);
+      else resolve(result);
     });
-  })
+  }),
 };
 
 module.exports = Project;
