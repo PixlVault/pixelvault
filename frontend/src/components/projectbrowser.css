@@ -1,0 +1,26 @@
+#overlay {
+    margin: auto;
+    position: fixed;
+    display: block;
+    width: 33%;
+    height: 66%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.9);
+    z-index: 2;
+  }
+
+#item {
+  margin: auto;
+  cursor: pointer;
+}
+
+#item:hover {
+  text-decoration: underline;
+}
+
+#close {
+  cursor: pointer;
+}
