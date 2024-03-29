@@ -94,6 +94,20 @@ const OfflineCanvasContainer = ({ colour }) => {
   </>;
 }
 
+// TODO: This should be fleshed out and extracted into its own module.
+const Alert = ({ message }) => {
+  const style = {
+    padding: '4px',
+    margin: '1rem 2rem 1rem 2rem',
+    backgroundColor: '#E95830',
+    color: 'white'
+  };
+  
+  return <div className='alert' style={style}>
+    <p>{message}</p>
+  </div>
+}
+
 const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   const { projectId } = useParams();
   const canvasRef = useRef(null);
@@ -121,14 +135,17 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
     [readyState, lastMessage, projectId, setCurrentProject]
   );
 
-  return <Canvas
-    colour={colour}
-    canvasRef={canvasRef}
-    contextRef={contextRef}
-    sendMessage={sendMessage}
-    width={CANVAS_WIDTH}
-    height={CANVAS_HEIGHT}
-  />;
+  return <>
+    { readyState === 3 ? <Alert message={'Disconnected from server! Changes will not be saved.'} /> : null }
+    <Canvas
+      colour={colour}
+      canvasRef={canvasRef}
+      contextRef={contextRef}
+      sendMessage={sendMessage}
+      width={CANVAS_WIDTH}
+      height={CANVAS_HEIGHT}
+    />;
+  </>
 }
 
 const Editor = ({ user }) => {
