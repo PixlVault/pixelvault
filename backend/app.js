@@ -1,5 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const userRouter = require('./controllers/user');
 const loginRouter = require('./controllers/login');
@@ -25,11 +27,9 @@ app.use((req, _res, next) => {
   next();
 });
 
-const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
 // Needed to prevent CORS errors when developing.
-const cors = require('cors');
 app.use(cors());
 
 app.get('/', (req, res) => {

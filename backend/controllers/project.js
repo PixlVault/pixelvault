@@ -1,5 +1,4 @@
 const express = require('express');
-const { validate: isValidUuid } = require('uuid');
 
 const Project = require('../models/project');
 
@@ -26,7 +25,7 @@ router.get('/createdBy/:username', async (req, res) => {
       : res.status(200).json(projects);
   } catch (e) {
     console.error(e);
-    return res.status(400).json({ error: 'Something went wrong' })
+    return res.status(400).json({ error: 'Something went wrong' });
   }
 });
 
@@ -34,7 +33,7 @@ router.put('/:projectId', async (req, res) => {
   if (!req.token) {
     return res.status(401).json({ error: 'Not logged in' });
   }
-  
+
   // First, check the project exists:
   let project = null;
   try {
@@ -47,7 +46,7 @@ router.put('/:projectId', async (req, res) => {
   // Then try to update it:
   if (!project) { return res.status(404).json({ error: 'Project does not exist' }); }
 
-  const authorised = project.created_by == req.token.username
+  const authorised = project.created_by === req.token.username
     || project.collaborators.includes(req.token.username);
 
   if (!authorised) {
@@ -102,6 +101,5 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error });
   }
 });
-
 
 module.exports = router;

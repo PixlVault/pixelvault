@@ -1,4 +1,5 @@
 module.exports = {
+  root: true,
   env: {
     browser: true,
     es2021: true,
@@ -8,13 +9,21 @@ module.exports = {
     {
       env: {
         node: true,
-        'jest/globals': true,
       },
       files: [
         '.eslintrc.{js,cjs}',
       ],
       parserOptions: {
         sourceType: 'script',
+      },
+    },
+    {
+      files: [
+        '**/*.test.js',
+      ],
+      plugins: ['jest'],
+      env: {
+        jest: true,
       },
     },
   ],

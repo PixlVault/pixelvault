@@ -18,7 +18,7 @@ let newProjectId;
 beforeAll(async () => {
   db.query('DELETE FROM project;');
 
-  res = await api
+  const res = await api
     .post('/login')
     .send({ username: 'user', password: 'password' });
 
@@ -38,7 +38,7 @@ describe('Projects can be created', () => {
 
     // Project is now present in database:
     expect(
-      (await api.get(`/project/${newProjectId}`).set('Authorization', authToken)).statusCode
+      (await api.get(`/project/${newProjectId}`).set('Authorization', authToken)).statusCode,
     ).toBe(200);
   });
 
@@ -49,8 +49,8 @@ describe('Projects can be created', () => {
       .send({ });
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No project title provided' })
-  })
+    expect(res.body).toEqual({ error: 'No project title provided' });
+  });
 
   test('Logged out users cannot create a project.', async () => {
     const res = await api
@@ -58,9 +58,8 @@ describe('Projects can be created', () => {
       .send({ title: 'For lack of a better name' });
 
     expect(res.statusCode).toBe(401);
-  })
+  });
 });
-
 
 describe('Project details can be retrieved via their Project ID', () => {
   test('Valid ID', async () => {
@@ -72,7 +71,7 @@ describe('Project details can be retrieved via their Project ID', () => {
     expect(res.body).toEqual(expect.objectContaining({
       project_id: newProjectId,
       title: 'For lack of a better name',
-      created_by: 'user'
+      created_by: 'user',
     }));
   });
 
@@ -126,7 +125,7 @@ describe('Projects can be updated', () => {
   });
 
   test.todo('Collaborators can update a project\'s details');
-})
+});
 
 describe('Projects can be deleted', () => {
   test.todo('Non-owners cannot delete a project');
@@ -160,4 +159,4 @@ describe('Projects can be deleted', () => {
 
 afterAll(() => {
   db.end();
-})
+});

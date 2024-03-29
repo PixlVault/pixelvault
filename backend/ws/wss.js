@@ -4,7 +4,7 @@ const { WebSocketServer } = require('ws');
 const Project = require('../models/project');
 
 const attachWebSocketService = (server) => {
-  console.log('Initialising WS Server')
+  console.log('Initialising WS Server');
   const wss = new WebSocketServer({ path: '/edit', noServer: true });
 
   // Keep track of which sessions are open, using a project's ID as the session ID.
@@ -37,23 +37,22 @@ const attachWebSocketService = (server) => {
         const collaborators = await Project.getCollaborators(projectId);
 
         if (!collaborators.includes(user)) {
-          console.log(`User ${user} does not have permission to edit ${projectId}`)
+          console.log(`User ${user} does not have permission to edit ${projectId}`);
           socket.destroy();
         } else {
           // User is allowed to edit this project, initialise the session:
           sessions[projectId] = { collaborators };
         }
-
       } catch (e) {
         console.error(e);
         socket.destroy();
       }
     } else if (!sessions[projectId].collaborators.includes(user)) {
-      console.log(`User ${user} does not have permission to edit ${projectId}`)
+      console.log(`User ${user} does not have permission to edit ${projectId}`);
       socket.destroy();
     }
 
-    wss.handleUpgrade(request, socket, head, function done(ws) {
+    wss.handleUpgrade(request, socket, head, (ws) => {
       wss.emit('connection', ws, request, projectId);
     });
   });
@@ -63,11 +62,11 @@ const attachWebSocketService = (server) => {
 
     if (!sessions[projectId].clients) {
       // If the session hasn't already been initialised, do so:
-      sessions[projectId] = { ...sessions[projectId], 'canvas': null, 'clients': [ws] };
+      sessions[projectId] = { ...sessions[projectId], canvas: null, clients: [ws] };
 
       // Fetch image data from the database, store it, and send a copy to the user:
       Project.getImageData(projectId)
-        .then(data => {
+        .then((data) => {
           sessions[projectId].canvas = data;
 
           if (data !== undefined) {
@@ -78,8 +77,8 @@ const attachWebSocketService = (server) => {
             ws.close();
           }
         })
-        .catch(e => {
-          console.error(e)
+        .catch((e) => {
+          console.error(e);
           ws.close();
         });
     } else {
@@ -89,7 +88,7 @@ const attachWebSocketService = (server) => {
       console.log(`Client connected to session ${projectId} (total: ${sessions[projectId].clients.length})`);
     }
 
-    ws.on('message', (data) =>  wss.updateCanvasState(data, projectId));
+    ws.on('message', (data) => wss.updateCanvasState(data, projectId));
 
     ws.on('close', () => {
       // Remove the client from the session:
@@ -97,8 +96,8 @@ const attachWebSocketService = (server) => {
       sessions[projectId].clients.splice(loc, 1);
 
       Project.setImageData(projectId, sessions[projectId].canvas)
-        .then(_ => console.log(`Saved project '${projectId}'`))
-        .catch(e => console.error(e));
+        .then(() => console.log(`Saved project '${projectId}'`))
+        .catch((e) => console.error(e));
 
       // If no users are connected to a session, clean it up:
       if (sessions[projectId].clients.length === 0) { delete sessions[projectId]; }
@@ -109,8 +108,8 @@ const attachWebSocketService = (server) => {
 
   wss.updateCanvasState = (newState, projectId) => {
     sessions[projectId].canvas = newState;
-    console.log(`[Updated ${projectId}] =>`, sessions[projectId].canvas)
-    sessions[projectId].clients.forEach(c => c.send(newState));
+    console.log(`[Updated ${projectId}] =>`, sessions[projectId].canvas);
+    sessions[projectId].clients.forEach((c) => c.send(newState));
   };
 };
 

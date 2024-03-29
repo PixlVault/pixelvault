@@ -14,10 +14,12 @@ const Project = {
 
     db.query(
       'SELECT *, BIN_TO_UUID(project_id, TRUE) AS project_id FROM project WHERE project_id = UUID_TO_BIN(?, TRUE);',
-      [projectId], (err, result) => {
+      [projectId],
+      (err, result) => {
         if (err) { reject(err); }
         else { resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0]))); }
-      });
+      }
+    );
   }),
 
   /**

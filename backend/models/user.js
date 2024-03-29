@@ -72,7 +72,7 @@ const User = {
       if (err) { reject(err); }
       else { resolve(result); }
     });
-  })
+  }),
 };
 
 module.exports = User;

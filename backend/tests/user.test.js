@@ -31,16 +31,16 @@ describe('Users can be created', () => {
       .post('/user')
       .send({ password: 'password' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No username provided' })
-  })
+    expect(res.body).toEqual({ error: 'No username provided' });
+  });
 
   test('Missing passwords are rejected', async () => {
     const res = await api
       .post('/user')
       .send({ username: 'user' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No password provided' })
-  })
+    expect(res.body).toEqual({ error: 'No password provided' });
+  });
 });
 
 describe('Users can be retrieved by their username', () => {
@@ -78,4 +78,4 @@ describe('Users can follow each other', () => {
 // TODO for some reason the API seems to be staying open??
 afterAll(() => {
   db.end();
-})
+});
