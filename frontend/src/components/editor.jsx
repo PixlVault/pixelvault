@@ -77,7 +77,7 @@ const OfflineCanvasContainer = ({ colour }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
 
-  useEffect(() => initialiseCanvas(canvasRef, contextRef, null));
+  useEffect(() => initialiseCanvas(canvasRef, contextRef, null), []);
 
   return <>
     <Canvas
