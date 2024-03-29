@@ -48,7 +48,6 @@ const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
   canvas.style.height = height + 'vw';
 
   canvas.style.imageRendering = "pixelated";
-  canvas.style.position = 'relative';
 
   const context = canvas.getContext("2d");
   contextRef.current = context;
