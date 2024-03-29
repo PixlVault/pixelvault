@@ -22,30 +22,76 @@ const User = {
   /**
    * Get a list of usernames followed by one user.
    */
-  getFollowing: (userId) => {
-    console.error('TODO function `getFollowing` called with:', userId);
-    throw new Error('TODO');
-  },
+  getFollowing: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('SELECT follows FROM follow WHERE follower = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else {
+        resolve(result.map((row) => ({ ...row }.follows)));
+      }
+    });
+  }),
 
   /**
    * Set one user as following another.
-   * @param userId The ID of the 'follower'.
-   * @param targetId The ID of the person being 'followed'.
+   * @param username The ID of the 'follower'.
+   * @param targetUsername The ID of the person being 'followed'.
    */
-  follow: (userId, targetId) => {
-    console.error('TODO function `follow` called with:', userId, targetId);
-    throw new Error('TODO');
-  },
+  follow: (username, targetUsername) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided for follower'));
+      return;
+    }
+
+    if (targetUsername === undefined) {
+      reject(new Error('Invalid username provided for followee'));
+      return;
+    }
+
+    if (username === targetUsername) {
+      reject(new Error('User cannot follow itself'));
+      return;
+    }
+
+    db.query(
+      'INSERT INTO follow (follower, follows) VALUES (?, ?);',
+      [username, targetUsername],
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
 
   /**
    * Set one user as following another.
-   * @param userId The ID of the 'follower'.
-   * @param targetId The ID of the person being 'followed'.
+   * @param username The ID of the 'follower'.
+   * @param targetUsername The ID of the person being 'followed'.
    */
-  unfollow: (userId, targetId) => {
-    console.error('TODO function `unfollow` called with:', userId, targetId);
-    throw new Error('TODO');
-  },
+  unfollow: (username, targetUsername) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided for follower'));
+      return;
+    }
+
+    if (targetUsername === undefined) {
+      reject(new Error('Invalid username provided for followee'));
+      return;
+    }
+
+    db.query(
+      'DELETE FROM follow WHERE follower = ? AND follows = ?;',
+      [username, targetUsername],
+      (err, result) => {
+        if (err) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
 
   /**
    * Look up a single user according to their username and return all of their details.

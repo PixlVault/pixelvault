@@ -1,0 +1,12 @@
+
+POST http://localhost:3000/api/user/following
+Content-Type: application/json
+Authorization: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJlbWFpbCI6ImVtYWlsQGVtYWlsLmNvbSIsImJpb2dyYXBoeSI6bnVsbCwiZXhwZXJpZW5jZSI6MCwiaXNfdmVyaWZpZWQiOjAsImlzX2Jhbm5lZCI6MCwiaXNfYWRtaW4iOjAsInR3aXR0ZXIiOm51bGwsImluc3RhZ3JhbSI6bnVsbCwidGlrdG9rIjpudWxsLCJ5b3V0dWJlIjpudWxsLCJpYXQiOjE3MTA5NTQ0OTV9.Pu9_HVt8Twqk07IaQ2DhylsqnIqq8GV7ssKKxLDQMnU
+
+{
+    "followee": "otherUser"
+}
+
+###
+
+GET http://localhost:3000/api/user/user/following

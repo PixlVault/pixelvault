@@ -8,6 +8,7 @@ const api = supertest(app);
 
 beforeAll(async () => {
   db.query('DELETE FROM project;');
+  db.query('DELETE FROM follow;');
   db.query('DELETE FROM user;');
 });
 
@@ -21,6 +22,10 @@ describe('Users can be created', () => {
       .post('/api/user')
       .send({ username: 'user', password: 'password', email: 'email@email.com' });
     expect(res.statusCode).toBe(201);
+
+    await api
+      .post('/api/user')
+      .send({ username: 'otherUser', password: 'password', email: 'anotheremail@email.com' });
 
     // User is now present in database:
     expect((await api.get('/api/user/user')).statusCode).toBe(200);
@@ -63,16 +68,6 @@ describe('Users can be retrieved by their username', () => {
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ error: 'User does not exist' });
   });
-});
-
-describe('Users can follow each other', () => {
-  test.todo('Can retrieve a user\'s followers');
-  test.todo('A valid user can follow another');
-  test.todo('A valid user can unfollow another');
-  test.todo('Invalid user is rejected');
-  test.todo('Cannot change following status without authorisation');
-  test.todo('Cannot unfollow someone they are not following');
-  test.todo('Cannot follow a user which does not exist');
 });
 
 // TODO for some reason the API seems to be staying open??

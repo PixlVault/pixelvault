@@ -27,9 +27,9 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.get('/following', async (req, res) => {
+router.get('/:username/following', async (req, res) => {
   try {
-    const following = await User.getFollowing(req.token.username);
+    const following = await User.getFollowing(req.params.username);
     return res.status(200).json(following);
   } catch (err) {
     console.error(err);
@@ -37,25 +37,40 @@ router.get('/following', async (req, res) => {
   }
 });
 
-router.post('/following/:username', async (req, res) => {
-  if (!req.token) { return res.status(401).json({ error: 'Not logged in' }); }
+router.post('/:username/following', async (req, res) => {
+  if (!req.token) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  if (req.token.username !== req.params.username) {
+    return res.status(401).json({ error: 'Cannot alter another user\'s followed accounts' });
+  }
+
+  const { followee } = req.body;
   try {
-    await User.follow(req.token.username, req.params.username);
+    await User.follow(req.params.username, followee);
     return res.status(201).send();
-  } catch (err) {
-    console.error(err);
-    return res.status(400).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 
-router.delete('/following/:username', async (req, res) => {
-  if (!req.token) { return res.status(401).json({ error: 'Not logged in' }); }
+router.delete('/:username/following', async (req, res) => {
+  if (!req.token) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  if (req.token.username !== req.params.username) {
+    return res.status(401).json({ error: 'Cannot alter another user\'s followed accounts' });
+  }
+
   try {
     await User.unfollow(req.token.username, req.params.username);
     return res.status(201).send();
-  } catch (err) {
-    console.error(err);
-    return res.status(400).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 
