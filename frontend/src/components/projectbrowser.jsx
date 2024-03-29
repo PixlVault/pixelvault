@@ -19,21 +19,21 @@ const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) =>
     setCurrentProject(project);
     closeProjectBrowser();
   };
-  
+
   return (
     <div id="overlay">
       <div align="right">
         <span id="close" onClick={closeProjectBrowser}>Close</span>
       </div>
       <h2>{username}'s Projects</h2>
-      {projects != null 
-        ? projects.map(x => 
-          <Link 
-            onClick={() => setProject(x)} 
+      {projects != null
+        ? projects.map(x =>
+          <Link
+            onClick={() => setProject(x)}
             to={`../edit/${x.project_id}`}
             key={x.project_id}>
               {x.title} ({x.created_on})
-          </Link>) 
+          </Link>)
         : <p></p>
       }
     </div>

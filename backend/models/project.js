@@ -74,16 +74,16 @@ const Project = {
       reject(new Error('No project title provided'));
       return;
     }
+
     if (author === undefined) {
       reject(new Error('No project author provided'));
       return;
     }
+
     if (imageData === undefined) {
       reject(new Error('No image data provided'));
       return;
     }
-
-    console.log(imageData, typeof imageData);
 
     const id = uuid();
     db.query(

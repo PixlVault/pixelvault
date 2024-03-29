@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import useWebSocket from 'react-use-websocket';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
@@ -59,23 +59,25 @@ const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
   };
 }
 
-const saveProject = (contextRef) => {
+const saveProject = async (contextRef, navigate) => {
   const title = prompt('Please enter a project title');
   if (title !== undefined && title !== '') {
     try {
-      createNewProject(
+      const response = await createNewProject(
         title,
         Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data)
       );
-    } catch (err) {
-      console.error(err);
-    }
+      if (response.projectId !== undefined) {
+        navigate(`${response.projectId}`);
+      }
+    } catch (err) { console.error(err); }
   }
 }
 
 const OfflineCanvasContainer = ({ colour }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => initialiseCanvas(canvasRef, contextRef, null), []);
 
@@ -88,7 +90,7 @@ const OfflineCanvasContainer = ({ colour }) => {
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
     />
-    <button onClick={() => saveProject(contextRef)}>Save as Project</button>
+    <button onClick={() => saveProject(contextRef, navigate)}>Save as Project</button>
   </>;
 }
 

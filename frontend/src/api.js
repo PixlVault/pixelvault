@@ -22,7 +22,6 @@ export const createNewProject = async (title, canvasState) => {
   // This should be refactored to use the generic request format again.
 
   const body = { title, imageData: canvasState };
-  console.log('b', body);
 
   let response = await fetch(urlBase + "/project/", {
     method: 'post',
