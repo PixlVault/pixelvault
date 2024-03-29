@@ -7,8 +7,7 @@ import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
 import { createNewProject, fetchProjectById } from '../api';
 
-const CANVAS_SIZE = 32;
-const SCALE_FACTOR = 20;
+const CANVAS_SIZE = 256;
 const backgroundColor = "#FFFFFF";
 
 const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
@@ -37,8 +36,8 @@ const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
   const preventDefault = (e) => e.preventDefault();
   canvas.addEventListener("contextmenu", preventDefault);
 
-  canvas.style.width = `${CANVAS_SIZE * SCALE_FACTOR}px`;
-  canvas.style.height = `${CANVAS_SIZE * SCALE_FACTOR}px`;
+  canvas.style.width = `66vw`;
+  canvas.style.height = `66vh`;
   canvas.style.imageRendering = "pixelated";
 
   const context = canvas.getContext("2d");
@@ -79,7 +78,6 @@ const OfflineCanvasContainer = ({ colour }) => {
       sendMessage={() => { }}
       width={CANVAS_SIZE}
       height={CANVAS_SIZE}
-      scaleFactor={SCALE_FACTOR}
     />
     <button onClick={() => saveProject(contextRef)}>Save as Project</button>
   </>;
@@ -119,7 +117,6 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
     sendMessage={sendMessage}
     width={CANVAS_SIZE}
     height={CANVAS_SIZE}
-    scaleFactor={SCALE_FACTOR}
   />;
 }
 
@@ -128,7 +125,6 @@ const Editor = ({ user }) => {
   const [currentProject, setCurrentProject] = useState(null);
   const [colour, setColour] = useState([150, 160, 170, 255]);
   const { projectId } = useParams();
-
 
   // Conditionally opening a websocket connection is apparently non-idiomatic
   // so instead we conditionally render a canvas container, one of which does
