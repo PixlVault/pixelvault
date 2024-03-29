@@ -1,4 +1,4 @@
-const urlBase = "http://localhost:3000";
+const urlBase = "http://localhost:3000/api";
 
 export const login = async (username, password) => {
   const response = await makeRequest(urlBase + "/login", "post", {username: username, password: password}, null);
@@ -20,7 +20,7 @@ export const createNewProject = async (title, canvasState) => {
 
   // TODO: This was rewritten to try and resolve another bug;
   // This should be refactored to use the generic request format again.
-  
+
   const body = { title, imageData: canvasState };
   console.log('b', body);
 
@@ -36,7 +36,7 @@ export const createNewProject = async (title, canvasState) => {
   if (response.ok) {
     return response.json();
   } else {
-    console.error("Request failed: " + response.status); 
+    console.error("Request failed: " + response.status);
     return null;
   }
 }
@@ -57,7 +57,7 @@ export const trySaveProject = async (projectId, canvasState) => {
 export const fetchProjectsCreatedBy = (username) => {
   let response = makeRequest(urlBase + "/project/createdBy/" + username, "get", null);
   if (response == null) {
-   console.error("Fetch projects created by failed."); 
+   console.error("Fetch projects created by failed.");
   }
 
   return response;
@@ -66,7 +66,7 @@ export const fetchProjectsCreatedBy = (username) => {
 export const fetchProjectById = (projectId) => {
   let response = makeRequest(urlBase + "/project/" + projectId, "get", null);
   if (response == null) {
-   console.error('Fetch project by ID failed.'); 
+   console.error('Fetch project by ID failed.');
   }
 
   return response;
@@ -74,7 +74,7 @@ export const fetchProjectById = (projectId) => {
 
 const makeRequest = async (url, method, body) => {
   const authToken = localStorage.getItem('auth');
-  
+
   let response = await fetch(url, {
     method: method,
     headers: {
@@ -85,10 +85,9 @@ const makeRequest = async (url, method, body) => {
   });
 
   if (response.ok) {
-    return response.json(); 
+    return response.json();
   } else {
-    console.error("Request failed: " + response.status); 
+    console.error("Request failed: " + response.status);
     return null;
   }
 }
-

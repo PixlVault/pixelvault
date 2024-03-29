@@ -19,7 +19,7 @@ beforeAll(async () => {
   db.query('DELETE FROM project;');
 
   const res = await api
-    .post('/login')
+    .post('/api/login')
     .send({ username: 'user', password: 'password' });
 
   authToken = `token ${res.body.token}`;
@@ -29,7 +29,7 @@ describe('Projects can be created', () => {
   test('Valid project is created', async () => {
     // POST the project to the API:
     const res = await api
-      .post('/project')
+      .post('/api/project')
       .set('Authorization', authToken)
       .send({ title: 'For lack of a better name', imageData: [] });
 
@@ -38,13 +38,13 @@ describe('Projects can be created', () => {
 
     // Project is now present in database:
     expect(
-      (await api.get(`/project/${newProjectId}`).set('Authorization', authToken)).statusCode,
+      (await api.get(`/api/project/${newProjectId}`).set('Authorization', authToken)).statusCode,
     ).toBe(200);
   });
 
   test('Missing project title gets rejected', async () => {
     const res = await api
-      .post('/project')
+      .post('/api/project')
       .set('Authorization', authToken)
       .send({ });
 
@@ -54,7 +54,7 @@ describe('Projects can be created', () => {
 
   test('Logged out users cannot create a project.', async () => {
     const res = await api
-      .post('/project')
+      .post('/api/project')
       .send({ title: 'For lack of a better name' });
 
     expect(res.statusCode).toBe(401);
@@ -64,7 +64,7 @@ describe('Projects can be created', () => {
 describe('Project details can be retrieved via their Project ID', () => {
   test('Valid ID', async () => {
     const res = await api
-      .get(`/project/${newProjectId}`)
+      .get(`/api/project/${newProjectId}`)
       .set('Authorization', authToken);
 
     expect(res.statusCode).toBe(200);
@@ -77,7 +77,7 @@ describe('Project details can be retrieved via their Project ID', () => {
 
   test('Invalid ID Format is rejected', async () => {
     const res = await api
-      .get('/project/12345')
+      .get('/api/project/12345')
       .set('Authorization', authToken);
 
     expect(res.statusCode).toBe(400);
@@ -86,7 +86,7 @@ describe('Project details can be retrieved via their Project ID', () => {
 
   test('Non-existent project', async () => {
     const res = await api
-      .get('/project/f5dc7fc0-e7a6-11ee-901d-49e4cea720ab')
+      .get('/api/project/f5dc7fc0-e7a6-11ee-901d-49e4cea720ab')
       .set('Authorization', authToken);
 
     expect(res.statusCode).toBe(404);
@@ -97,14 +97,14 @@ describe('Project details can be retrieved via their Project ID', () => {
 describe('Projects can be updated', () => {
   test('Project Title can be updated', async () => {
     let res = await api
-      .put(`/project/${newProjectId}`)
+      .put(`/api/project/${newProjectId}`)
       .set('Authorization', authToken)
       .send({ projectData: { title: 'New Title!' } });
 
     expect(res.statusCode).toBe(200);
 
     res = await api
-      .get(`/project/${newProjectId}`)
+      .get(`/api/project/${newProjectId}`)
       .set('Authorization', authToken);
 
     expect(res.body.title).toBe('New Title!');
@@ -112,13 +112,13 @@ describe('Projects can be updated', () => {
 
   test('Unauthorised user cannot update a project\'s details', async () => {
     let res = await api
-      .put(`/project/${newProjectId}`)
+      .put(`/api/project/${newProjectId}`)
       .send({ projectData: { title: 'Some other title :(' } });
 
     expect(res.statusCode).toBe(401);
 
     res = await api
-      .get(`/project/${newProjectId}`)
+      .get(`/api/project/${newProjectId}`)
       .set('Authorization', authToken);
 
     expect(res.body.title).toBe('New Title!');
@@ -132,7 +132,7 @@ describe('Projects can be deleted', () => {
 
   test('Valid deletion request', async () => {
     const res = await api
-      .delete(`/project/${newProjectId}`)
+      .delete(`/api/project/${newProjectId}`)
       .set('Authorization', authToken);
 
     expect(res.statusCode).toBe(204);
@@ -140,7 +140,7 @@ describe('Projects can be deleted', () => {
 
   test('Non-existent project cannot be deleted', async () => {
     const res = await api
-      .delete('/project/f5dc7fc0-e7a6-11ee-901d-49e4cea720ab')
+      .delete('/api/project/f5dc7fc0-e7a6-11ee-901d-49e4cea720ab')
       .set('Authorization', authToken);
 
     expect(res.statusCode).toBe(404);
@@ -149,7 +149,7 @@ describe('Projects can be deleted', () => {
 
   test('Invalid UUID is rejected', async () => {
     const res = await api
-      .delete('/project/f5dc7fc0-e7a6-11ee-901d-49e4cea720abX')
+      .delete('/api/project/f5dc7fc0-e7a6-11ee-901d-49e4cea720abX')
       .set('Authorization', authToken);
 
     expect(res.statusCode).toBe(400);

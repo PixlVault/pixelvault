@@ -14,21 +14,21 @@ beforeAll(async () => {
 describe('Users can be created', () => {
   test('Valid user is inserted', async () => {
     // User doesn't already exist:
-    expect((await api.get('/user/user')).statusCode).toBe(404);
+    expect((await api.get('/api/user/user')).statusCode).toBe(404);
 
     // POST the user to the API:
     const res = await api
-      .post('/user')
+      .post('/api/user')
       .send({ username: 'user', password: 'password', email: 'email@email.com' });
     expect(res.statusCode).toBe(201);
 
     // User is now present in database:
-    expect((await api.get('/user/user')).statusCode).toBe(200);
+    expect((await api.get('/api/user/user')).statusCode).toBe(200);
   });
 
   test('Missing usernames are rejected', async () => {
     const res = await api
-      .post('/user')
+      .post('/api/user')
       .send({ password: 'password' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'No username provided' });
@@ -36,7 +36,7 @@ describe('Users can be created', () => {
 
   test('Missing passwords are rejected', async () => {
     const res = await api
-      .post('/user')
+      .post('/api/user')
       .send({ username: 'user' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'No password provided' });
@@ -45,7 +45,7 @@ describe('Users can be created', () => {
 
 describe('Users can be retrieved by their username', () => {
   test('Valid ID', async () => {
-    const res = await api.get('/user/user');
+    const res = await api.get('/api/user/user');
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({
       username: 'user',
@@ -59,7 +59,7 @@ describe('Users can be retrieved by their username', () => {
   });
 
   test('Invalid ID', async () => {
-    const res = await api.get('/user/non-existent');
+    const res = await api.get('/api/user/non-existent');
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ error: 'User does not exist' });
   });

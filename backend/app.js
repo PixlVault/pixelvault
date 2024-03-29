@@ -3,9 +3,7 @@ const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const userRouter = require('./controllers/user');
-const loginRouter = require('./controllers/login');
-const projectRouter = require('./controllers/project');
+const apiRouter = require('./controllers/api');
 
 const app = express();
 
@@ -32,14 +30,10 @@ app.use(bodyParser.json());
 // Needed to prevent CORS errors when developing.
 app.use(cors());
 
-app.get('/', (req, res) => {
-  // QUESTION: At some point should this return the React Frontend?
-  res.send('Hello World!');
-});
+// QUESTION: At some point should this return the React Frontend?
+app.get('/', (_req, res) => res.send('Hello World!'));
 
-app.use('/user', userRouter);
-app.use('/login', loginRouter);
-app.use('/project', projectRouter);
+app.use('/api', apiRouter);
 
 app.use((err, req, res, next) => {
   console.error(err);

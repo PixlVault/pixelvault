@@ -10,7 +10,7 @@ beforeAll(async () => {
   db.query('DELETE FROM project;');
   db.query('DELETE FROM user;');
 
-  await api.post('/user').send({
+  await api.post('/api/user').send({
     username: 'user', password: 'password', email: 'email@email.com',
   });
 });
@@ -18,7 +18,7 @@ beforeAll(async () => {
 describe('Users can log in', () => {
   test('Valid credentials accepted.', async () => {
     const res = await api
-      .post('/login')
+      .post('/api/login')
       .send({ username: 'user', password: 'password' });
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('token');
@@ -26,7 +26,7 @@ describe('Users can log in', () => {
 
   test('Incorrect password is rejected.', async () => {
     const res = await api
-      .post('/login')
+      .post('/api/login')
       .send({ username: 'user', password: 'wrongPassword' });
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual({ error: 'Invalid username or password provided' });
@@ -34,7 +34,7 @@ describe('Users can log in', () => {
 
   test('Missing username is rejected.', async () => {
     const res = await api
-      .post('/login')
+      .post('/api/login')
       .send({ password: 'password' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'No username provided' });
@@ -42,7 +42,7 @@ describe('Users can log in', () => {
 
   test('Missing password is rejected.', async () => {
     const res = await api
-      .post('/login')
+      .post('/api/login')
       .send({ username: 'user' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'No password provided' });
@@ -50,7 +50,7 @@ describe('Users can log in', () => {
 
   test('Non-existent user cannot sign in.', async () => {
     const res = await api
-      .post('/login')
+      .post('/api/login')
       .send({ username: 'doesnotexist', password: 'password' });
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual({ error: 'Invalid username or password provided' });
