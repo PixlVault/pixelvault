@@ -144,8 +144,8 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       sendMessage={sendMessage}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
-    />;
-  </>
+    />
+  </>;
 }
 
 const Editor = ({ user }) => {
@@ -153,19 +153,14 @@ const Editor = ({ user }) => {
   const [currentProject, setCurrentProject] = useState(null);
   const [colour, setColour] = useState([150, 160, 170, 255]);
   const { projectId } = useParams();
+  const navigate = useNavigate();
 
   // Conditionally opening a websocket connection is apparently non-idiomatic
   // so instead we conditionally render a canvas container, one of which does
   // open a connection.
   //
-  // TODO: Presently, logging in re-initialises and clears the canvas,
-  //       losing the user's work without any sort of prompt.
-  //       This needs to be fixed.
-  //
   // TODO: This is a bit of a messy way to do a lo of conditional rendering.
   //       Is there a better solution here?
-  //
-  // TODO: Redirect users after creating a new project.
   return <>
     {
       user !== null && projectId !== undefined
@@ -174,23 +169,26 @@ const Editor = ({ user }) => {
             <h3>{currentProject !== null ? currentProject.title + ' - ' + currentProject.created_on : ''}</h3>
           </div>
           <OnlineCanvasContainer colour={colour} setCurrentProject={setCurrentProject} />
-          </>
+          <button onClick={() => navigate('../edit/')} >Close</button>
+        </>
         : <>
           <div align="center">
             <h3>Untitled - Please Sign In to Open a Project</h3>
           </div>
           <OfflineCanvasContainer colour={colour} />
-          </>
+        </>
     }
     {
       user !== null && isProjectBrowserOpen
-        ? <ProjectBrowser
-          username={user}
-          onClose={() => setIsProjectBrowserOpen(false)}
-          setCurrentProject={setCurrentProject}
-          closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
-        />
-        : <></>
+        ? <>
+          <ProjectBrowser
+            username={user}
+            onClose={() => setIsProjectBrowserOpen(false)}
+            setCurrentProject={setCurrentProject}
+            closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
+          />
+        </>
+        : null
     }
     <ColourPicker colour={colour} setColour={setColour} />
     {
