@@ -7,7 +7,8 @@ import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
 import { createNewProject, fetchProjectById } from '../api';
 
-const CANVAS_SIZE = 256;
+const CANVAS_WIDTH = 256;
+const CANVAS_HEIGHT = 256;
 const backgroundColor = "#FFFFFF";
 
 const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
@@ -19,7 +20,7 @@ const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
   };
 
   const setCanvasData = d => {
-    let imageData = contextRef.current.createImageData(CANVAS_SIZE, CANVAS_SIZE);
+    let imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
     for (let i = 0; i < d.length; i++) {
       imageData.data[i] = d[i];
     }
@@ -28,16 +29,24 @@ const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
   }
 
   const canvas = canvasRef.current;
-  canvas.width = CANVAS_SIZE;
-  canvas.height = CANVAS_SIZE;
+  canvas.width = CANVAS_WIDTH;
+  canvas.height = CANVAS_HEIGHT;
   canvas.style.background = backgroundColor;
 
   // Stop right-click menu from appearing when interacting with the canvas:
   const preventDefault = (e) => e.preventDefault();
   canvas.addEventListener("contextmenu", preventDefault);
 
-  canvas.style.width = `66vw`;
-  canvas.style.height = `66vh`;
+  // The canvasProportion determines the percentage of the viewport that the canvas
+  // will always occupy. The canvas width is set to this percentage directly. The height
+  // is set to the width multiplied by a factor that ensures the aspect ratio is maintained.
+  const canvasProportion = 33;
+  const aspectRatio = CANVAS_HEIGHT / CANVAS_WIDTH;
+  const width = canvasProportion;
+  const height = width * aspectRatio;
+  canvas.style.width = width + 'vw';
+  canvas.style.height = height + 'vw';
+
   canvas.style.imageRendering = "pixelated";
 
   const context = canvas.getContext("2d");
@@ -56,7 +65,7 @@ const saveProject = (contextRef) => {
     try {
       createNewProject(
         title,
-        Array.from(contextRef.current.getImageData(0, 0, CANVAS_SIZE, CANVAS_SIZE).data)
+        Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data)
       );
     } catch (err) {
       console.error(err);
@@ -68,7 +77,7 @@ const OfflineCanvasContainer = ({ colour }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
 
-  useEffect(() => initialiseCanvas(canvasRef, contextRef, null));
+  useEffect(() => initialiseCanvas(canvasRef, contextRef, null), []);
 
   return <>
     <Canvas
@@ -76,8 +85,8 @@ const OfflineCanvasContainer = ({ colour }) => {
       canvasRef={canvasRef}
       contextRef={contextRef}
       sendMessage={() => { }}
-      width={CANVAS_SIZE}
-      height={CANVAS_SIZE}
+      width={CANVAS_WIDTH}
+      height={CANVAS_HEIGHT}
     />
     <button onClick={() => saveProject(contextRef)}>Save as Project</button>
   </>;
@@ -115,8 +124,8 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
     canvasRef={canvasRef}
     contextRef={contextRef}
     sendMessage={sendMessage}
-    width={CANVAS_SIZE}
-    height={CANVAS_SIZE}
+    width={CANVAS_WIDTH}
+    height={CANVAS_HEIGHT}
   />;
 }
 
