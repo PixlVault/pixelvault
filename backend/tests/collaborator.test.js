@@ -94,7 +94,7 @@ describe('Invitations cannot be sent', () => {
 
 describe('Invitations can be retrieved', () => {
   test.todo('for a given project');
-  test.todo('only if a project ID is specified');
+  test.todo('for a given user');
 });
 
 describe('Invitations can', () => {
