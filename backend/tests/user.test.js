@@ -46,6 +46,22 @@ describe('Users can be created', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'No password provided' });
   });
+
+  test('Non-unique emails are rejected', async () => {
+    const res = await api
+      .post('/api/user')
+      .send({ username: 'uniqueUser', password: 'password', email: 'email@email.com' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Email is already associated with an account' });
+  });
+
+  test('Usernames cannot be duplicated', async () => {
+    const res = await api
+      .post('/api/user')
+      .send({ username: 'user', password: 'password', email: 'uniqueemail@email.com' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'User already exists' });
+  });
 });
 
 describe('Users can be retrieved by their username', () => {

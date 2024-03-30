@@ -22,8 +22,17 @@ router.post('/', async (req, res) => {
     await User.insert(username, password, email);
     return res.status(201).send();
   } catch (error) {
-    console.error(error);
-    return res.status(400).json({ error: error.message });
+    if (error.code === 'ER_DUP_ENTRY') {
+      if (error.sqlMessage.endsWith("'user.PRIMARY'")) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+      if (error.sqlMessage.endsWith("'user.email'")) {
+        return res.status(400).json({ error: 'Email is already associated with an account' });
+      }
+    } else {
+      console.error(error);
+      return res.status(400).json({ error: error.message });
+    }
   }
 });
 

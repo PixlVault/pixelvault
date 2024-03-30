@@ -27,7 +27,7 @@ const Project = {
    * Look up the collaborators of a project according to its project_id.
    * @param {*} projectId The ID of the project.
    */
-  getCollaborators: (projectId) => new Promise((resolve, reject) => {
+  collaborators: (projectId) => new Promise((resolve, reject) => {
     if (!isValidUuid(projectId)) {
       reject(new Error('Invalid Project ID provided'));
       return;
@@ -36,7 +36,7 @@ const Project = {
     db.query(
       `SELECT created_by AS username FROM project WHERE project_id = UUID_TO_BIN(?, TRUE)
        UNION
-       SELECT username FROM project_invite WHERE project_id = UUID_TO_BIN(?, TRUE) AND status = 'accepted';`,
+       SELECT username FROM project_invite WHERE project_id = UUID_TO_BIN(?, TRUE) AND accepted = TRUE;`,
       [projectId, projectId],
       (err, result) => {
         if (err !== null) reject(err);
@@ -88,7 +88,7 @@ const Project = {
     const id = uuid();
     db.query(
       'INSERT INTO project (project_id, title, created_by, image_data) VALUES (UUID_TO_BIN(?, TRUE), ?, ?, ?);',
-      [id, title, author, Buffer.from(imageData)],
+      [id, title, author, imageData === null ? null : Buffer.from(imageData)],
       (err) => {
         if (err !== null) reject(err);
         else resolve({ project_id: id });
@@ -107,7 +107,7 @@ const Project = {
     }
 
     db.query(
-      'DELETE FROM project WHERE project_id = ?;',
+      'DELETE FROM project WHERE project_id = UUID_TO_BIN(?, TRUE);',
       [projectId],
       (err, result) => {
         if (err !== null) reject(err);
@@ -137,10 +137,10 @@ const Project = {
   }),
 
   /**
-    * Overwrites the raw image data for a project.
-    * @param {*} projectId The ID of the project to update.
-    * @param {*} imageData Binary representing the new image state.
-    */
+   * Overwrites the raw image data for a project.
+   * @param {*} projectId The ID of the project to update.
+   * @param {*} imageData Binary representing the new image state.
+   */
   setImageData: (projectId, imageData) => new Promise((resolve, reject) => {
     if (!isValidUuid(projectId)) {
       reject(new Error('Invalid UUID provided'));
@@ -197,6 +197,120 @@ const Project = {
       else resolve(result);
     });
   }),
+
+  /**
+   * Retrieve all invitations associated with a project.
+   * @param projectId The ID of the project.
+   */
+  invitations: (projectId) => new Promise((resolve, reject) => {
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid project ID provided'));
+      return;
+    }
+
+    db.query(
+      'SELECT * FROM project_invite WHERE project_id = UUID_TO_BIN(?, TRUE);',
+      [projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
+
+  /**
+   Invite a user to an existing project.
+   @param username The username of the user to invite.
+   @param projectId The ID of the project they will be invited to.
+   */
+  invite: (username, projectId) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Username must be provided'));
+      return;
+    }
+
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid project ID provided'));
+      return;
+    }
+
+    db.query(
+      'INSERT INTO project_invite (username, project_id) VALUES (?, UUID_TO_BIN(?, TRUE));',
+      [username, projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
+
+  /**
+   Revoke a user's invitation - or access - to a project.
+   @param username The username of the user to invite.
+   @param projectId The ID of the project they will be removed from.
+   */
+  uninvite: (username, projectId) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Username must be provided'));
+      return;
+    }
+
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid project ID provided'));
+      return;
+    }
+
+    db.query(
+      'DELETE FROM project_invite WHERE username = ? AND project_id = UUID_TO_BIN(?, TRUE);',
+      [username, projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
+
+  /**
+   Accept an invitation to a project.
+   @param username The username of the user.
+   @param projectId The ID of the project they wish to join.
+   */
+  accept: (username, projectId) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Username must be provided'));
+      return;
+    }
+
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid project ID provided'));
+      return;
+    }
+
+    db.query(
+      `UPDATE project_invite
+       SET accepted = TRUE, last_modified=CURRENT_TIMESTAMP()
+       WHERE username = ? AND project_id = UUID_TO_BIN(?, TRUE);`,
+      [username, projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
+
+  /**
+   Decline an invitation to a project.
+   @param username The username of the user.
+   @param projectId The ID of the project they do not wish to join.
+   */
+  decline: this.uninvite,
+
+  /**
+   Leaves a project.
+   @param username The username of the user.
+   @param projectId The ID of the project they do not wish to join.
+   */
+  leave: this.uninvite,
 };
 
 module.exports = Project;

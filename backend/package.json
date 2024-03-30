@@ -6,7 +6,7 @@
   "proxy": "http://localhost:3000",
   "scripts": {
     "dev": "node index.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand --coverage"
   },
   "type": "commonjs",
   "author": "",

@@ -1,6 +1,7 @@
 const express = require('express');
 
 const Project = require('../models/project');
+const collaborationRouter = require('./collaborator');
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ router.get('/createdBy/:username', async (req, res) => {
 
 router.put('/:projectId', async (req, res) => {
   if (!req.token) {
-    return res.status(401).json({ error: 'Not logged in' });
+    return res.status(401).json({ error: 'Must be logged in' });
   }
 
   // First, check the project exists:
@@ -65,7 +66,7 @@ router.put('/:projectId', async (req, res) => {
 
 router.delete('/:projectId', async (req, res) => {
   if (!req.token) {
-    return res.status(401).json({ error: 'Not logged in' });
+    return res.status(401).json({ error: 'Must be logged in' });
   }
 
   try {
@@ -89,7 +90,7 @@ router.delete('/:projectId', async (req, res) => {
 
 router.post('/', async (req, res) => {
   if (!req.token) {
-    return res.status(401).json({ error: 'Not logged in' });
+    return res.status(401).json({ error: 'Must be logged in' });
   }
 
   const { title, imageData } = req.body;
@@ -101,5 +102,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+
+router.use('/:projectId/collaborator', collaborationRouter);
 
 module.exports = router;
