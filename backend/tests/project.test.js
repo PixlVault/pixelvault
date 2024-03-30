@@ -16,6 +16,9 @@ let authToken;
 let newProjectId;
 
 beforeAll(async () => {
+  // TODO - This isn't fully independent of other test suites
+  // We should add deletion queries and explicitly set up the db state
+  // these tests presume to have.
   db.query('DELETE FROM project;');
 
   const res = await api
