@@ -1,17 +1,32 @@
 const express = require('express');
 
+const Collaboration = require('../models/collaboration');
 const Project = require('../models/project');
 
-const router = express.Router({ mergeParams: true });
+const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const { projectId } = req.params;
-  if (projectId === undefined) {
-    return res.status(400).json({ error: 'Must provide a Project ID' });
+  const { projectId, username } = req.params;
+
+  const hasProjId = projectId !== undefined;
+  const hasUsername = username !== undefined;
+
+  if (!hasProjId && !hasUsername) {
+    return res.status(400).json({ error: 'Must provide either a username or Project ID' });
   }
 
+  if (hasProjId && hasUsername) {
+    return res.status(400).json(
+      { error: 'Ambiguous request - must provide exactly one of a username or Project ID' },
+    );
+  }
+
+  const getInvitations = hasUsername
+    ? () => Collaboration.userInvitations(username)
+    : () => Collaboration.projectInvitations(projectId);
+
   try {
-    const invites = await Project.invitations(projectId);
+    const invites = await getInvitations();
     return res.status(200).json({ invites });
   } catch (error) {
     console.error(error);
@@ -24,12 +39,10 @@ router.post('/', async (req, res) => {
     return res.status(401).json({ error: 'Must be logged in' });
   }
 
-  const { projectId } = req.params;
+  const { username, projectId } = req.body;
   if (projectId === undefined) {
     return res.status(400).json({ error: 'Must provide a Project ID' });
   }
-
-  const { username } = req.body;
   if (username === undefined) {
     return res.status(400).json({ error: 'Must provide a username' });
   }
@@ -44,7 +57,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Cannot invite a user to a project they own' });
     }
 
-    await Project.invite(username, projectId);
+    await Collaboration.invite(username, projectId);
     return res.status(200);
   } catch (error) {
     if (error.code === 'ER_NO_REFERENCED_ROW_2' && error.sqlMessage.endsWith('`user` (`username`))')) {
@@ -80,7 +93,7 @@ router.put('/', async (req, res) => {
   }
 
   try {
-    const result = await Project.accept(req.token.username, req.params.project);
+    const result = await Collaboration.accept(req.token.username, req.params.project);
     console.log(result);
 
     return res.status(200).send();
@@ -123,7 +136,7 @@ router.delete('/', async (req, res) => {
       return res.status(400).json({ error: 'Cannot remove a project\'s author' });
     }
 
-    await Project.uninvite(projectId);
+    await Collaboration.uninvite(projectId);
     return res.status(204).send();
   } catch (error) {
     console.error(error);

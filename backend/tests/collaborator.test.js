@@ -40,28 +40,34 @@ beforeAll(async () => {
 describe('Invitations cannot be sent', () => {
   test('without logging in', async () => {
     const res = await api
-      .post(`/api/project/${projects[0]}/collaborator`)
-      .send({ username: 'recipient' });
-
-    console.log(res.body);
-
+      .post('/api/collaboration')
+      .send({ username: 'recipient', projectId: projects[0] });
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual({ error: 'Must be logged in' });
   });
 
   test('without specifying a user', async () => {
     const res = await api
-      .post(`/api/project/${projects[0]}/collaborator`)
-      .send({ })
+      .post('/api/collaboration')
+      .send({ projectId: projects[0] })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'Must provide a username' });
   });
 
+  test('without specifying a project', async () => {
+    const res = await api
+      .post('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Must provide a Project ID' });
+  });
+
   test('to a non-existent user', async () => {
     const res = await api
-      .post(`/api/project/${projects[0]}/collaborator`)
-      .send({ username: 'nonExistent' })
+      .post('/api/collaboration')
+      .send({ username: 'nonExistent', projectId: projects[0] })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ error: 'User could not be found' });
@@ -69,8 +75,8 @@ describe('Invitations cannot be sent', () => {
 
   test('to a project\'s owner', async () => {
     const res = await api
-      .post(`/api/project/${projects[0]}/collaborator`)
-      .send({ username: 'creator' })
+      .post('/api/collaboration')
+      .send({ username: 'creator', projectId: projects[0] })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'Cannot invite a user to a project they own' });
@@ -78,8 +84,8 @@ describe('Invitations cannot be sent', () => {
 
   test('by non-owners of a project', async () => {
     const res = await api
-      .post(`/api/project/${projects[0]}/collaborator`)
-      .send({ username: 'otherUser' })
+      .post('/api/collaboration')
+      .send({ username: 'otherUser', projectId: projects[0] })
       .set('Authorization', tokens.recipient);
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual({ error: 'Only a project\'s author can invite users' });

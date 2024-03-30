@@ -1,7 +1,6 @@
 const express = require('express');
 
 const Project = require('../models/project');
-const collaborationRouter = require('./collaborator');
 
 const router = express.Router();
 
@@ -102,7 +101,5 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
-
-router.use('/:projectId/collaborator', collaborationRouter);
 
 module.exports = router;
