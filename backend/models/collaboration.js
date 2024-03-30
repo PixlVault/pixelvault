@@ -14,11 +14,11 @@ const Collaboration = {
     }
 
     db.query(
-      'SELECT * FROM project_invite WHERE project_id = UUID_TO_BIN(?, TRUE);',
+      'SELECT *, accepted = 1 AS accepted, BIN_TO_UUID(project_id, TRUE) AS project_id FROM project_invite WHERE project_id = UUID_TO_BIN(?, TRUE);',
       [projectId],
       (err, result) => {
         if (err !== null) reject(err);
-        else resolve(result);
+        else resolve(result.map((r) => JSON.parse(JSON.stringify(r))));
       },
     );
   }),
@@ -34,7 +34,7 @@ const Collaboration = {
     }
 
     db.query(
-      'SELECT * FROM project_invite WHERE username = UUID_TO_BIN(?, TRUE);',
+      'SELECT *, accepted = 1 AS accepted, BIN_TO_UUID(project_id, TRUE) as project_id FROM project_invite WHERE username = ?;',
       [username],
       (err, result) => {
         if (err !== null) reject(err);
@@ -113,7 +113,7 @@ const Collaboration = {
 
     db.query(
       `UPDATE project_invite
-       SET accepted = TRUE, last_modified=CURRENT_TIMESTAMP()
+       SET accepted = 1, last_modified=CURRENT_TIMESTAMP()
        WHERE username = ? AND project_id = UUID_TO_BIN(?, TRUE);`,
       [username, projectId],
       (err, result) => {

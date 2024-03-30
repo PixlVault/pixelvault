@@ -92,17 +92,69 @@ describe('Invitations cannot be sent', () => {
   });
 });
 
-describe('Invitations can be retrieved', () => {
-  test.todo('for a given project');
-  test.todo('for a given user');
-});
-
 describe('Invitations can', () => {
-  test.todo('be sent to a valid user');
+  test('be sent to a valid user', async () => {
+    const res = await api
+      .post('/api/collaboration')
+      .send({ projectId: projects[0], username: 'recipient' })
+      .set('Authorization', tokens.creator);
+
+    expect(res.statusCode).toBe(201);
+  });
+
   test.todo('be accepted by the recipient');
   test.todo('be declined by the recipient');
   test.todo('be revoked by the project owner');
 });
+
+describe('Invitations can be retrieved', () => {
+  test('for a given project', async () => {
+    const res = await api
+      .get('/api/collaboration')
+      .send({ projectId: projects[0] })
+      .set('Authorization', tokens.creator);
+
+    console.log(res.body);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.invites[0]).toMatchObject(
+      { accepted: 0, project_id: projects[0], username: 'recipient' },
+    );
+  });
+
+  test('for a given user', async () => {
+    const res = await api
+      .get('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.invites[0]).toMatchObject(
+      { accepted: 0, project_id: projects[0], username: 'recipient' },
+    );
+  });
+
+  test('for a project, not by non-owners', async () => {
+    const res = await api
+      .get('/api/collaboration')
+      .send({ projectId: projects[0] })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toStrictEqual({ error: 'Cannot retrieve invitations for non-owned project' });
+  });
+
+  test('for a user, not by others', async () => {
+    const res = await api
+      .get('/api/collaboration')
+      .send({ username: 'creator' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toStrictEqual({ error: 'Cannot retrieve another user\'s invitations' });
+  });
+});
+
 
 describe('Invitations cannot be updated', () => {
   test.todo('without logging in');

@@ -6,7 +6,7 @@ const Project = require('../models/project');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-  const { projectId, username } = req.params;
+  const { projectId, username } = req.body;
 
   const hasProjId = projectId !== undefined;
   const hasUsername = username !== undefined;
@@ -19,6 +19,22 @@ router.get('/', async (req, res) => {
     return res.status(400).json(
       { error: 'Ambiguous request - must provide exactly one of a username or Project ID' },
     );
+  }
+
+  if (hasUsername) {
+    if (req.token.username !== username) {
+      return res.status(401).json({ error: 'Cannot retrieve another user\'s invitations' });
+    }
+  } else {
+    try {
+      const project = await Project.get(projectId);
+      if (project.created_by !== req.token.username) {
+        return res.status(401).json({ error: 'Cannot retrieve invitations for non-owned project' });
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(400).send({ error: error.message });
+    }
   }
 
   const getInvitations = hasUsername
@@ -58,7 +74,7 @@ router.post('/', async (req, res) => {
     }
 
     await Collaboration.invite(username, projectId);
-    return res.status(200);
+    return res.status(201).send();
   } catch (error) {
     if (error.code === 'ER_NO_REFERENCED_ROW_2' && error.sqlMessage.endsWith('`user` (`username`))')) {
       return res.status(404).send({ error: 'User could not be found' });
