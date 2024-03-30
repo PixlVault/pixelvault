@@ -16,10 +16,14 @@ let authToken;
 let newProjectId;
 
 beforeAll(async () => {
-  // TODO - This isn't fully independent of other test suites
-  // We should add deletion queries and explicitly set up the db state
-  // these tests presume to have.
+  db.query('DELETE FROM project_invite;');
   db.query('DELETE FROM project;');
+  db.query('DELETE FROM follow;');
+  db.query('DELETE FROM user;');
+
+  await api
+    .post('/api/user')
+    .send({ username: 'user', password: 'password', email: 'user@email.com' });
 
   const res = await api
     .post('/api/login')

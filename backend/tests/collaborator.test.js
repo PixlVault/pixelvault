@@ -8,7 +8,7 @@ const api = supertest(app);
 
 // Some routes require authentication, so we must first log in and save
 // the authentication token returned from the API.
-const tokens = {}
+const tokens = {};
 let projects = [];
 
 beforeAll(async () => {
@@ -114,8 +114,6 @@ describe('Invitations can be retrieved', () => {
       .send({ projectId: projects[0] })
       .set('Authorization', tokens.creator);
 
-    console.log(res.body);
-
     expect(res.statusCode).toBe(200);
     expect(res.body.invites[0]).toMatchObject(
       { accepted: 0, project_id: projects[0], username: 'recipient' },
@@ -154,7 +152,6 @@ describe('Invitations can be retrieved', () => {
     expect(res.body).toStrictEqual({ error: 'Cannot retrieve another user\'s invitations' });
   });
 });
-
 
 describe('Invitations cannot be updated', () => {
   test.todo('without logging in');
