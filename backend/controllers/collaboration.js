@@ -94,14 +94,13 @@ router.put('/', async (req, res) => {
     return res.status(401).json({ error: 'Must be logged in' });
   }
 
-  const { projectId } = req.params;
-  if (projectId === undefined) {
-    return res.status(400).json({ error: 'Must provide a Project ID' });
+  const { accepted, projectId } = req.body;
+  if (accepted === undefined) {
+    return res.status(400).json({ error: 'Must provide the invitation\'s new status' });
   }
 
-  const { status } = req.body;
-  if (status === undefined) {
-    return res.status(400).json({ error: 'Must provide the invitation\'s new status' });
+  if (projectId === undefined) {
+    return res.status(400).json({ error: 'Must provide a Project ID' });
   }
 
   if (req.body.accepted !== true) {
@@ -109,7 +108,7 @@ router.put('/', async (req, res) => {
   }
 
   try {
-    const result = await Collaboration.accept(req.token.username, req.params.project);
+    const result = await Collaboration.accept(req.token.username, projectId);
     console.log(result);
 
     return res.status(200).send();

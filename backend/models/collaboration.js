@@ -2,6 +2,10 @@ const { validate: isValidUuid } = require('uuid');
 
 const db = require('../utils/database');
 
+const formatCollaboration = (rowDataPackets) => rowDataPackets.map(
+  (row) => ({ ...row, accepted: row.accepted === 1 }),
+);
+
 const Collaboration = {
   /**
    * Retrieve all invitations associated with a project.
@@ -18,7 +22,7 @@ const Collaboration = {
       [projectId],
       (err, result) => {
         if (err !== null) reject(err);
-        else resolve(result.map((r) => JSON.parse(JSON.stringify(r))));
+        else resolve(formatCollaboration(result));
       },
     );
   }),
@@ -38,7 +42,7 @@ const Collaboration = {
       [username],
       (err, result) => {
         if (err !== null) reject(err);
-        else resolve(result);
+        else resolve(formatCollaboration(result));
       },
     );
   }),

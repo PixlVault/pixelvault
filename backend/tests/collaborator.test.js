@@ -99,10 +99,42 @@ describe('Invitations can', () => {
       .send({ projectId: projects[0], username: 'recipient' })
       .set('Authorization', tokens.creator);
 
+    await api
+      .post('/api/collaboration')
+      .send({ projectId: projects[1], username: 'recipient' })
+      .set('Authorization', tokens.creator);
+
     expect(res.statusCode).toBe(201);
   });
 
-  test.todo('be accepted by the recipient');
+  test('be accepted by the recipient', async () => {
+    let res = await api
+      .get('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.body.invites[0]).toMatchObject(
+      { accepted: false, project_id: projects[0], username: 'recipient' },
+    );
+
+    res = await api
+      .put('/api/collaboration')
+      .send({ accepted: true, projectId: projects[0] })
+      .set('Authorization', tokens.recipient);
+
+    console.log(res.body);
+    expect(res.statusCode).toBe(200);
+
+    res = await api
+      .get('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.body.invites[0]).toMatchObject(
+      { accepted: true, project_id: projects[0], username: 'recipient' },
+    );
+  });
+
   test.todo('be declined by the recipient');
   test.todo('be revoked by the project owner');
 });
@@ -115,9 +147,9 @@ describe('Invitations can be retrieved', () => {
       .set('Authorization', tokens.creator);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.invites[0]).toMatchObject(
-      { accepted: 0, project_id: projects[0], username: 'recipient' },
-    );
+    expect(res.body.invites).toMatchObject([
+      { accepted: true, project_id: projects[0], username: 'recipient' },
+    ]);
   });
 
   test('for a given user', async () => {
@@ -127,9 +159,10 @@ describe('Invitations can be retrieved', () => {
       .set('Authorization', tokens.recipient);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.invites[0]).toMatchObject(
-      { accepted: 0, project_id: projects[0], username: 'recipient' },
-    );
+    expect(res.body.invites).toMatchObject([
+      { accepted: true, project_id: projects[0], username: 'recipient' },
+      { accepted: false, project_id: projects[1], username: 'recipient' },
+    ]);
   });
 
   test('for a project, not by non-owners', async () => {
