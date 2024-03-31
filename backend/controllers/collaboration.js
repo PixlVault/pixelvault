@@ -108,9 +108,7 @@ router.put('/', async (req, res) => {
   }
 
   try {
-    const result = await Collaboration.accept(req.token.username, projectId);
-    console.log(result);
-
+    await Collaboration.accept(req.token.username, projectId);
     return res.status(200).send();
   } catch (error) {
     console.error(error);
