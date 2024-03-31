@@ -67,7 +67,13 @@ const Collaboration = {
       'INSERT INTO project_invite (username, project_id) VALUES (?, UUID_TO_BIN(?, TRUE));',
       [username, projectId],
       (err, result) => {
-        if (err !== null) reject(err);
+        if (err !== null) {
+          if (err.sqlMessage.endsWith('`user` (`username`) ON DELETE CASCADE)')) {
+            reject(new Error('User does not exist'));
+          } else {
+            reject(err);
+          }
+        }
         else resolve(result);
       },
     );

@@ -9,11 +9,11 @@ const router = express.Router();
 router.post('/', async (req, res) => {
   const { username, password } = req.body;
   if (username === undefined) {
-    return res.status(400).json({ error: 'No username provided' });
+    return res.status(400).json({ error: 'Missing field: `username`' });
   }
 
   if (password === undefined) {
-    return res.status(400).json({ error: 'No password provided' });
+    return res.status(400).json({ error: 'Missing field: `password`' });
   }
 
   try {

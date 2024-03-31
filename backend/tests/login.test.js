@@ -39,7 +39,7 @@ describe('Users can log in', () => {
       .post('/api/login')
       .send({ password: 'password' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No username provided' });
+    expect(res.body).toEqual({ error: 'Missing field: `username`' });
   });
 
   test('Missing password is rejected.', async () => {
@@ -47,7 +47,7 @@ describe('Users can log in', () => {
       .post('/api/login')
       .send({ username: 'user' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No password provided' });
+    expect(res.body).toEqual({ error: 'Missing field: `password`' });
   });
 
   test('Non-existent user cannot sign in.', async () => {

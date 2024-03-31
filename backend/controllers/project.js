@@ -36,8 +36,10 @@ router.put('/:projectId', async (req, res) => {
 
   // First, check the project exists:
   let project = null;
+  let collaborators = [];
   try {
     project = await Project.get(req.params.projectId);
+    collaborators = await Project.collaborators(req.params.projectId);
   } catch (err) {
     console.error(err);
     return res.status(400).send();
@@ -47,13 +49,13 @@ router.put('/:projectId', async (req, res) => {
   if (!project) { return res.status(404).json({ error: 'Project does not exist' }); }
 
   const authorised = project.created_by === req.token.username
-    || project.collaborators.includes(req.token.username);
+    || collaborators.includes(req.token.username);
 
   if (!authorised) {
     return res.status(401).json({ error: 'Not authorised to edit this project' });
   }
 
-  const { title, imageData } = req.body.projectData;
+  const { title, imageData } = req.body;
   try {
     await Project.update(req.params.projectId, title, imageData);
     return res.status(200).json({});

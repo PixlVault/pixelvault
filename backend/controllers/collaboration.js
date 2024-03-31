@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
     await Collaboration.invite(username, projectId);
     return res.status(201).send();
   } catch (error) {
-    if (error.code === 'ER_NO_REFERENCED_ROW_2' && error.sqlMessage.endsWith('`user` (`username`))')) {
+    if (error.message === 'User does not exist') {
       return res.status(404).send({ error: 'User could not be found' });
     }
 
