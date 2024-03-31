@@ -12,12 +12,12 @@ router.get('/', async (req, res) => {
   const hasUsername = username !== undefined;
 
   if (!hasProjId && !hasUsername) {
-    return res.status(400).json({ error: 'Must provide either a username or Project ID' });
+    return res.status(400).json({ error: 'Missing field: Must provide either a `username` or `projectId` field' });
   }
 
   if (hasProjId && hasUsername) {
     return res.status(400).json(
-      { error: 'Ambiguous request - must provide exactly one of a username or Project ID' },
+      { error: 'Ambiguous request: Must provide only one of a `username` or `projectId`' },
     );
   }
 
@@ -57,10 +57,10 @@ router.post('/', async (req, res) => {
 
   const { username, projectId } = req.body;
   if (projectId === undefined) {
-    return res.status(400).json({ error: 'Must provide a Project ID' });
+    return res.status(400).json({ error: 'Missing field: `projectId`' });
   }
   if (username === undefined) {
-    return res.status(400).json({ error: 'Must provide a username' });
+    return res.status(400).json({ error: 'Missing field: `username`' });
   }
 
   try {
@@ -96,14 +96,14 @@ router.put('/', async (req, res) => {
 
   const { accepted, projectId } = req.body;
   if (accepted === undefined) {
-    return res.status(400).json({ error: 'Must provide the invitation\'s new status' });
+    return res.status(400).json({ error: 'Missing field: `accepted`' });
   }
 
   if (projectId === undefined) {
-    return res.status(400).json({ error: 'Must provide a Project ID' });
+    return res.status(400).json({ error: 'Missing field: `projectId`' });
   }
 
-  if (req.body.accepted !== true) {
+  if (accepted !== true) {
     return res.status(400).json({ error: 'Invitation\'s accepted status can only be changed to `true`' });
   }
 
@@ -126,21 +126,20 @@ router.delete('/', async (req, res) => {
     return res.status(401).json({ error: 'Must be logged in' });
   }
 
-  const { projectId } = req.params;
-  if (projectId === undefined) {
-    return res.status(400).json({ error: 'Must provide the ID of the corresponding project.' });
+  const { username, projectId } = req.body;
+  if (username === undefined) {
+    return res.status(400).json({ error: 'Missing field: `username`' });
   }
 
-  const { username } = req.body;
-  if (username === undefined) {
-    return res.status(400).json({ error: 'Must provide the username of the user to uninvite' });
+  if (projectId === undefined) {
+    return res.status(400).json({ error: 'Missing field: `projectId`' });
   }
 
   try {
     // Only the project creator can uninvite other users:
     const project = await Project.get(projectId);
     if (username !== req.token.username) {
-      if (project.created_by !== req.token.userame) {
+      if (project.created_by !== req.token.username) {
         return res.status(401).json({ error: 'Only a project\'s owner can remove other users.' });
       }
     }
@@ -151,7 +150,7 @@ router.delete('/', async (req, res) => {
       return res.status(400).json({ error: 'Cannot remove a project\'s author' });
     }
 
-    await Collaboration.uninvite(projectId);
+    await Collaboration.uninvite(username, projectId);
     return res.status(204).send();
   } catch (error) {
     console.error(error);

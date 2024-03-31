@@ -52,7 +52,7 @@ describe('Invitations cannot be sent', () => {
       .send({ projectId: projects[0] })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'Must provide a username' });
+    expect(res.body).toEqual({ error: 'Missing field: `username`' });
   });
 
   test('without specifying a project', async () => {
@@ -61,7 +61,7 @@ describe('Invitations cannot be sent', () => {
       .send({ username: 'recipient' })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'Must provide a Project ID' });
+    expect(res.body).toEqual({ error: 'Missing field: `projectId`' });
   });
 
   test('to a non-existent user', async () => {
@@ -92,22 +92,34 @@ describe('Invitations cannot be sent', () => {
   });
 });
 
-describe('Invitations can', () => {
-  test('be sent to a valid user', async () => {
-    const res = await api
+describe('Invitation interactions - users can', () => {
+  test('invite a user to a project', async () => {
+    let res = await api
       .post('/api/collaboration')
       .send({ projectId: projects[0], username: 'recipient' })
       .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(201);
 
-    await api
+    res = await api
       .post('/api/collaboration')
       .send({ projectId: projects[1], username: 'recipient' })
       .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(201);
 
+    res = await api
+      .post('/api/collaboration')
+      .send({ projectId: projects[2], username: 'recipient' })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(201);
+
+    res = await api
+      .post('/api/collaboration')
+      .send({ projectId: projects[0], username: 'thirdParty' })
+      .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(201);
   });
 
-  test('be accepted by the recipient', async () => {
+  test('accept an invitation', async () => {
     let res = await api
       .get('/api/collaboration')
       .send({ username: 'recipient' })
@@ -121,8 +133,6 @@ describe('Invitations can', () => {
       .put('/api/collaboration')
       .send({ accepted: true, projectId: projects[0] })
       .set('Authorization', tokens.recipient);
-
-    console.log(res.body);
     expect(res.statusCode).toBe(200);
 
     res = await api
@@ -135,8 +145,46 @@ describe('Invitations can', () => {
     );
   });
 
-  test.todo('be declined by the recipient');
-  test.todo('be revoked by the project owner');
+  test('decline an invitation', async () => {
+    let res = await api
+      .get('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+    expect(res.body.invites).toHaveLength(3);
+
+    res = await api
+      .delete('/api/collaboration')
+      .send({ username: 'recipient', projectId: projects[2] })
+      .set('Authorization', tokens.recipient);
+    expect(res.statusCode).toBe(204);
+
+    res = await api
+      .get('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+    expect(res.body.invites).toHaveLength(2);
+  });
+
+  test('have access revoked by the project owner', async () => {
+    let res = await api
+      .get('/api/collaboration')
+      .send({ projectId: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.body.invites).toHaveLength(2);
+
+    res = await api
+      .delete('/api/collaboration')
+      .send({ username: 'thirdParty', projectId: projects[0] })
+      .set('Authorization', tokens.creator);
+
+    expect(res.statusCode).toBe(204);
+
+    res = await api
+      .get('/api/collaboration')
+      .send({ projectId: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.body.invites).toHaveLength(1);
+  });
 });
 
 describe('Invitations can be retrieved', () => {
@@ -164,8 +212,20 @@ describe('Invitations can be retrieved', () => {
       { accepted: false, project_id: projects[1], username: 'recipient' },
     ]);
   });
+});
 
-  test('for a project, not by non-owners', async () => {
+describe('Invitations cannot be retrieved', () => {
+  test('for a user, by others', async () => {
+    const res = await api
+      .get('/api/collaboration')
+      .send({ username: 'creator' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toStrictEqual({ error: 'Cannot retrieve another user\'s invitations' });
+  });
+
+  test('by non-owners of a given project', async () => {
     const res = await api
       .get('/api/collaboration')
       .send({ projectId: projects[0] })
@@ -175,23 +235,108 @@ describe('Invitations can be retrieved', () => {
     expect(res.body).toStrictEqual({ error: 'Cannot retrieve invitations for non-owned project' });
   });
 
-  test('for a user, not by others', async () => {
+  test('without specifying either a username or projectId', async () => {
     const res = await api
       .get('/api/collaboration')
-      .send({ username: 'creator' })
       .set('Authorization', tokens.recipient);
 
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toStrictEqual({ error: 'Cannot retrieve another user\'s invitations' });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toStrictEqual({ error: 'Missing field: Must provide either a `username` or `projectId` field' });
+  });
+
+  test('when specifying both a username and projectId', async () => {
+    const res = await api
+      .get('/api/collaboration')
+      .send({ projectId: projects[0], username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toStrictEqual({ error: 'Ambiguous request: Must provide only one of a `username` or `projectId`' });
   });
 });
 
 describe('Invitations cannot be updated', () => {
-  test.todo('without logging in');
-  test.todo('without providing the new status');
-  test.todo('without specifiying a project');
-  test.todo('by any user besides the recipient');
-  test.todo('if the user tries to "unaccept" an invitation');
+  test('without logging in', async () => {
+    let res = await api
+      .put('/api/collaboration')
+      .send({ accepted: true, projectId: projects[0] });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toStrictEqual({ error: 'Must be logged in' });
+
+    res = await api
+      .delete('/api/collaboration')
+      .send({ username: 'recipient', projectId: projects[0] });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toStrictEqual({ error: 'Must be logged in' });
+  });
+
+  test('without providing the new status', async () => {
+    const res = await api
+      .put('/api/collaboration')
+      .send({ projectId: projects[0] })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Missing field: `accepted`' });
+  });
+
+  test('without specifiying a project', async () => {
+    const res = await api
+      .put('/api/collaboration')
+      .send({ accepted: true })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Missing field: `projectId`' });
+  });
+
+  test('by non-owner users besides the recipient', async () => {
+    const res = await api
+      .delete('/api/collaboration')
+      .send({ username: 'recipient', projectId: projects[0] })
+      .set('Authorization', tokens.thirdParty);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Only a project\'s owner can remove other users.' });
+  });
+
+  test('for deletion without specifying a user', async () => {
+    const res = await api
+      .delete('/api/collaboration')
+      .send({ projectId: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Missing field: `username`' });
+  });
+
+  test('for deletion without specifying a projectId', async () => {
+    const res = await api
+      .delete('/api/collaboration')
+      .send({ username: 'recipient' })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Missing field: `projectId`' });
+  });
+
+  test('when trying to remove a project\'s author', async () => {
+    const res = await api
+      .delete('/api/collaboration')
+      .send({ username: 'creator', projectId: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Cannot remove a project\'s author' });
+  });
+
+  test('if the user tries to "unaccept" an invitation', async () => {
+    const res = await api
+      .put('/api/collaboration')
+      .send({ accepted: false, projectId: projects[0], username: 'recipient' })
+      .set('Authorization', tokens.recipient);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Invitation\'s accepted status can only be changed to `true`' });
+  });
 });
 
 afterAll(() => {
