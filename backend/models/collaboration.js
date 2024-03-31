@@ -1,6 +1,6 @@
 const { validate: isValidUuid } = require('uuid');
 
-const db = require('../utils/database');
+const { db } = require('../utils/database');
 
 const formatCollaboration = (rowDataPackets) => rowDataPackets.map(
   (row) => ({ ...row, accepted: row.accepted === 1 }),

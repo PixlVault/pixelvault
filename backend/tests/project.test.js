@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const supertest = require('supertest');
 const app = require('../app');
-const db = require('../utils/database');
+const { db } = require('../utils/database');
 
 const api = supertest(app);
 

@@ -55,9 +55,8 @@ router.put('/:projectId', async (req, res) => {
     return res.status(401).json({ error: 'Not authorised to edit this project' });
   }
 
-  const { title, imageData } = req.body;
   try {
-    await Project.update(req.params.projectId, title, imageData);
+    await Project.update(req.params.projectId, req.body);
     return res.status(200).json({});
   } catch (err) {
     console.error(err);

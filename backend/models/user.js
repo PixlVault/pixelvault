@@ -1,6 +1,6 @@
 const argon2 = require('argon2');
 
-const db = require('../utils/database');
+const { db } = require('../utils/database');
 
 const User = {
   /**
