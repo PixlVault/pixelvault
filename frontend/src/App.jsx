@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import './App.css'
-import Editor from './components/editor';
+import './App.css';
+import Editor from './components/editor.jsx';
 import { LoginForm } from './components/login-form.jsx';
-
-
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem('user'));
@@ -13,7 +11,7 @@ function App() {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('auth');
-  }
+  };
 
   const router = createBrowserRouter([
     {
@@ -21,15 +19,15 @@ function App() {
       element: (
       <>
         <div>
-          <div align="left"> { 
+          <div align="left"> {
             user !== null
               ? <p>Logged in as {user} <button onClick={logOut}>Log Out</button> </p>
-              :  <LoginForm setUser={setUser} />
+              : <LoginForm setUser={setUser} />
           } </div>
         </div>
         <Editor user={user} />
-      </>)
-    }
+      </>),
+    },
   ]);
 
   return (
@@ -37,4 +35,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
