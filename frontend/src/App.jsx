@@ -17,7 +17,7 @@ function App() {
       <>
         <Header user={user} setUser={setUser}/>
         
-        <div id="app-content" className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
           <Editor user={user} />
         </div>
 
@@ -29,7 +29,7 @@ function App() {
       element: (
       <>
         <Header user={user} setUser={setUser}/>
-        <div id="app-content" className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
           <ExplorePage/>
         </div>
         <Footer/>
@@ -41,7 +41,7 @@ function App() {
       element: (
       <>
         <Header user={user} setUser={setUser}/>
-        <div id="app-content" className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
           <ProfilePage/>
         </div>
         <Footer/>

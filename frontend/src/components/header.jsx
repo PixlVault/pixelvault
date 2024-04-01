@@ -8,7 +8,7 @@ const Header = ({user, setUser}) => {
   };
   
   return (
-    <div id="app-header" className="sticky top-0">
+    <div className="sticky top-0">
       <nav className="flex flex-col text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
         <div>
           <a href="/explore" className="text-2xl no-underline">PixelVault</a>
