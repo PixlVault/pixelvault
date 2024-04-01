@@ -25,44 +25,56 @@ const Post = {
     tags = undefined,
     minCost = 0,
     maxCost = 1000000000000,
+    title = undefined,
   ) => new Promise((resolve, reject) => {
     if (typeof minCost !== 'number' || typeof maxCost !== 'number') {
-      reject(new Error('`cost` must be a numeric value'));
+      reject(new Error('`cost` range must consist of numeric values'));
       return;
     }
 
-    const params = [minCost, maxCost];
-    let query = `SELECT *, project.title AS title, project.created_by AS author from post
+    const params = [];
+    let query = `SELECT *,
+        BIN_TO_UUID(post_id, TRUE) AS post_id, project.title AS title, project.created_by AS author
+      FROM post
       LEFT JOIN project ON project.project_id = post.post_id
-      WHERE cost BETWEEN ? AND ?`;
+      WHERE`;
 
     if (tags !== undefined) {
-      query = `${query} post_id IN (SELECT post_id FROM post_tags WHERE tag IN ?) `;
+      query = `${query} post_id IN (SELECT post_id FROM post_tags WHERE tag IN ?) AND `;
       params.push(tags);
     }
 
     if (author !== undefined) {
-      query = ` ${query} author = ? `;
+      query = ` ${query} project.created_by = ? AND `;
       params.push(author);
     } else if (onlyShowFollowed) {
-      query = `${query} author IN (SELECT follows FROM follow WHERE follower = ?) `;
+      query = ` ${query} project.created_by IN (SELECT follows FROM follow WHERE follower = ?) AND `;
       params.push(requestingUser);
     }
 
+    if (title !== undefined) {
+      query = ` ${query} title = ? AND `;
+      params.push(title);
+    }
+
     if (licence !== undefined) {
-      query = ` ${query} licence = ? `;
+      query = ` ${query} licence = ? AND `;
       params.push(licence);
     }
 
+    query = ` ${query} cost BETWEEN ? AND ?`;
+    params.push(minCost);
+    params.push(maxCost);
+
     if (orderByField !== undefined) {
-      if (['title', 'price', 'published_on'].includes(orderByField)) {
-        query = ` ${query} ORDER BY ? ${ascending ? 'ASC' : 'DESC'} `;
-        params.push(orderByField);
+      if (['title', 'cost', 'published_on'].includes(orderByField)) {
+        query = `${query} ORDER BY ${orderByField} ${ascending ? 'ASC' : 'DESC'};`;
       } else {
         reject(new Error(`Invalid sort field: \`${orderByField}\``));
       }
     }
 
+    console.log(query, params);
     db.query(query, params, (err, result) => {
       if (err !== null) reject(err);
       else resolve(result);
@@ -81,7 +93,9 @@ const Post = {
     }
 
     db.query(
-      'SELECT * FROM post WHERE post_id = UUID_TO_BIN(?, TRUE);',
+      `SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, project.created_by AS author FROM post 
+      LEFT JOIN project ON project.project_id = post.post_id
+      WHERE post_id = UUID_TO_BIN(?, TRUE);`,
       [postId],
       (err, result) => {
         if (err !== null) reject(err);
@@ -95,7 +109,12 @@ const Post = {
    * @param {*} args An object containing the values of the post.
    */
   create: (args) => new Promise((resolve, reject) => {
-    const fields = { required: ['post_id', 'author'], optional: ['licence', 'cost'] };
+    if (args.post_id === undefined || !isValidUuid(args.post_id)) {
+      reject(new Error('Invlid post_id value provided'));
+      return;
+    }
+
+    const fields = { required: [], optional: ['licence', 'cost'] };
 
     let argValuePairs = null;
     try {
@@ -108,10 +127,10 @@ const Post = {
     }
 
     const query = `INSERT INTO post 
-      (${argValuePairs.fields.join(', ')}) 
-      VALUES ( ${argValuePairs.values.map(() => '?').join(', ')});`;
+      (post_id${(argValuePairs.fields.length > 0 ? `, ${argValuePairs.fields.join(', ')}` : '')}) 
+      VALUES (UUID_TO_BIN(?, TRUE)${argValuePairs.values.length > 0 ? `, ${argValuePairs.values.map(() => '?').join(', ')}` : ''});`;
 
-    db.query(query, argValuePairs.values, (err, result) => {
+    db.query(query, [args.post_id, ...argValuePairs.values], (err, result) => {
       if (err) reject(err);
       else resolve(result);
     });
