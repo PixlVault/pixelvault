@@ -11,7 +11,7 @@ const Header = ({user, setUser}) => {
     <div id="app-header" className="sticky top-0">
       <nav className="flex flex-col text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
         <div>
-          <a href="#" className="text-2xl no-underline">PixelVault</a>
+          <a href="/explore" className="text-2xl no-underline">PixelVault</a>
         </div>
         <div>
           <a href="/explore" className="text-lg no-underline ml-2">Explore | </a>
