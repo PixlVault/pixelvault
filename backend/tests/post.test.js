@@ -24,7 +24,11 @@ beforeAll(async () => {
   const authStrings = users.map((username) => api.post('/api/login')
     .send({ username, password: 'password' })
     .then((res) => `token ${res.body.token}`));
-  [tokens.creator, tokens.recipient, tokens.other] = await Promise.all(authStrings);
+  [tokens.creator, tokens.friend, tokens.other] = await Promise.all(authStrings);
+
+  await api.post('/api/user/friend/following')
+    .send({ followee: 'creator' })
+    .set('Authorization', tokens.friend);
 
   projects = ['one', 'two', 'three'].map(
     (title) => api.post('/api/project')
@@ -238,8 +242,59 @@ describe('Posts can be searched', () => {
     ]);
   });
 
-  test.todo('by multiple attributes');
-  test.todo('from followed accounts');
+  test('by multiple attributes', async () => {
+    const res = await api.post('/api/post/search')
+      .send({
+        title: 'one', tags: ['tag1'], min_cost: 0, max_cost: 1, author: 'creator',
+      });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body).toMatchObject([
+      {
+        post_id: projects[0],
+        title: 'one',
+        created_by: 'creator',
+        licence: null,
+        cost: 1,
+        artwork: null,
+      },
+    ]);
+  });
+
+  test('from followed accounts', async () => {
+    const res = await api.post('/api/post/search')
+      .send({ only_show_followed: true })
+      .set('Authorization', tokens.friend);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject([
+      {
+        post_id: projects[0],
+        title: 'one',
+        created_by: 'creator',
+        licence: null,
+        cost: 1,
+        artwork: null,
+      },
+      {
+        post_id: projects[1],
+        title: 'two',
+        created_by: 'creator',
+        licence: 'Creative Commons',
+        cost: 7,
+        artwork: null,
+      },
+      {
+        post_id: projects[2],
+        title: 'three',
+        created_by: 'creator',
+        licence: null,
+        cost: 0,
+        artwork: null,
+      },
+    ]);
+  });
 });
 
 describe('Post queries can be sorted', () => {
@@ -428,14 +483,45 @@ describe('posts can be updated', () => {
     }]);
   });
 
-  test.todo('only existing posts can be updated');
-  test.todo('non-author users cannot update a post');
+  test('only existing posts can be updated', async () => {
+    const res = await api.post('/api/post')
+      .send({ post_id: 'f5dc7fc0-e7a6-11ee-901d-49e4cea720ab' })
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(404);
+    expect(res.body).toEqual({ error: 'No such project exists' });
+  });
+
+  test('non-author users cannot update a post', async () => {
+    const res = await api.put('/api/post')
+      .send({ post_id: projects[0], tags: ['tag1', 'tag3'] })
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Cannot update a non-owned project' });
+  });
 });
 
-describe('Posts can be removed', () => {
-  test.todo('by the author');
+describe('Posts can be liked', () => {
+  test.todo('by other users');
+  test.todo('and unliked');
+});
+
+describe('Posts can be hidden', () => {
+  test('by the author', async () => {
+    let res = await api.post('/api/post/hidden')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+
+    expect(res.body[0].is_hidden).toBe(1);
+  });
+
   test.todo('by admins');
   test.todo('but not by non-admin, non-owners');
+  test.todo('if hidden by an admin, cannot be unhidden by the owner');
 });
 
 afterAll(() => {

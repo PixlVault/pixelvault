@@ -34,7 +34,10 @@ const Post = {
 
     const params = [];
     let query = `SELECT *,
-        BIN_TO_UUID(post_id, TRUE) AS post_id, project.title AS title, project.created_by AS author
+        BIN_TO_UUID(post_id, TRUE) AS post_id, 
+        project.title AS title, 
+        project.created_by AS author,
+        is_hidden = 1 AS is_hidden 
       FROM post
       LEFT JOIN project ON project.project_id = post.post_id
       WHERE`;
@@ -92,7 +95,9 @@ const Post = {
     }
 
     db.query(
-      `SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, project.created_by AS author FROM post 
+      `SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, project.created_by AS author,
+        is_hidden = 1 AS is_hidden
+      FROM post 
       LEFT JOIN project ON project.project_id = post.post_id
       WHERE post_id = UUID_TO_BIN(?, TRUE);`,
       [postId],
@@ -245,7 +250,28 @@ const Post = {
     }
 
     db.query(
-      'DELETE FROM post WHERE post_id = UUID_TO_BIN(?, TRUE);',
+      'UPDATE post SET is_hidden = 1, hidden_by = ? WHERE post_id = UUID_TO_BIN(?, TRUE);',
+      [hiddenBy, postId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
+
+  unhide: (postId) => new Promise((resolve, reject) => {
+    if (postId === undefined) {
+      reject(new Error('Missing field: `post_id`'));
+      return;
+    }
+
+    if (!isValidUuid(postId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
+    }
+
+    db.query(
+      'UPDATE post SET is_hidden = 0, hidden_by = NULL WHERE post_id = UUID_TO_BIN(?, TRUE);',
       [postId],
       (err, result) => {
         if (err !== null) reject(err);

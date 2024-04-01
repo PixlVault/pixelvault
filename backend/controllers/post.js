@@ -9,7 +9,6 @@ const router = express.Router();
 // but given GET requests do not have a request body we cannot avoid this.
 router.post('/search', async (req, res) => {
   const removeSensitiveData = (post) => {
-    delete post.is_hidden;
     delete post.hidden_by;
     delete post.project_id;
     return post;
@@ -118,5 +117,58 @@ router.put('/', async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+
+const hideOrUnhide = async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  const postId = req.body.post_id;
+  if (postId === undefined) {
+    return res.status(400).json({ error: 'Missing required field: `post_id`' });
+  }
+
+  try {
+    // Only allow a user to update a post they own.
+    const project = await Project.get(postId);
+    if (project === null) {
+      return res.status(404).json({ error: 'Cannot hide a post which does not exist' });
+    }
+
+    if (project.created_by !== req.token.username && req.token.is_admin !== true) {
+      return res.status(401).json({ error: 'Cannot hide a non-owned post' });
+    }
+
+    const post = await Post.getById(postId);
+    if (post === null) {
+      return res.status(404).json({ error: 'Cannot hide a post which does not exist' });
+    }
+
+    if (req.method === 'POST') {
+      // Prevent a user by overriding their post being hidden by an admin.
+      if (post.is_hidden === true && req.token.is_admin !== true) {
+        return res.status(200).send();
+      }
+      await Post.hide(postId, req.token.username);
+    }
+
+    if (req.method === 'DELETE') {
+      // Prevent a user from undoing an admin hiding a post.
+      if (post.is_hidden === true
+        && post.hidden_by !== project.created_by
+        && req.token.is_admin !== true) {
+        return res.status(200).send();
+      }
+      await Post.unhide(postId);
+    }
+    return res.status(200).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+router.post('/hidden', hideOrUnhide);
+router.delete('/hidden', hideOrUnhide);
 
 module.exports = router;
