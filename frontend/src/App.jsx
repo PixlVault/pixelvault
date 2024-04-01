@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import './App.css';
 import Editor from './components/editor.jsx';
 import { LoginForm } from './components/login-form.jsx';
 
