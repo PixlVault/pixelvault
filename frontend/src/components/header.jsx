@@ -14,10 +14,9 @@ const Header = ({user, setUser}) => {
           <a href="#" className="text-2xl no-underline">PixelVault</a>
         </div>
         <div>
-          <a href="#" className="text-lg no-underline ml-2">Home | </a>
-          <a href="#" className="text-lg no-underline ml-2">Search | </a>
-          <a href="#" className="text-lg no-underline ml-2">Editor | </a>
-          <a href="#" className="text-lg no-underline ml-2">My Profile</a>
+          <a href="/explore" className="text-lg no-underline ml-2">Explore | </a>
+          <a href="/edit" className="text-lg no-underline ml-2">Edit | </a>
+          <a href="/profile" className="text-lg no-underline ml-2">My Profile</a>
         </div>
       </nav>
       <div className="bg-gray-100">
