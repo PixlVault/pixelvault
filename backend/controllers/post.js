@@ -11,6 +11,7 @@ router.post('/search', async (req, res) => {
   const removeSensitiveData = (post) => {
     delete post.is_hidden;
     delete post.hidden_by;
+    delete post.project_id;
     return post;
   };
 
@@ -18,6 +19,7 @@ router.post('/search', async (req, res) => {
     if (req.body.post_id !== undefined) {
       const post = (await Post.getById(req.body.post_id))
         .map((p) => removeSensitiveData(p));
+
       if (post.length === 0) {
         return res.status(404).json({ error: `Post with id '${req.body.post_id}' could not be found` });
       }
@@ -66,7 +68,7 @@ router.post('/', async (req, res) => {
     // Only allow a user to publish a project they own.
     const project = await Project.get(projectId);
     if (project === null) {
-      return res.status(400).json({ error: 'No such project exists' });
+      return res.status(404).json({ error: 'No such project exists' });
     }
 
     if (project.created_by !== req.token.username) {
@@ -76,8 +78,44 @@ router.post('/', async (req, res) => {
     await Post.create(req.body);
     return res.status(201).send();
   } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'Post already exists for this project' });
+    }
     console.error(error);
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
+  }
+});
+
+router.put('/', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  const postId = req.body.post_id;
+  if (postId === undefined) {
+    return res.status(400).json({ error: 'Missing required field: `post_id`' });
+  }
+
+  try {
+    // Only allow a user to update a post they own.
+    const project = await Project.get(postId);
+    if (project === null) {
+      // If the project doesn't exist, the post also cannot exist.
+      return res.status(404).json({ error: 'Cannot update a post which does not exist' });
+    }
+
+    if (project.created_by !== req.token.username) {
+      return res.status(401).json({ error: 'Cannot update a non-owned project' });
+    }
+
+    await Post.update(postId, req.body);
+    return res.status(200).send();
+  } catch (error) {
+    if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+      return res.status(404).json({ error: 'Cannot update a post which does not exist' });
+    }
+    console.error(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 

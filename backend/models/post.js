@@ -40,7 +40,7 @@ const Post = {
       WHERE`;
 
     if (tags !== undefined) {
-      query = `${query} post_id IN (SELECT post_id FROM post_tags WHERE tag IN ?) AND `;
+      query = `${query} post.post_id IN (SELECT post_id FROM post_tags WHERE tag IN (?)) AND `;
       params.push(tags);
     }
 
@@ -74,7 +74,6 @@ const Post = {
       }
     }
 
-    console.log(query, params);
     db.query(query, params, (err, result) => {
       if (err !== null) reject(err);
       else resolve(result);
@@ -97,9 +96,24 @@ const Post = {
       LEFT JOIN project ON project.project_id = post.post_id
       WHERE post_id = UUID_TO_BIN(?, TRUE);`,
       [postId],
-      (err, result) => {
-        if (err !== null) reject(err);
-        else resolve(result);
+      (err, posts) => {
+        if (err !== null) {
+          reject(err);
+          return;
+        }
+
+        if (posts.length === 0) {
+          resolve([]);
+          return;
+        }
+
+        db.query('SELECT tag FROM post_tags WHERE post_id = UUID_TO_BIN(?, TRUE)', [postId], (error, rows) => {
+          if (error !== null) reject(error);
+          else {
+            posts[0].tags = rows.map((row) => row.tag);
+            resolve(posts);
+          }
+        });
       },
     );
   }),
@@ -134,6 +148,48 @@ const Post = {
       if (err) reject(err);
       else resolve(result);
     });
+
+    if (args.tags !== undefined) {
+      Post.setTags(args.post_id, args.tags);
+    }
+  }),
+
+  setTags: (postId, tags) => new Promise((resolve, reject) => {
+    if (postId === undefined) {
+      reject(new Error('Missing required field: `post_id`'));
+      return;
+    }
+
+    if (!isValidUuid(postId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
+    }
+
+    const deleteQuery = `DELETE FROM post_tags
+      WHERE post_id = UUID_TO_BIN(?, TRUE) AND tag NOT IN (${tags.map(() => '?').join(', ')});`;
+
+    db.query(deleteQuery, [postId, ...tags], (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+
+      // No tags to append, so there's no more work to do.
+      if (tags.length === 0) {
+        resolve(tags);
+        return;
+      }
+
+      // On Duplicate syntax means tags already being present will not throw an error.
+      const appendQuery = `INSERT INTO post_tags (post_id, tag) 
+        VALUES ${tags.map(() => '(UUID_TO_BIN(?, TRUE), ?)').join(', ')}
+        ON DUPLICATE KEY UPDATE tag=tag;`;
+
+      db.query(appendQuery, tags.flatMap((tag) => [postId, tag]), (error) => {
+        if (error) reject(error);
+        else resolve(tags);
+      });
+    });
   }),
 
   update: (postId, args) => new Promise((resolve, reject) => {
@@ -149,8 +205,16 @@ const Post = {
       extractedArgs = extractArgs(args, fields);
     } catch (e) { reject(e); return; }
 
+    if (args.tags !== undefined) {
+      Post.setTags(postId, args.tags);
+    }
+
     if (extractedArgs.values.length <= fields.required.length) {
-      reject(new Error('Cannot execute an update action with no changes'));
+      if (args.tags === undefined) {
+        reject(new Error('Cannot execute an update action with no changes'));
+      } else {
+        resolve();
+      }
       return;
     }
 
@@ -158,13 +222,13 @@ const Post = {
       SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')}
       WHERE post_id = UUID_TO_BIN(?, TRUE);`;
 
-    db.query(query, [...extractedArgs.values, postId], (err, result) => {
+    db.query(query, [...extractedArgs.values, postId], (err) => {
       if (err) reject(err);
-      else resolve(result);
+      else resolve();
     });
   }),
 
-  delete: (postId) => new Promise((resolve, reject) => {
+  hide: (postId, hiddenBy) => new Promise((resolve, reject) => {
     if (postId === undefined) {
       reject(new Error('Missing field: `post_id`'));
       return;
@@ -172,6 +236,11 @@ const Post = {
 
     if (!isValidUuid(postId)) {
       reject(new Error('Invalid UUID provided'));
+      return;
+    }
+
+    if (hiddenBy === undefined) {
+      reject(new Error('Missing field: `hidden_by`'));
       return;
     }
 
