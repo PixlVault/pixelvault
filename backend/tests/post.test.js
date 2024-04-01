@@ -91,12 +91,12 @@ describe('Posts cannot be created', () => {
 
 describe('Posts can be updated', () => {
   test.todo('change of tags');
-})
+});
 
 describe('Posts can be removed', () => {
   test.todo('by the author');
   test.todo('by admins');
-})
+});
 
 afterAll(() => {
   db.end();

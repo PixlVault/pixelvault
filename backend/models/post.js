@@ -109,7 +109,7 @@ const Post = {
 
     const query = `INSERT INTO post 
       (${argValuePairs.fields.join(', ')}) 
-      VALUES ( ${argValuePairs.values.map((_ignored) => '?').join(', ')});`;
+      VALUES ( ${argValuePairs.values.map(() => '?').join(', ')});`;
 
     db.query(query, argValuePairs.values, (err, result) => {
       if (err) reject(err);

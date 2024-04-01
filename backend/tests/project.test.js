@@ -125,10 +125,13 @@ describe('Project details cannot be retrieved', () => {
     expect(res.body).toEqual({ error: 'Invalid Project ID provided' });
   });
 
-  test('for another user', async () => {
+  test('by a non-collaborator user', async () => {
     const res = await api
-      .get('/api/project/12345')
+      .get(`/api/project/${newProjectId}`)
       .set('Authorization', foeToken);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Non-collaborators cannot retrieve project details' });
   });
 
   test('for a non-existent project', async () => {
