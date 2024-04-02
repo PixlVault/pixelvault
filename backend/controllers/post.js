@@ -5,7 +5,7 @@ const Project = require('../models/project');
 
 const router = express.Router();
 
-// POST for resource retrieval isn't entirely appropriate for a RESTful API, 
+// POST for resource retrieval isn't entirely appropriate for a RESTful API,
 // but given GET requests do not have a request body we cannot avoid this.
 router.post('/search', async (req, res) => {
   const removeSensitiveData = (post) => {

@@ -130,7 +130,7 @@ const Post = {
    */
   create: (args) => new Promise((resolve, reject) => {
     if (args.post_id === undefined || !isValidUuid(args.post_id)) {
-      reject(new Error('Invlid post_id value provided'));
+      reject(new Error('Invalid post_id value provided'));
       return;
     }
 
@@ -198,49 +198,57 @@ const Post = {
     });
   }),
 
-  update: (postId, args) => new Promise((resolve, reject) => {
-    const fields = { required: [], optional: ['licence', 'cost'] };
+  update: (postId, args) => (
+    /** @type {Promise<void>} */(new Promise((resolve, reject) => {
+      const fields = { required: [], optional: ['licence', 'cost'] };
 
-    if (!isValidUuid(postId)) {
-      reject(new Error('Invalid UUID provided'));
-      return;
-    }
-
-    let extractedArgs = null;
-    try {
-      extractedArgs = extractArgs(args, fields);
-    } catch (e) { reject(e); return; }
-
-    if (args.tags !== undefined) {
-      Post.setTags(postId, args.tags);
-    }
-
-    if (extractedArgs.values.length <= fields.required.length) {
-      if (args.tags === undefined) {
-        reject(new Error('Cannot execute an update action with no changes'));
-      } else {
-        resolve();
+      if (!isValidUuid(postId)) {
+        reject(new Error('Invalid UUID provided'));
+        return;
       }
-      return;
-    }
 
-    const query = `UPDATE post 
-      SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')}
-      WHERE post_id = UUID_TO_BIN(?, TRUE);`;
+      let extractedArgs = null;
+      try {
+        extractedArgs = extractArgs(args, fields);
+      } catch (e) { reject(e); return; }
 
-    db.query(query, [...extractedArgs.values, postId], (err) => {
-      if (err) reject(err);
-      else resolve();
-    });
-  }),
+      if (args.tags !== undefined) {
+        Post.setTags(postId, args.tags);
+      }
 
-  like: (username, postId) => new Promise((resolve, reject) => {
+      if (extractedArgs.values.length <= fields.required.length) {
+        if (args.tags === undefined) {
+          reject(new Error('Cannot execute an update action with no changes'));
+        } else {
+          resolve();
+        }
+        return;
+      }
+
+      const query = `UPDATE post 
+        SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')}
+        WHERE post_id = UUID_TO_BIN(?, TRUE);`;
+
+      db.query(query, [...extractedArgs.values, postId], (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    }))
+  ),
+
+  like: (username, postId) => /** @type {Promise<void>} */(new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Missing field: `username`'));
     }
 
     if (postId === undefined) {
       reject(new Error('Missing field: `post_id`'));
+      return;
+    }
+
+    if (!isValidUuid(postId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
     }
 
     const query = 'INSERT INTO post_likes (post_id, username) VALUES (UUID_TO_BIN(?, TRUE), ?) ON DUPLICATE KEY UPDATE username=username;';
@@ -248,9 +256,9 @@ const Post = {
       if (err !== null) reject(err);
       else resolve();
     });
-  }),
+  })),
 
-  unlike: (username, postId) => new Promise((resolve, reject) => {
+  unlike: (username, postId) => /** @type {Promise<void>} */(new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Missing field: `username`'));
     }
@@ -259,12 +267,17 @@ const Post = {
       reject(new Error('Missing field: `post_id`'));
     }
 
+    if (!isValidUuid(postId)) {
+      reject(new Error('Invalid UUID provided'));
+      return;
+    }
+
     const query = 'DELETE FROM post_likes WHERE post_id = UUID_TO_BIN(?, TRUE) AND username = ?;';
     db.query(query, [postId, username], (err) => {
       if (err !== null) reject(err);
       else resolve();
     });
-  }),
+  })),
 
   hide: (postId, hiddenBy) => new Promise((resolve, reject) => {
     if (postId === undefined) {
@@ -311,6 +324,23 @@ const Post = {
         else resolve(result);
       },
     );
+  }),
+
+  /**
+   * Retrieve the comments attached to a post.
+   * @param {string} postId The UUID of the post.
+   * @returns An array of comments associated with the post.
+   */
+  comments: (postId) => new Promise((resolve, reject) => {
+    if (typeof postId !== 'string' || !isValidUuid(postId)) {
+      reject(new Error('Missing or invalid field: `post_id`'));
+      return;
+    }
+
+    db.query('SELECT * from comment WHERE post_id = ?', postId, (error, result) => {
+      if (error !== null) reject(error);
+      else resolve(result);
+    });
   }),
 };
 

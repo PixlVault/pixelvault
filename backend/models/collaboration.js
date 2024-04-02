@@ -68,13 +68,12 @@ const Collaboration = {
       [username, projectId],
       (err, result) => {
         if (err !== null) {
-          if (err.sqlMessage.endsWith('`user` (`username`) ON DELETE CASCADE)')) {
+          if (err.sqlMessage && err.sqlMessage.endsWith('`user` (`username`) ON DELETE CASCADE)')) {
             reject(new Error('User does not exist'));
           } else {
             reject(err);
           }
-        }
-        else resolve(result);
+        } else resolve(result);
       },
     );
   }),
