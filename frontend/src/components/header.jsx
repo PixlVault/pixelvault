@@ -1,22 +1,24 @@
-import {LoginForm} from './login-form.jsx';
+import { Link } from 'react-router-dom';
 
-const Header = ({user, setUser}) => {
+import { LoginForm } from './login-form.jsx';
+
+const Header = ({ user, setUser }) => {
   const logOut = () => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('auth');
   };
-  
+
   return (
     <div className="sticky top-0">
       <nav className="flex flex-col text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
         <div>
-          <a href="/explore" className="text-2xl no-underline">PixelVault</a>
+          <Link to="/explore" className="text-2xl no-underline">PixelVault</Link>
         </div>
         <div>
-          <a href="/explore" className="text-lg no-underline ml-2">Explore | </a>
-          <a href="/edit" className="text-lg no-underline ml-2">Edit | </a>
-          <a href="/profile" className="text-lg no-underline ml-2">My Profile</a>
+          <Link to="/explore" className="text-lg no-underline ml-2">Explore | </Link>
+          <Link to="/edit" className="text-lg no-underline ml-2">Edit | </Link>
+          <Link to="/profile" className="text-lg no-underline ml-2">My Profile</Link>
         </div>
       </nav>
       <div className="bg-gray-100">
