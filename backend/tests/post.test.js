@@ -65,6 +65,78 @@ describe('Posts can be created', () => {
   });
 });
 
+describe('Posts can be liked', () => {
+  test('by users', async () => {
+    let res = await api.post(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post(`/api/post/${projects[0]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.friend);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search/')
+      .send({ author: 'creator' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject([
+      { likes: 1 },
+      { likes: 2 },
+      { likes: 0 },
+    ]);
+  });
+
+  test('and unliked', async () => {
+    let res = await api.delete(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search/')
+      .send({ project_id: projects[1] });
+    expect(res.statusCode).toBe(200);
+    expect(res.body[0].likes).toBe(1);
+  });
+
+  test('liking the same post twice has no effect', async () => {
+    let res = await api.post(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search/')
+      .send({ project_id: projects[1] });
+    const likeCount = res.body[0].likes;
+
+    res = await api.post(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search/')
+      .send({ project_id: projects[1] });
+    expect(res.body[0].likes).toBe(likeCount);
+  });
+
+  test('unliking the same post twice has no effect', async () => {
+    let res = await api.delete(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search/')
+      .send({ project_id: projects[1] });
+    const likeCount = res.body[0].likes;
+
+    res = await api.delete(`/api/post/${projects[1]}/likes`)
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/search/')
+      .send({ project_id: projects[1] });
+    expect(res.body[0].likes).toBe(likeCount);
+  });
+});
+
 describe('Posts can be searched', () => {
   test('by post ID', async () => {
     const res = await api.post('/api/post/search')
@@ -298,7 +370,47 @@ describe('Posts can be searched', () => {
 });
 
 describe('Post queries can be sorted', () => {
-  test.todo('by likes (most -> least)');
+  test('by likes (descending)', async () => {
+    const res = await api.post('/api/post/search')
+      .send({ order_by: 'likes', ascending: false });
+    expect(res.statusCode).toBe(200);
+    console.log(res.body);
+    expect(res.body).toMatchObject([
+      {
+        post_id: projects[0],
+        likes: 1,
+      },
+      {
+        post_id: projects[1],
+        likes: 1,
+      },
+      {
+        post_id: projects[2],
+        likes: 0,
+      },
+    ]);
+  });
+  
+  test('by likes (ascending)', async () => {
+    const res = await api.post('/api/post/search')
+      .send({ order_by: 'likes', ascending: true });
+    expect(res.statusCode).toBe(200);
+    console.log(res.body);
+    expect(res.body).toMatchObject([
+      {
+        post_id: projects[2],
+        likes: 0,
+      },
+      {
+        post_id: projects[0],
+        likes: 1,
+      },
+      {
+        post_id: projects[1],
+        likes: 1,
+      },
+    ]);
+  });
 
   test('by cost (ascending)', async () => {
     const res = await api.post('/api/post/search')
@@ -498,11 +610,6 @@ describe('posts can be updated', () => {
     expect(res.statusCode).toBe(401);
     expect(res.body).toEqual({ error: 'Cannot update a non-owned project' });
   });
-});
-
-describe('Posts can be liked', () => {
-  test.todo('by other users');
-  test.todo('and unliked');
 });
 
 describe('Posts can be hidden', () => {

@@ -37,7 +37,8 @@ const Post = {
         BIN_TO_UUID(post_id, TRUE) AS post_id, 
         project.title AS title, 
         project.created_by AS author,
-        is_hidden = 1 AS is_hidden 
+        is_hidden = 1 AS is_hidden,
+        (SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id =  post.post_id) AS likes
       FROM post
       LEFT JOIN project ON project.project_id = post.post_id
       WHERE`;
@@ -70,7 +71,7 @@ const Post = {
     params.push(maxCost);
 
     if (orderByField !== undefined) {
-      if (['title', 'cost', 'published_on'].includes(orderByField)) {
+      if (['title', 'cost', 'published_on', 'likes'].includes(orderByField)) {
         query = `${query} ORDER BY ${orderByField} ${ascending ? 'ASC' : 'DESC'};`;
       } else {
         reject(new Error(`Invalid sort field: \`${orderByField}\``));
@@ -229,6 +230,38 @@ const Post = {
 
     db.query(query, [...extractedArgs.values, postId], (err) => {
       if (err) reject(err);
+      else resolve();
+    });
+  }),
+
+  like: (username, postId) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Missing field: `username`'));
+    }
+
+    if (postId === undefined) {
+      reject(new Error('Missing field: `post_id`'));
+    }
+
+    const query = 'INSERT INTO post_likes (post_id, username) VALUES (UUID_TO_BIN(?, TRUE), ?) ON DUPLICATE KEY UPDATE username=username;';
+    db.query(query, [postId, username], (err) => {
+      if (err !== null) reject(err);
+      else resolve();
+    });
+  }),
+
+  unlike: (username, postId) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Missing field: `username`'));
+    }
+
+    if (postId === undefined) {
+      reject(new Error('Missing field: `post_id`'));
+    }
+
+    const query = 'DELETE FROM post_likes WHERE post_id = UUID_TO_BIN(?, TRUE) AND username = ?;';
+    db.query(query, [postId, username], (err) => {
+      if (err !== null) reject(err);
       else resolve();
     });
   }),
