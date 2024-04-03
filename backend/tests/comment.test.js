@@ -10,9 +10,10 @@ const api = supertest(app);
 // the authentication token returned from the API.
 const tokens = {};
 let projects = [];
-let comments = [];
+const comments = [];
 
 beforeAll(async () => {
+  db.query('DELETE FROM transaction;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM user;');
 
@@ -146,7 +147,7 @@ describe('Comments can be', () => {
   });
 });
 
-describe('Comments cannot be altered without logging in', () =>{
+describe('Comments cannot be altered without logging in', () => {
   test('creation', async () => {
     const res = await api.post('/api/comment')
       .send({ post_id: projects[0], content: 'Hello :)' });
