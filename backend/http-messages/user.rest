@@ -2,7 +2,7 @@ GET http://localhost:3000/user/user
 
 ###
 
-POST http://localhost:3000/user
+POST http://localhost:3000/api/user
 Content-Type: application/json
 
 {

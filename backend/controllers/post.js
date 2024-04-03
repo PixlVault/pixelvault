@@ -123,14 +123,20 @@ const setLike = async (req, res) => {
     return res.status(401).json({ error: 'Must be logged in' });
   }
 
+  const postId = req.body.post_id;
+  if (postId === undefined) {
+    return res.status(400).json({ error: 'Missing required field: `post_id`' });
+  }
+
+
   try {
     if (req.method === 'POST') {
-      await Post.like(req.token.username, req.params.postId);
+      await Post.like(req.token.username, postId);
     } else if (req.method === 'DELETE') {
-      await Post.unlike(req.token.username, req.params.postId);
+      await Post.unlike(req.token.username, postId);
     } else {
       console.error('Impossible route reached', req.method);
-      return res.status(400).send();
+      return res.status(404).send();
     }
     return res.status(200).send();
   } catch (error) {
@@ -139,8 +145,8 @@ const setLike = async (req, res) => {
   }
 };
 
-router.post('/:postId/likes', setLike);
-router.delete('/:postId/likes', setLike);
+router.post('/likes', setLike);
+router.delete('/likes', setLike);
 
 const setHidden = async (req, res) => {
   if (req.token === undefined) {
@@ -156,43 +162,49 @@ const setHidden = async (req, res) => {
     // Only allow a user to update a post they own.
     const project = await Project.get(postId);
     if (project === null) {
-      return res.status(404).json({ error: 'Cannot hide a post which does not exist' });
+      return res.status(404).json({ error: 'Cannot un/hide a post which does not exist' });
     }
 
-    if (project.created_by !== req.token.username && req.token.is_admin !== true) {
-      return res.status(401).json({ error: 'Cannot hide a non-owned post' });
+    if (project.created_by !== req.token.username && req.token.is_admin !== 1) {
+      return res.status(401).json({ error: 'Cannot un/hide a non-owned post' });
     }
 
-    const post = await Post.getById(postId);
-    if (post === null) {
-      return res.status(404).json({ error: 'Cannot hide a post which does not exist' });
+    const post = (await Post.getById(postId))[0];
+    if (post === undefined) {
+      return res.status(404).json({ error: 'Cannot un/hide a post which does not exist' });
     }
 
     if (req.method === 'POST') {
-      // Prevent a user by overriding their post being hidden by an admin.
-      if (post.is_hidden === true && req.token.is_admin !== true) {
-        return res.status(200).send();
+      // Don't execute a SQL update if there's nothing to change;
+      // Also, prevent a user from overwriting 'hidden_by' field on their post
+      // after it has been hidden by an admin.
+      if (post.is_hidden === 0 || req.token.is_admin === 1) {
+        await Post.hide(postId, req.token.username);
       }
-      await Post.hide(postId, req.token.username);
+      return res.status(201).send();
     }
 
     if (req.method === 'DELETE') {
-      // Prevent a user from undoing an admin hiding a post.
-      if (post.is_hidden === true
-        && post.hidden_by !== project.created_by
-        && req.token.is_admin !== true) {
-        return res.status(200).send();
+      if (post.is_hidden === 0) return res.status(204).send();
+      // If an author hid a post, only the author should be able to unhide it.
+      // If an admin hid a post, any admin - but not the author - should be able to unhide it.
+      const hiddenByAuthor = post.created_by === post.hidden_by;
+      if ((req.token.username === post.created_by && hiddenByAuthor)
+        || (req.token.is_admin === 1 && !hiddenByAuthor)) {
+        await Post.unhide(postId);
+        return res.status(204).send();
       }
-      await Post.unhide(postId);
+      return res.status(401).json({ error: 'Unauthorised to unhide this post' });
     }
-    return res.status(200).send();
+
+    return res.status(404).send();
   } catch (error) {
     console.error(error);
     return res.status(400).json({ error: error.message });
   }
 };
 
-router.post('/hidden', setHidden);
-router.delete('/hidden', setHidden);
+router.post('/hide', setHidden);
+router.delete('/hide', setHidden);
 
 module.exports = router;

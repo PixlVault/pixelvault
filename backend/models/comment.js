@@ -4,6 +4,23 @@ const { db } = require('../utils/database');
 
 const Comment = {
   /**
+   * Retrieve a comment according to its ID.
+   * @param {number} commentId The ID of the comment.
+   * @returns The comment, if one is found.
+   */
+  get: (commentId) => new Promise((resolve, reject) => {
+    if (typeof commentId !== 'number') {
+      reject(new Error('Missing or invalid field: `comment_id`'));
+      return;
+    }
+
+    db.query('SELECT * FROM comment WHERE comment_id = ?', commentId, (error, result) => {
+      if (error !== null) reject(error);
+      else resolve(result.length > 0 ? result[0] : null);
+    });
+  }),
+
+  /**
    * Add a new comment to a post.
    * @param {string} postId The UUID of the post.
    * @param {string} username The username of the comment's author.
@@ -26,7 +43,7 @@ const Comment = {
     }
 
     db.query(
-      'INSERT INTO comment (post_id, author, content) VALUES (?, ?, ?);',
+      'INSERT INTO comment (post_id, author, content) VALUES (UUID_TO_BIN(?, TRUE), ?, ?);',
       [postId, username, content],
       (error, result) => {
         if (error !== null) reject(error);
@@ -68,7 +85,7 @@ const Comment = {
     }
 
     db.query(
-      'INSERT INTO comment_likes (comment_id, username) VALUES (?, ?);',
+      'INSERT INTO comment_likes (comment_id, username) VALUES (?, ?) ON DUPLICATE KEY UPDATE username=username;',
       [commentId, username],
       (error, result) => {
         if (error !== null) reject(error);
@@ -89,12 +106,12 @@ const Comment = {
     }
 
     if (typeof username !== 'string') {
-      reject(new Error('Missing or invalid field: `comment_id`'));
+      reject(new Error('Missing or invalid field: `username`'));
       return;
     }
 
     db.query(
-      'DELETE FROM comment_likes WHERE comment_id = ? AND author = ?;',
+      'DELETE FROM comment_likes WHERE comment_id = ? AND username = ?;',
       [commentId, username],
       (error, result) => {
         if (error !== null) reject(error);
@@ -150,4 +167,4 @@ const Comment = {
   }),
 };
 
-export default Comment;
+module.exports = Comment;

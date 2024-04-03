@@ -114,11 +114,23 @@ const Post = {
         }
 
         db.query('SELECT tag FROM post_tags WHERE post_id = UUID_TO_BIN(?, TRUE)', [postId], (error, rows) => {
-          if (error !== null) reject(error);
-          else {
-            posts[0].tags = rows.map((row) => row.tag);
-            resolve(posts);
+          if (error !== null) {
+            reject(error);
+            return;
           }
+          posts[0].tags = rows.map((row) => row.tag);
+
+          db.query(`SELECT author, content, timestamp,
+              (SELECT COUNT(*) FROM comment_likes WHERE comment_id IN (SELECT comment_id FROM comment WHERE post_id = UUID_TO_BIN(?, TRUE))) AS likes
+            FROM comment
+            WHERE post_id = UUID_TO_BIN(?, TRUE)`, [postId, postId], (error, comments) => {
+            if (error !== null) {
+              reject(error);
+              return;
+            }
+            posts[0].comments = comments;
+            resolve(posts);
+          });
         });
       },
     );

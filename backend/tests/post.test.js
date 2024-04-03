@@ -67,15 +67,19 @@ describe('Posts can be created', () => {
 
 describe('Posts can be liked', () => {
   test('by users', async () => {
-    let res = await api.post(`/api/post/${projects[1]}/likes`)
+    let res = await api.post('/api/post/likes')
+      .send({ post_id: projects[1] })
+      .set('Authorization', tokens.other);
+    console.log(res.body);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/likes')
+      .send({ post_id: projects[0] })
       .set('Authorization', tokens.other);
     expect(res.statusCode).toBe(200);
 
-    res = await api.post(`/api/post/${projects[0]}/likes`)
-      .set('Authorization', tokens.other);
-    expect(res.statusCode).toBe(200);
-
-    res = await api.post(`/api/post/${projects[1]}/likes`)
+    res = await api.post('/api/post/likes')
+      .send({ post_id: projects[1] })
       .set('Authorization', tokens.friend);
     expect(res.statusCode).toBe(200);
 
@@ -90,7 +94,8 @@ describe('Posts can be liked', () => {
   });
 
   test('and unliked', async () => {
-    let res = await api.delete(`/api/post/${projects[1]}/likes`)
+    let res = await api.delete('/api/post/likes')
+      .send({ post_id: projects[1] })
       .set('Authorization', tokens.other);
     expect(res.statusCode).toBe(200);
 
@@ -101,7 +106,8 @@ describe('Posts can be liked', () => {
   });
 
   test('liking the same post twice has no effect', async () => {
-    let res = await api.post(`/api/post/${projects[1]}/likes`)
+    let res = await api.post('/api/post/likes')
+      .send({ post_id: projects[1] })
       .set('Authorization', tokens.other);
     expect(res.statusCode).toBe(200);
 
@@ -109,7 +115,8 @@ describe('Posts can be liked', () => {
       .send({ project_id: projects[1] });
     const likeCount = res.body[0].likes;
 
-    res = await api.post(`/api/post/${projects[1]}/likes`)
+    res = await api.post('/api/post/likes')
+      .send({ post_id: projects[1] })
       .set('Authorization', tokens.other);
     expect(res.statusCode).toBe(200);
 
@@ -119,7 +126,8 @@ describe('Posts can be liked', () => {
   });
 
   test('unliking the same post twice has no effect', async () => {
-    let res = await api.delete(`/api/post/${projects[1]}/likes`)
+    let res = await api.delete('/api/post/likes')
+      .send({ post_id: projects[1] })
       .set('Authorization', tokens.other);
     expect(res.statusCode).toBe(200);
 
@@ -127,7 +135,8 @@ describe('Posts can be liked', () => {
       .send({ project_id: projects[1] });
     const likeCount = res.body[0].likes;
 
-    res = await api.delete(`/api/post/${projects[1]}/likes`)
+    res = await api.delete('/api/post/likes')
+      .send({ post_id: projects[1] })
       .set('Authorization', tokens.other);
     expect(res.statusCode).toBe(200);
 
@@ -390,7 +399,7 @@ describe('Post queries can be sorted', () => {
       },
     ]);
   });
-  
+
   test('by likes (ascending)', async () => {
     const res = await api.post('/api/post/search')
       .send({ order_by: 'likes', ascending: true });
@@ -612,23 +621,47 @@ describe('posts can be updated', () => {
   });
 });
 
-describe('Posts can be hidden', () => {
+describe('Posts can be hidden/unhidden', () => {
   test('by the author', async () => {
-    let res = await api.post('/api/post/hidden')
+    let res = await api.post('/api/post/hide')
       .send({ post_id: projects[0] })
       .set('Authorization', tokens.creator);
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(201);
 
     res = await api.post('/api/post/search')
       .send({ post_id: projects[0] })
       .set('Authorization', tokens.creator);
-
     expect(res.body[0].is_hidden).toBe(1);
+
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(204);
+
+    res = await api.post('/api/post/search')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.body[0].is_hidden).toBe(0);
   });
 
   test.todo('by admins');
-  test.todo('but not by non-admin, non-owners');
+
+  test('but not by non-admin, non-owners', async () => {
+    let res = await api.post('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Cannot un/hide a non-owned post' });
+
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Cannot un/hide a non-owned post' });
+  });
+
   test.todo('if hidden by an admin, cannot be unhidden by the owner');
+  test.todo('if hidden by a user, cannot be unhidden by an admin');
 });
 
 afterAll(() => {
