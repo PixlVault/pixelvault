@@ -31,6 +31,14 @@ router.get('/:projectId', async (req, res) => {
 });
 
 router.get('/createdBy/:username', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  if (req.params.username !== req.token.username) {
+    return res.status(401).json({ error: 'Cannot retrieve another user\'s projects' });
+  }
+
   try {
     const projects = await Project.getCreatedBy(req.params.username);
     return projects === null
