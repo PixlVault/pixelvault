@@ -4,6 +4,8 @@ import pointsBetween from '../utils/line-points';
 
 let prevMousePos = { x: 0, y: 0 }
 
+let changeBuffer = {};
+
 const Canvas = ({ colour, sendMessage, canvasRef, contextRef, width, height }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
@@ -63,13 +65,19 @@ const Canvas = ({ colour, sendMessage, canvasRef, contextRef, width, height }) =
     const alphaIndex = redIndex + 3;
 
     const [r, g, b, a] = pixelColour;
+
+    changeBuffer[redIndex] = r;
+    changeBuffer[greenIndex] = g;
+    changeBuffer[blueIndex] = b;
+    changeBuffer[alphaIndex] = a;
+
     pixelData.data[redIndex] = r;
     pixelData.data[greenIndex] = g;
     pixelData.data[blueIndex] = b;
     pixelData.data[alphaIndex] = a;
   }
 
-  const getCanvasState = () => 
+  const getCanvasState = () =>
     contextRef.current.getImageData(0, 0, width, height).data;
 
   const areAdjacent = (x0, y0, x1, y1) => {
@@ -105,7 +113,8 @@ const Canvas = ({ colour, sendMessage, canvasRef, contextRef, width, height }) =
   const endDrawing = () => {
     setIsDrawing(false);
     setIsErasing(false);
-    sendMessage(getCanvasState());
+    sendMessage(JSON.stringify(changeBuffer));
+    changeBuffer = {};
   }
 
   const mouseLeftCanvas = () => setIsDrawing(false);

@@ -1,4 +1,5 @@
 const express = require('express');
+const LZString = require('lz-string');
 
 const Project = require('../models/project');
 
@@ -95,6 +96,9 @@ router.post('/', async (req, res) => {
   }
 
   const { title, imageData } = req.body;
+
+  console.log('received', imageData);
+
   try {
     const result = await Project.insert(title, req.token.username, imageData);
     return res.status(201).json({ projectId: result.project_id });
