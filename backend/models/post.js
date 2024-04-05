@@ -57,7 +57,7 @@ const Post = {
     }
 
     if (title !== undefined) {
-      query = ` ${query} title = ? AND `;
+      query = ` ${query} title LIKE %?% AND `;
       params.push(title);
     }
 
