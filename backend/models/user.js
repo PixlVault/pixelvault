@@ -1,6 +1,6 @@
 const argon2 = require('argon2');
 
-const { db } = require('../utils/database');
+const { db, extractArgs } = require('../utils/database');
 
 const User = {
   /**
@@ -16,6 +16,64 @@ const User = {
     db.query('SELECT username, biography, experience, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
       else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
+    });
+  }),
+
+  /**
+   * Updates a user's account according to values specified in `args`.
+   * @param {string} username The user account to update.
+   * @param {{
+   *    password: string | undefined,
+   *    profile_picture: string | undefined,
+   *    biography: string | undefined,
+   *    experience: number | undefined,
+   *    twitter: string | undefined,
+   *    instagram: string | undefined,
+   *    tiktok: string | undefined,
+   *    youtube: string | undefined,
+   * }} args - Object with one or more of the described fields.
+   */
+  update: (username, args) => new Promise(async (resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Missing required field `username'));
+      return;
+    }
+
+    // If the user's submitted a new password, we need to first hash it.
+    if (args.password !== undefined) {
+      try {
+        args.password_hash = await argon2.hash(args.password);
+      } catch (err) {
+        console.error(err);
+        reject(new Error('Error in generating password hash.'));
+      }
+    }
+
+    const fields = {
+      required: [],
+      optional: [
+        'password_hash', 'profile_picture', 'biography', 'experience',
+        'twitter', 'instagram', 'tiktok', 'youtube',
+      ],
+    };
+
+    let extractedArgs = null;
+    try {
+      extractedArgs = extractArgs(args, fields);
+    } catch (e) { reject(e); return; }
+
+    if (extractedArgs.values.length <= fields.required.length) {
+      reject(new Error('Cannot execute an update action with no changes'));
+      return;
+    }
+
+    const query = `UPDATE user 
+      SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')} 
+      WHERE username = ?;`;
+
+    db.query(query, [...extractedArgs.values, username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
     });
   }),
 
@@ -147,6 +205,30 @@ const User = {
         console.error(err);
         reject(new Error('Error in generating password hash.'));
       });
+  }),
+
+  promoteAdmin: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('No username provided'));
+      return;
+    }
+
+    db.query('UPDATE user SET is_admin = 1 WHERE username = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result.affectedRows);
+    });
+  }),
+
+  demoteAdmin: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('No username provided'));
+      return;
+    }
+
+    db.query('UPDATE user SET is_admin = 0 WHERE username = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result.affectedRows);
+    });
   }),
 };
 

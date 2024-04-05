@@ -16,6 +16,20 @@ router.get('/:username', async (req, res) => {
   }
 });
 
+router.put('/', async (req, res) => {
+  if (!req.token) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  try {
+    await User.update(req.token.username, req.body);
+    return res.status(200).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 router.post('/', async (req, res) => {
   const { username, password, email } = req.body;
   try {
@@ -46,6 +60,40 @@ router.get('/:username/following', async (req, res) => {
     return res.status(400).send();
   }
 });
+
+const setAdmin = async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  if (req.token.is_admin !== 1) {
+    return res.status(401).json({ error: 'Not authorised to promote other users.' });
+  }
+
+  try {
+    if (req.method === 'POST') {
+      const changed = await User.promoteAdmin(req.body.username);
+      return changed === 0
+        ? res.status(304).json({ info: 'No change occurred - the user may not exist.' })
+        : res.status(201).send();
+    }
+
+    if (req.method === 'DELETE') {
+      const changed = await User.demoteAdmin(req.body.username);
+      return changed === 0
+        ? res.status(304).json({ info: 'No change occurred - the user may not exist.' })
+        : res.status(204).send();
+    }
+
+    return res.status(404).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+router.post('/admin', setAdmin);
+router.delete('/admin', setAdmin);
 
 router.post('/:username/following', async (req, res) => {
   if (!req.token) {

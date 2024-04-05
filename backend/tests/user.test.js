@@ -66,6 +66,75 @@ describe('Users can be created', () => {
   });
 });
 
+describe('Users can become admin', () => {
+  let adminToken;
+  test('promoted by admin', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: process.env.ROOT_USERNAME, password: process.env.ROOT_PASSWORD });
+    adminToken = `token ${res.body.token}`;
+
+    res = await api.post('/api/user/admin')
+      .send({ username: 'user' })
+      .set('Authorization', adminToken);
+    expect(res.statusCode).toBe(201);
+  });
+
+  test('demoted by admin', async () => {
+    const res = await api.delete('/api/user/admin')
+      .send({ username: 'user' })
+      .set('Authorization', adminToken);
+    expect(res.statusCode).toBe(204);
+  });
+
+  test('cannot promote non-existent users', async () => {
+    const res = await api.post('/api/user/admin')
+      .send({ username: 'doesntexist' })
+      .set('Authorization', adminToken);
+    expect(res.statusCode).toBe(304);
+  });
+
+  test('non-admins cannot promote users', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: 'user', password: 'password' });
+    const userToken = `token ${res.body.token}`;
+
+    res = await api.post('/api/user/admin')
+      .send({ username: 'user' })
+      .set('Authorization', userToken);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Not authorised to promote other users.' });
+  });
+});
+
+describe('Accounts can be updated', () => {
+  test('update own details', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: 'user', password: 'password' });
+
+    const token = res.body.token;
+
+    // Change the password.
+    res = await api
+      .put('/api/user')
+      .send({ username: 'user', password: 'newPassword' })
+      .set('Authorization', `token ${token}`);
+    expect(res.statusCode).toBe(200);
+
+    // Try using it.
+    res = await api
+      .post('/api/login')
+      .send({ username: 'user', password: 'newPassword' });
+    expect(res.statusCode).toBe(200);
+
+    // Change it back!
+    res = await api
+      .put('/api/user')
+      .send({ username: 'user', password: 'password' })
+      .set('Authorization', `token ${token}`);
+    expect(res.statusCode).toBe(200);
+  });
+});
+
 describe('Users can be retrieved by their username', () => {
   test('Valid ID', async () => {
     const res = await api.get('/api/user/user');
