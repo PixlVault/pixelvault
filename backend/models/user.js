@@ -20,6 +20,58 @@ const User = {
   }),
 
   /**
+   * Delete a user from the database.
+   * @param {string} username
+   */
+  delete: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('DELETE FROM user WHERE username = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  }),
+
+  ban: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('UPDATE user SET is_banned = 1 WHERE username = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  }),
+
+  unban: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('UPDATE user SET is_banned = 0 WHERE username = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  }),
+
+  isBanned: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('SELECT is_banned = 1 AS is_banned FROM user WHERE username = ?;', [username], (err, result) => {
+      if (err) reject(err);
+      else resolve(result[0].is_banned === 1);
+    });
+  }),
+
+  /**
    * Updates a user's account according to values specified in `args`.
    * @param {string} username The user account to update.
    * @param {{

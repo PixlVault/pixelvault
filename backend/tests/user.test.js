@@ -66,6 +66,92 @@ describe('Users can be created', () => {
   });
 });
 
+describe('Users can be deleted', () => {
+  test('only by their owner', async () => {
+    await api.post('/api/user')
+      .send({ username: 'toBeDeleted', password: 'password', email: 'gone@email.com' });
+
+    let res = await api.post('/api/login')
+      .send({ username: 'toBeDeleted', password: 'password' });
+
+    const auth = `token ${res.body.token}`;
+
+    res = await api.delete('/api/user').set('Authorization', auth);
+    expect(res.statusCode).toBe(204);
+  });
+});
+
+let bannedUserToken = null;
+describe('Users can be banned', () => {
+  test('not by non-admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: 'user', password: 'password' });
+
+    bannedUserToken = `token ${res.body.token}`;
+
+    res = await api.post('/api/user/ban')
+      .send({ username: 'user' })
+      .set('Authorization', bannedUserToken);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Only admins can ban or unban users' });
+  });
+
+  test('by admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: process.env.ROOT_USERNAME, password: process.env.ROOT_PASSWORD });
+
+    const userAuth = `token ${res.body.token}`;
+
+    res = await api.post('/api/user/ban')
+      .send({ username: 'user' })
+      .set('Authorization', userAuth);
+    expect(res.statusCode).toBe(201);
+  });
+});
+
+describe('Banned users cannot interact with the site', () => {
+  test('Cannot log in', async () => {
+    const res = await api.post('/api/login')
+      .send({ username: 'user', password: 'password' });
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'User account has been banned' });
+  });
+
+  test('Cannot use existing valid token to bypass a ban', async () => {
+    const res = await api.post('/api/project')
+      .send({ title: 'some Title', imageData: null })
+      .set('Authorization', bannedUserToken);
+    expect(res.statusCode).toBe(401);
+  });
+});
+
+describe('Users can be unbanned', () => {
+  test('not by non-admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: 'otherUser', password: 'password' });
+
+    const userAuth = `token ${res.body.token}`;
+
+    res = await api.delete('/api/user/ban')
+      .send({ username: 'user' })
+      .set('Authorization', userAuth);
+    expect(res.statusCode).toBe(401);
+    expect(res.body).toEqual({ error: 'Only admins can ban or unban users' });
+  });
+
+  test('by admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: process.env.ROOT_USERNAME, password: process.env.ROOT_PASSWORD });
+
+    const userAuth = `token ${res.body.token}`;
+
+    res = await api.delete('/api/user/ban')
+      .send({ username: 'user' })
+      .set('Authorization', userAuth);
+    expect(res.statusCode).toBe(204);
+  });
+});
+
 describe('Users can become admin', () => {
   let adminToken;
   test('promoted by admin', async () => {
