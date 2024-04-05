@@ -88,17 +88,9 @@ const OfflineCanvasContainer = ({ colour }) => {
   </>;
 };
 
-// TODO: This should be fleshed out and extracted into its own module.
 const Alert = ({ message }) => {
-  const style = {
-    padding: '4px',
-    margin: '1rem 2rem 1rem 2rem',
-    backgroundColor: '#E95830',
-    color: 'white',
-  };
-
-  return <div className='alert' style={style}>
-    <p>{message}</p>
+  return <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative'>
+    <span>{message}</span>
   </div>;
 };
 
@@ -110,9 +102,12 @@ const socket = io('ws://localhost:3000', {
 
 const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   const { projectId } = useParams();
+
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+
   const [connected, setConnected] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
     fetchProjectById(projectId)
@@ -129,6 +124,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
     socket.on('load', (data) => {
       const decompressed = JSON.parse(LZString.decompressFromBase64(data));
       initialiseCanvas(canvasRef, contextRef, decompressed);
+      setCanvasReady(true);
     });
 
     socket.on('update', (data) => {
@@ -140,7 +136,10 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       contextRef.current.putImageData(imageData, 0, 0);
     });
 
-    socket.on('disconnect', () => { setConnected(false); });
+    socket.on('disconnect', () => {
+      setConnected(false);
+      setCanvasReady(false);
+    });
 
     return () => {
       setConnected(false);
@@ -153,7 +152,8 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   }, [projectId]);
 
   return <>
-    { !connected ? <Alert message={'Disconnected from server! Changes will not be saved.'} /> : null }
+    { canvasReady && !connected ? <Alert message={'WARNING: Disconnected from server! Changes will not be saved.'} /> : null }
+    { !canvasReady ? <div className='text-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw]'><span>Loading...</span></div> : <></> }
     <Canvas
       colour={colour}
       canvasRef={canvasRef}
@@ -161,6 +161,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       sendMessage={(data) => { socket.emit('update', data); }}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
+      canvasReady={canvasReady}
     />
   </>;
 };
@@ -177,13 +178,13 @@ const Editor = ({ user }) => {
   return <>
     {
       user !== null && projectId !== undefined
-        ? <>
+        ? <div>
           <div align="center">
             <h3>{currentProject !== null ? `Currently Editing ${currentProject.title}` : ''}</h3>
           </div>
           <OnlineCanvasContainer colour={colour} setCurrentProject={setCurrentProject} />
           <button onClick={() => navigate('../edit/')} >Close</button>
-        </>
+        </div>
         : <>
           <div align="center">
             <h3>Untitled - Please Open a Project</h3>
