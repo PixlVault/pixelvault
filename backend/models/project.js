@@ -1,6 +1,6 @@
 const { v1: uuid, validate: isValidUuid } = require('uuid');
 
-const db = require('../utils/database');
+const { db, extractArgs } = require('../utils/database');
 
 const Project = {
   /**
@@ -161,38 +161,31 @@ const Project = {
    * Update the details of an existing project. If no optional parameters are
    * provided, nothing will happen.
    * @param {*} projectId The ID of the project to update.
-   * @param {*} title The new title of the project - optional.
-   * @param {*} imageData The new image data for the project - optional.
-   * @returns
+   * @param {*} args An object containing new key-value pairs for the project's attributes.
    */
-  update: (projectId, title = null, imageData = null) => new Promise((resolve, reject) => {
+  update: (projectId, args) => new Promise((resolve, reject) => {
+    const fields = { required: [], optional: ['title', 'image_data'] };
+
     if (!isValidUuid(projectId)) {
       reject(new Error('Invalid UUID provided'));
       return;
     }
 
-    const queryParams = [];
-    const queryComponents = [];
+    let extractedArgs = null;
+    try {
+      extractedArgs = extractArgs(args, fields);
+    } catch (e) { reject(e); return; }
 
-    if (title) {
-      queryComponents.push('title = ?');
-      queryParams.push(title);
-    }
-
-    if (imageData) {
-      queryComponents.push('image_data = ?');
-      queryParams.push(imageData);
-    }
-
-    if (queryParams.length === 0) {
+    if (extractedArgs.values.length <= fields.required.length) {
       reject(new Error('Cannot execute an update action with no changes'));
       return;
     }
 
-    queryParams.push(projectId);
-    const query = `UPDATE project SET ${queryComponents.join(', ')} WHERE project_id = UUID_TO_BIN(?, TRUE);`;
+    const query = `UPDATE project 
+      SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')} 
+      WHERE project_id = UUID_TO_BIN(?, TRUE);`;
 
-    db.query(query, queryParams, (err, result) => {
+    db.query(query, [...extractedArgs.values, projectId], (err, result) => {
       if (err) reject(err);
       else resolve(result);
     });

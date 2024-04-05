@@ -34,7 +34,7 @@ const attachWebSocketService = (server) => {
     // Test if the user has permission to join a project.
     if (!(projectId in sessions)) {
       try {
-        const collaborators = await Project.getCollaborators(projectId);
+        const collaborators = await Project.collaborators(projectId);
 
         if (!collaborators.includes(user)) {
           console.log(`User ${user} does not have permission to edit ${projectId}`);

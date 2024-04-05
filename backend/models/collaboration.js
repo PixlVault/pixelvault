@@ -1,6 +1,6 @@
 const { validate: isValidUuid } = require('uuid');
 
-const db = require('../utils/database');
+const { db } = require('../utils/database');
 
 const formatCollaboration = (rowDataPackets) => rowDataPackets.map(
   (row) => ({ ...row, accepted: row.accepted === 1 }),
@@ -68,13 +68,12 @@ const Collaboration = {
       [username, projectId],
       (err, result) => {
         if (err !== null) {
-          if (err.sqlMessage.endsWith('`user` (`username`) ON DELETE CASCADE)')) {
+          if (err.sqlMessage && err.sqlMessage.endsWith('`user` (`username`) ON DELETE CASCADE)')) {
             reject(new Error('User does not exist'));
           } else {
             reject(err);
           }
-        }
-        else resolve(result);
+        } else resolve(result);
       },
     );
   }),

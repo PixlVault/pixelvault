@@ -1,6 +1,6 @@
 const argon2 = require('argon2');
 
-const db = require('../utils/database');
+const { db } = require('../utils/database');
 
 const User = {
   /**
@@ -20,7 +20,8 @@ const User = {
   }),
 
   /**
-   * Get a list of usernames followed by one user.
+   * Return a list of accounts followed by a particular user.
+   * @param {string} username
    */
   getFollowing: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {
@@ -38,8 +39,8 @@ const User = {
 
   /**
    * Set one user as following another.
-   * @param username The ID of the 'follower'.
-   * @param targetUsername The ID of the person being 'followed'.
+   * @param {string} username The ID of the 'follower'.
+   * @param {string} targetUsername The ID of the person being 'followed'.
    */
   follow: (username, targetUsername) => new Promise((resolve, reject) => {
     if (username === undefined) {
@@ -69,8 +70,8 @@ const User = {
 
   /**
    * Set one user as following another.
-   * @param username The ID of the 'follower'.
-   * @param targetUsername The ID of the person being 'followed'.
+   * @param {string} username The ID of the 'follower'.
+   * @param {string} targetUsername The ID of the person being 'followed'.
    */
   unfollow: (username, targetUsername) => new Promise((resolve, reject) => {
     if (username === undefined) {
@@ -96,7 +97,7 @@ const User = {
   /**
    * Look up a single user according to their username and return all of their details.
    * Do not let any routes return this!
-   * @param {*} username The username to query.
+   * @param {string} username The username to query.
    */
   getDetails: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {
@@ -112,9 +113,9 @@ const User = {
 
   /**
    * Insert a new user into the database.
-   * @param {*} username The user's username.
-   * @param {*} passwordHash The hashed form of their password.
-   * @param {*} email The user's email address.
+   * @param {string} username The user's username.
+   * @param {string} password The user's password.
+   * @param {string} email The user's email address.
    */
   insert: (username, password, email) => new Promise((resolve, reject) => {
     if (username === undefined) {
