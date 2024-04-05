@@ -180,8 +180,9 @@ const setHidden = async (req, res) => {
       // after it has been hidden by an admin.
       if (post.is_hidden === 0 || req.token.is_admin === 1) {
         await Post.hide(postId, req.token.username);
+        return res.status(201).send();
       }
-      return res.status(201).send();
+      return res.status(401).json({ error: 'Unauthorised to hide this post' });
     }
 
     if (req.method === 'DELETE') {

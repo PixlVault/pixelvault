@@ -51,6 +51,52 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.delete('/', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+
+  try {
+    await User.delete(req.token.username);
+    return res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).json({ error: 'An error occurred, please contact support to delete your account' });
+  }
+});
+
+const setBanned = async (req, res) => {
+  if (req.body.username === undefined) {
+    return res.status(400).json({ error: 'Must specify a username' });
+  }
+
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  if (req.token.is_admin !== 1) {
+    return res.status(401).json({ error: 'Only admins can ban or unban users' });
+  }
+
+  try {
+    if (req.method === 'POST') {
+      await User.ban(req.body.username);
+      return res.status(201).send();
+    }
+    if (req.method === 'DELETE') {
+      await User.unban(req.body.username);
+      return res.status(204).send();
+    }
+    return res.status(404).send();
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send();
+  }
+};
+
+router.post('/ban', setBanned);
+router.delete('/ban', setBanned);
+
 router.get('/:username/following', async (req, res) => {
   try {
     const following = await User.getFollowing(req.params.username);

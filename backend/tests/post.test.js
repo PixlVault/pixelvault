@@ -173,6 +173,8 @@ describe('Posts can be searched', () => {
     const res = await api.post('/api/post/search')
       .send({ title: 'one' });
 
+    console.log(res.body);
+
     expect(res.statusCode).toBe(200);
     expect(res.body).toMatchObject([{
       post_id: projects[0],
@@ -645,7 +647,21 @@ describe('Posts can be hidden/unhidden', () => {
     expect(res.body[0].is_hidden).toBe(0);
   });
 
-  test.todo('by admins');
+  test('by admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: process.env.ROOT_USERNAME, password: process.env.ROOT_PASSWORD });
+    tokens.admin = `token ${res.body.token}`;
+
+    res = await api.post('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(201);
+
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(204);
+  });
 
   test('but not by non-admin, non-owners', async () => {
     let res = await api.post('/api/post/hide')
@@ -661,8 +677,39 @@ describe('Posts can be hidden/unhidden', () => {
     expect(res.body).toEqual({ error: 'Cannot un/hide a non-owned post' });
   });
 
-  test.todo('if hidden by an admin, cannot be unhidden by the owner');
-  test.todo('if hidden by a user, cannot be unhidden by an admin');
+  test('if hidden by an admin, cannot be changed by the owner', async () => {
+    let res = await api.post('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(201);
+
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(401);
+
+    res = await api.post('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(401);
+
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(204);
+  });
+
+  test('if hidden by an owner, cannot be unhidden by an admin', async () => {
+    let res = await api.post('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(201);
+
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(401);
+  });
 });
 
 afterAll(() => {

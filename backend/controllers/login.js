@@ -23,9 +23,13 @@ router.post('/', async (req, res) => {
       return res.status(401).json({ error: 'Invalid username or password provided' });
     }
 
+    if (user.is_banned === 1) {
+      return res.status(401).json({ error: 'User account has been banned' });
+    }
+
     if (await argon2.verify(user.password_hash, password)) {
       delete user.password_hash;
-      const token = jwt.sign(user, process.env.JWT_SECRET);
+      const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
       return res.status(200).send({ token });
     }
     return res.status(401).json({ error: 'Invalid username or password provided' });

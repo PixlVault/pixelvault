@@ -57,8 +57,8 @@ const Post = {
     }
 
     if (title !== undefined) {
-      query = ` ${query} title LIKE %?% AND `;
-      params.push(title);
+      query = ` ${query} title LIKE ? AND `;
+      params.push(`%${title}%`);
     }
 
     if (licence !== undefined) {

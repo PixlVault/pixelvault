@@ -4,21 +4,27 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const apiRouter = require('./controllers/api');
+const User = require('./models/user');
 
 const app = express();
 
 app.use(express.json());
 
 // Basic token extractor:
-app.use((req, _res, next) => {
+app.use(async (req, _res, next) => {
   let auth = req.headers.authorization;
   auth = auth ? auth.split(' ')[1] : undefined;
 
   if (auth) {
     try {
-      req.token = jwt.verify(auth, process.env.JWT_SECRET);
+      const token = jwt.verify(auth, process.env.JWT_SECRET);
+      if (await User.isBanned(token.username)) {
+        console.log(`Banned user ${token.username} attempted to authenticate`);
+      } else {
+        req.token = token;
+      }
     } catch (e) {
-      // User's token could not be verified.
+      console.error(e);
     }
   }
 
