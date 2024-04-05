@@ -45,6 +45,7 @@ const attachWebSocketService = (server) => {
       });
     } catch (e) {
       console.error(e);
+      socket.disconnect();
       next(new Error('Something went wrong!'));
     }
 

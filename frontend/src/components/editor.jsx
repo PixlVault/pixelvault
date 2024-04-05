@@ -83,6 +83,7 @@ const OfflineCanvasContainer = ({ colour }) => {
       sendMessage={() => { }}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
+      canvasReady={true}
     />
     <button onClick={() => saveProject(contextRef, navigate)}>Save as Project</button>
   </>;
