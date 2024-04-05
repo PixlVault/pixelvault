@@ -6,11 +6,24 @@ const Project = require('../models/project');
 const router = express.Router();
 
 router.get('/:projectId', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
   try {
     const project = await Project.get(req.params.projectId);
-    return project === null
-      ? res.status(404).json({ error: 'Project does not exist' })
-      : res.status(200).json(project);
+    if (project === null) {
+      return res.status(404).json({ error: 'Project does not exist' });
+    }
+
+    if (project.created_by !== req.token.username) {
+      const collaborators = await Project.collaborators(req.params.projectId);
+      if (!collaborators.includes(req.token.username)) {
+        return res.status(401).json({ error: 'Non-collaborators cannot retrieve project details' });
+      }
+    }
+
+    return res.status(200).json(project);
   } catch (error) {
     console.error(error);
     // TODO: May not be wise to send verbatim error back?
@@ -19,6 +32,14 @@ router.get('/:projectId', async (req, res) => {
 });
 
 router.get('/createdBy/:username', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  if (req.params.username !== req.token.username) {
+    return res.status(401).json({ error: 'Cannot retrieve another user\'s projects' });
+  }
+
   try {
     const projects = await Project.getCreatedBy(req.params.username);
     return projects === null
@@ -56,9 +77,8 @@ router.put('/:projectId', async (req, res) => {
     return res.status(401).json({ error: 'Not authorised to edit this project' });
   }
 
-  const { title, imageData } = req.body;
   try {
-    await Project.update(req.params.projectId, title, imageData);
+    await Project.update(req.params.projectId, req.body);
     return res.status(200).json({});
   } catch (err) {
     console.error(err);
