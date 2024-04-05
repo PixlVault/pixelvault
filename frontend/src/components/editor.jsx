@@ -15,15 +15,10 @@ const backgroundColor = "#FFFFFF";
 
 const initialiseCanvas = (canvasRef, contextRef, initialData) => {
   const setCanvasData = (data) => {
-    console.log(data);
-    let imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
+    const imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
     Object.keys(data).forEach((i) => {
-      // console.log(i, data[i]);
       imageData.data[i] = data[i];
     });
-    // for (let i = 0; i < data.length; i++) {
-    //   imageData.data[i] = buffer[i];
-    // }
 
     contextRef.current.putImageData(imageData, 0, 0);
   };
@@ -112,7 +107,6 @@ const Alert = ({ message }) => {
 
 const socket = io('ws://localhost:3000', {
   path: '/edit',
-  // query: { pid: projectId },
   auth: { token: localStorage.getItem('auth') },
   autoConnect: false,
 });
@@ -135,9 +129,9 @@ const OnlineCanvasContainer = ({ colour }) => {
 
     socket.on('update', (data) => {
       const imageData = contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      console.log(imageData);
-      Object.keys(data).forEach((pixel) => {
-        imageData.data[pixel] = data[pixel];
+      const parsed = JSON.parse(data);
+      Object.keys(parsed).forEach((pixel) => {
+        imageData.data[pixel] = parsed[pixel];
       });
       contextRef.current.putImageData(imageData, 0, 0);
     });
