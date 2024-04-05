@@ -97,7 +97,8 @@ const Post = {
 
     db.query(
       `SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, project.created_by AS author,
-        is_hidden = 1 AS is_hidden
+        is_hidden = 1 AS is_hidden,
+        (SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id =  post.post_id) AS likes
       FROM post 
       LEFT JOIN project ON project.project_id = post.post_id
       WHERE post_id = UUID_TO_BIN(?, TRUE);`,
