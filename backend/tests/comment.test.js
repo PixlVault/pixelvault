@@ -185,7 +185,16 @@ describe('Comments cannot be altered without logging in', () => {
 });
 
 describe('Comments can be hidden', () => {
-  test.todo('by admins');
+  test('by admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: process.env.ROOT_USERNAME, password: process.env.ROOT_PASSWORD });
+    tokens.admin = `token ${res.body.token}`;
+
+    res = await api.post('/api/comment/hide')
+      .send({ comment_id: comments[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(201);
+  });
 
   test('but not by non-admins', async () => {
     const res = await api.post('/api/comment/hide')
@@ -198,7 +207,12 @@ describe('Comments can be hidden', () => {
 });
 
 describe('Comments can be unhidden', () => {
-  test.todo('by admins');
+  test('by admins', async () => {
+    const res = await api.delete('/api/comment/hide')
+      .send({ comment_id: comments[0] })
+      .set('Authorization', tokens.admin);
+    expect(res.statusCode).toBe(204);
+  });
 
   test('but not by non-admins', async () => {
     const res = await api.delete('/api/comment/hide')
