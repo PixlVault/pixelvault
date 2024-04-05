@@ -11,15 +11,12 @@ import { createNewProject, fetchProjectById } from '../api';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
-const backgroundColor = "#FFFFFF";
+const backgroundColor = '#FFFFFF';
 
 const initialiseCanvas = (canvasRef, contextRef, initialData) => {
   const setCanvasData = (data) => {
     const imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
-    Object.keys(data).forEach((i) => {
-      imageData.data[i] = data[i];
-    });
-
+    Object.keys(data).forEach((i) => { imageData.data[i] = data[i]; });
     contextRef.current.putImageData(imageData, 0, 0);
   };
 
@@ -111,16 +108,23 @@ const socket = io('ws://localhost:3000', {
   autoConnect: false,
 });
 
-const OnlineCanvasContainer = ({ colour }) => {
+const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   const { projectId } = useParams();
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
+    fetchProjectById(projectId)
+      .then((project) => setCurrentProject(project))
+      .catch((error) => console.error(error));
+  }, [projectId]);
+
+  useEffect(() => {
     socket.io.opts.query = { ...socket.io.opts.query, pid: projectId };
     socket.connect();
-    setConnected(true);
+
+    socket.on('connect', () => setConnected(true));
 
     socket.on('load', (data) => {
       const decompressed = JSON.parse(LZString.decompressFromBase64(data));
@@ -136,8 +140,12 @@ const OnlineCanvasContainer = ({ colour }) => {
       contextRef.current.putImageData(imageData, 0, 0);
     });
 
+    socket.on('disconnect', () => { setConnected(false); });
+
     return () => {
       setConnected(false);
+      socket.off('connect');
+      socket.off('disconnect');
       socket.off('load');
       socket.off('update');
       socket.disconnect();
@@ -164,25 +172,21 @@ const Editor = ({ user }) => {
   const { projectId } = useParams();
   const navigate = useNavigate();
 
-  // Conditionally opening a websocket connection is apparently non-idiomatic
-  // so instead we conditionally render a canvas container, one of which does
-  // open a connection.
-  //
-  // TODO: This is a bit of a messy way to do a lo of conditional rendering.
-  //       Is there a better solution here?
+  // Conditionally opening a websocket connection is apparently non-idiomatic so we
+  // conditionally render a canvas container, one of which opens the connection.
   return <>
     {
       user !== null && projectId !== undefined
         ? <>
           <div align="center">
-            <h3>{currentProject !== null ? currentProject.title + ' - ' + currentProject.created_on : ''}</h3>
+            <h3>{currentProject !== null ? `Currently Editing ${currentProject.title}` : ''}</h3>
           </div>
           <OnlineCanvasContainer colour={colour} setCurrentProject={setCurrentProject} />
           <button onClick={() => navigate('../edit/')} >Close</button>
         </>
         : <>
           <div align="center">
-            <h3>Untitled - Please Sign In to Open a Project</h3>
+            <h3>Untitled - Please Open a Project</h3>
           </div>
           <OfflineCanvasContainer colour={colour} />
         </>
