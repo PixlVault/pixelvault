@@ -28,53 +28,46 @@ const attachWebSocketService = (server) => {
   io.of('/edit');
 
   io.use(async (socket, next) => {
-    if (socket.handshake.query.pid === undefined) {
-      next(new Error('Must provide a project id'));
-    }
-    const projectId = socket.handshake.query.pid;
-
     // Try verifying the user's identity:
-    let user;
     try {
       const auth = socket.handshake.auth.token;
       jwt.verify(auth, process.env.JWT_SECRET, (err, decoded) => {
         if (err !== null) {
           next(new Error('Could not authenticate user'));
         }
-        user = decoded.username;
+        socket.user = decoded.username;
       });
     } catch (e) {
       console.error(e);
       socket.disconnect();
       next(new Error('Something went wrong!'));
     }
-
-    // Test if the user has permission to join a project.
-    if (!(projectId in sessions)) {
-      try {
-        const collaborators = await Project.collaborators(projectId);
-
-        if (!collaborators.includes(user)) {
-          next(new Error(`User ${user} does not have permission to edit ${projectId}`));
-        } else {
-          // User is allowed to edit this project, initialise the session:
-          sessions[projectId] = { collaborators };
-        }
-      } catch (e) {
-        next(new Error('Error occurred in opening session'));
-      }
-    } else if (!sessions[projectId].collaborators.includes(user)) {
-      next(new Error(`User ${user} does not have permission to edit ${projectId}`));
-    }
-
-    socket.projectId = projectId;
     next();
   });
 
   io.on('connection', async (socket) => {
-    const { projectId } = socket;
+    if (socket.handshake.query.pid === undefined) {
+      return socket.disconnect('Must specify a project id');
+    }
 
-    if (!sessions[projectId].clients) {
+    // Test if the user has permission to join a project.
+    const projectId = socket.handshake.query.pid;
+    if (!(projectId in sessions)) {
+      try {
+        const collaborators = await Project.collaborators(projectId);
+        if (!collaborators.includes(socket.user)) {
+          return socket.disconnect(`User ${socket.user} does not have permission to edit ${projectId}`);
+        }
+        // User is allowed to edit this project, initialise the session:
+        sessions[projectId] = { collaborators };
+      } catch (e) {
+        return socket.disconnect('Error occurred in opening session');
+      }
+    } else if (!sessions[projectId].collaborators.includes(user)) {
+      return socket.disconnect(`User ${user} does not have permission to edit ${projectId}`);
+    }
+
+    if (sessions[projectId].clients === undefined) {
       // If the session hasn't already been initialised, do so:
       sessions[projectId] = { ...sessions[projectId], canvas: null, clients: [socket] };
 
