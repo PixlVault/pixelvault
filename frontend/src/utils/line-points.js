@@ -26,7 +26,7 @@ const getLinePoints = (x0, y0, x1, y1) => {
 }
 
 const getLinePointsLow = (x0, y0, x1, y1) => {
-  let points = []
+  let points = [];
 
   let dx = x1 - x0;
   let dy = y1 - y0;

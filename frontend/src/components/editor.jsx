@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import useWebSocket from 'react-use-websocket';
 import { useParams, useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
+import LZString from 'lz-string';
+
 
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
@@ -9,24 +11,14 @@ import { createNewProject, fetchProjectById } from '../api';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
-const backgroundColor = "#FFFFFF";
+const backgroundColor = '#FFFFFF';
 
-const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
-  const loadCanvas = message => {
-    message.data.arrayBuffer().then((data) => {
-      let d = new Uint8Array(data);
-      setCanvasData(d);
-    });
-  };
-
-  const setCanvasData = d => {
-    let imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
-    for (let i = 0; i < d.length; i++) {
-      imageData.data[i] = d[i];
-    }
-
+const initialiseCanvas = (canvasRef, contextRef, initialData) => {
+  const setCanvasData = (data) => {
+    const imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
+    Object.keys(data).forEach((i) => { imageData.data[i] = data[i]; });
     contextRef.current.putImageData(imageData, 0, 0);
-  }
+  };
 
   const canvas = canvasRef.current;
   canvas.width = CANVAS_WIDTH;
@@ -52,27 +44,29 @@ const initialiseCanvas = (canvasRef, contextRef, lastMessage) => {
   const context = canvas.getContext("2d");
   contextRef.current = context;
 
-  if (lastMessage !== null) { loadCanvas(lastMessage); }
+  if (initialData !== null) {
+    setCanvasData(initialData);
+  }
 
   return () => {
     canvas.removeEventListener('contextmenu', preventDefault);
   };
-}
+};
 
 const saveProject = async (contextRef, navigate) => {
   const title = prompt('Please enter a project title');
   if (title !== undefined && title !== '') {
     try {
-      const response = await createNewProject(
-        title,
-        Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data)
-      );
+      const compressedData = LZString.compressToBase64(JSON.stringify(
+        Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data),
+      ));
+      const response = await createNewProject(title, compressedData);
       if (response.projectId !== undefined) {
         navigate(`${response.projectId}`);
       }
     } catch (err) { console.error(err); }
   }
-}
+};
 
 const OfflineCanvasContainer = ({ colour }) => {
   const canvasRef = useRef(null);
@@ -89,64 +83,89 @@ const OfflineCanvasContainer = ({ colour }) => {
       sendMessage={() => { }}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
+      canvasReady={true}
     />
     <button onClick={() => saveProject(contextRef, navigate)}>Save as Project</button>
   </>;
-}
+};
 
-// TODO: This should be fleshed out and extracted into its own module.
 const Alert = ({ message }) => {
-  const style = {
-    padding: '4px',
-    margin: '1rem 2rem 1rem 2rem',
-    backgroundColor: '#E95830',
-    color: 'white'
-  };
-  
-  return <div className='alert' style={style}>
-    <p>{message}</p>
-  </div>
-}
+  return <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative'>
+    <span>{message}</span>
+  </div>;
+};
+
+const socket = io('ws://localhost:3000', {
+  path: '/edit',
+  auth: { token: localStorage.getItem('auth') },
+  autoConnect: false,
+});
 
 const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   const { projectId } = useParams();
+
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
 
-  // This is an intentional misuse of the `protocols` field, but seems to be accepted - see:
-  // - https://github.com/robtaussig/react-use-websocket/issues/94#issuecomment-1819338270
-  // - https://ably.com/blog/websocket-authentication
-  // - https://github.com/kubernetes/kubernetes/commit/714f97d7baf4975ad3aa47735a868a81a984d1f0
-  const { sendMessage, lastMessage, readyState } = useWebSocket(
-    `ws://localhost:3000/edit`,
-    {
-      protocols: ['Authorization', localStorage.getItem('auth')],
-      queryParams: { 's': projectId }
-    }
-  );
+  const [connected, setConnected] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
 
-  useEffect(
-    () => {
-      initialiseCanvas(canvasRef, contextRef, lastMessage);
-      fetchProjectById(projectId)
-        .then(project => setCurrentProject(project))
-        .catch(e => console.error(e));
-    },
-    [readyState, lastMessage, projectId, setCurrentProject]
-  );
+  useEffect(() => {
+    fetchProjectById(projectId)
+      .then((project) => setCurrentProject(project))
+      .catch((error) => console.error(error));
+  }, [projectId]);
+
+  useEffect(() => {
+    socket.io.opts.query = { ...socket.io.opts.query, pid: projectId };
+    socket.connect();
+
+    socket.on('connect', () => setConnected(true));
+
+    socket.on('load', (data) => {
+      const decompressed = JSON.parse(LZString.decompressFromBase64(data));
+      initialiseCanvas(canvasRef, contextRef, decompressed);
+      setCanvasReady(true);
+    });
+
+    socket.on('update', (data) => {
+      const imageData = contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      const parsed = JSON.parse(data);
+      Object.keys(parsed).forEach((pixel) => {
+        imageData.data[pixel] = parsed[pixel];
+      });
+      contextRef.current.putImageData(imageData, 0, 0);
+    });
+
+    socket.on('disconnect', () => {
+      setConnected(false);
+      setCanvasReady(false);
+    });
+
+    return () => {
+      setConnected(false);
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('load');
+      socket.off('update');
+      socket.disconnect();
+    };
+  }, [projectId]);
 
   return <>
-    { readyState === 3 ? <Alert message={'Disconnected from server! Changes will not be saved.'} /> : null }
+    { canvasReady && !connected ? <Alert message={'WARNING: Disconnected from server! Changes will not be saved.'} /> : null }
+    { !canvasReady ? <div className='text-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw]'><span>Loading...</span></div> : <></> }
     <Canvas
       colour={colour}
       canvasRef={canvasRef}
       contextRef={contextRef}
-      sendMessage={sendMessage}
+      sendMessage={(data) => { socket.emit('update', data); }}
       width={CANVAS_WIDTH}
       height={CANVAS_HEIGHT}
+      canvasReady={canvasReady}
     />
   </>;
-}
+};
 
 const Editor = ({ user }) => {
   const [isProjectBrowserOpen, setIsProjectBrowserOpen] = useState(false);
@@ -155,25 +174,21 @@ const Editor = ({ user }) => {
   const { projectId } = useParams();
   const navigate = useNavigate();
 
-  // Conditionally opening a websocket connection is apparently non-idiomatic
-  // so instead we conditionally render a canvas container, one of which does
-  // open a connection.
-  //
-  // TODO: This is a bit of a messy way to do a lo of conditional rendering.
-  //       Is there a better solution here?
+  // Conditionally opening a websocket connection is apparently non-idiomatic so we
+  // conditionally render a canvas container, one of which opens the connection.
   return <>
     {
       user !== null && projectId !== undefined
-        ? <>
+        ? <div>
           <div align="center">
-            <h3>{currentProject !== null ? currentProject.title + ' - ' + currentProject.created_on : ''}</h3>
+            <h3>{currentProject !== null ? `Currently Editing ${currentProject.title}` : ''}</h3>
           </div>
           <OnlineCanvasContainer colour={colour} setCurrentProject={setCurrentProject} />
           <button onClick={() => navigate('../edit/')} >Close</button>
-        </>
+        </div>
         : <>
           <div align="center">
-            <h3>Untitled - Please Sign In to Open a Project</h3>
+            <h3>Untitled - Please Open a Project</h3>
           </div>
           <OfflineCanvasContainer colour={colour} />
         </>
@@ -192,10 +207,11 @@ const Editor = ({ user }) => {
     }
     <ColourPicker colour={colour} setColour={setColour} />
     {
-      user !== null ? <button onClick={() => { setIsProjectBrowserOpen(true)}} >Open</button> : <></>
+      user !== null
+        ? <button onClick={() => { setIsProjectBrowserOpen(true)}} >Open</button> 
+        : <></>
     }
-  </>
-}
-
+  </>;
+};
 
 export default Editor;
