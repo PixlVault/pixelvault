@@ -8,6 +8,21 @@ const User = require('./models/user');
 
 const app = express();
 
+if (process.env.NODE_ENV == 'production') {
+  const compression = require('compression');
+  app.use(compression());
+
+  const helmet = require('helmet');
+  app.use(helmet());
+
+  const RateLimit = require('express');
+  const limiter = RateLimit({
+    windowMs: 1 * 60 * 1000,
+    max: 20,
+  });
+  app.use(limiter);
+}
+
 app.use(express.json());
 
 // Basic token extractor:
