@@ -95,7 +95,7 @@ const Alert = ({ message }) => {
   </div>;
 };
 
-const socket = io('ws://localhost:3000', {
+const socket = io(import.meta.env.VITE_WSS_URL, {
   path: '/edit',
   auth: { token: localStorage.getItem('auth') },
   autoConnect: false,
