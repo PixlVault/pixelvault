@@ -121,7 +121,7 @@ const Post = {
           }
           posts[0].tags = rows.map((row) => row.tag);
 
-          db.query(`SELECT author, content, timestamp,
+          db.query(`SELECT comment_id, author, content, timestamp,
               (SELECT COUNT(*) FROM comment_likes WHERE comment_id IN (SELECT comment_id FROM comment WHERE post_id = UUID_TO_BIN(?, TRUE))) AS likes
             FROM comment
             WHERE post_id = UUID_TO_BIN(?, TRUE)`, [postId, postId], (error, comments) => {
