@@ -154,7 +154,9 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
 
   return <>
     { canvasReady && !connected ? <Alert message={'WARNING: Disconnected from server! Changes will not be saved.'} /> : null }
-    { !canvasReady ? <div className='text-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw]'><span>Loading...</span></div> : <></> }
+    { !canvasReady ? <div className='bg-gray-400 flex items-center justify-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw] animate-pulse '>
+      <span className={'text-black'}>Loading...</span>
+    </div> : <></> }
     <Canvas
       colour={colour}
       canvasRef={canvasRef}
