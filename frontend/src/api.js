@@ -1,4 +1,4 @@
-const urlBase = "http://localhost:3000/api";
+const urlBase = import.meta.env.VITE_API_URL_BASE;
 
 export const login = async (username, password) => {
   const response = await makeRequest(urlBase + "/login", "post", {username: username, password: password}, null);

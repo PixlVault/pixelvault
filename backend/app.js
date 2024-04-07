@@ -51,13 +51,20 @@ app.use(bodyParser.json());
 // Needed to prevent CORS errors when developing.
 app.use(cors());
 
-// QUESTION: At some point should this return the React Frontend?
-app.get('/', (_req, res) => res.send('Hello World!'));
-
 app.use('/api', apiRouter);
 
 app.use((err, req, res, next) => {
   console.error(err);
 });
+
+if (process.env.NODE_ENV == 'production') {
+  app.use(express.static(__dirname + '/../frontend/dist'));
+
+  app.get('*', (req, res) => {
+    // The relative path must be resolved before passing it to sendFile or you'll get confusing "Forbidden" errors.
+    var path = require('path')
+    res.sendFile(path.resolve(__dirname + '/../frontend/dist/index.html'));
+  });
+}
 
 module.exports = app;
