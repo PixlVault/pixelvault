@@ -60,6 +60,8 @@ app.use(cors());
 
 app.use('/api', apiRouter);
 
+app.use('/img', express.static('post_img'));
+
 if (process.env.NODE_ENV == 'production') {
   app.use(express.static(__dirname + '/../frontend/dist'));
 
