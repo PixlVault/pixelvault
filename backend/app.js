@@ -29,7 +29,9 @@ app.use(express.json());
 app.use(async (req, _res, next) => {
   // Passing the raw req to the logger causes an error when it tries to stringify
   // the object, due to an apparent circular reference.
-  log.http(`${req.method} ${req.url} ${JSON.stringify(req.params)} ${JSON.stringify(req.headers)}`);
+  log.http({
+    method: req.method, url: req.url, params: req.params, headers: req.headers,
+  });
   next();
 });
 
