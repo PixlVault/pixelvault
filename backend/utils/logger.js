@@ -8,11 +8,13 @@ const logger = createLogger({
   level: 'http',
   transports: [
     new transports.Console({
+      level: 'info',
       format: format.combine(format.timestamp(), format.colorize(), consoleFormat),
       stderrLevels: ['error'],
     }),
     new transports.File({
       filename: 'log',
+      dirname: 'logs',
       format: format.combine(format.timestamp(), format.json()),
       maxsize: 10_000_000,
       maxFiles: 10,
