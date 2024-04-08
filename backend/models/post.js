@@ -171,7 +171,6 @@ const Post = {
       })
       .catch((e) => {
         log.error(e);
-        console.error(e);
         reject(new Error('An error occurred in converting the project\'s data to an image.'))
       });
 
