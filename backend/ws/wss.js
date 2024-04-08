@@ -25,8 +25,8 @@ const attachWebSocketService = (server) => {
   // Keep track of which sessions are open, using a project's ID as the session ID.
   const sessions = {};
 
-  const io = require('socket.io')(server, { cors: { origin: '*' }, path: '/edit' });
-  io.of('/edit');
+  const io = require('socket.io')(server, { cors: { origin: '*' }, path: '/ws/edit' });
+  io.of('/ws/edit');
 
   io.use(async (socket, next) => {
     // Try verifying the user's identity:
