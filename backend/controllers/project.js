@@ -118,8 +118,6 @@ router.post('/', async (req, res) => {
 
   const { title, imageData } = req.body;
 
-  log.info('received', imageData);
-
   try {
     const result = await Project.insert(title, req.token.username, imageData);
     return res.status(201).json({ projectId: result.project_id });

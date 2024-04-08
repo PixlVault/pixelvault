@@ -53,6 +53,13 @@ const initialiseCanvas = (canvasRef, contextRef, initialData) => {
   };
 };
 
+const exportImage = async (canvasRef) => {
+  const link = document.createElement('a');
+  link.download = 'export.png';
+  link.href = canvasRef.current.toDataURL();
+  link.click();
+};
+
 const saveProject = async (contextRef, navigate) => {
   const title = prompt('Please enter a project title');
   if (title !== undefined && title !== '') {
@@ -90,6 +97,7 @@ const OfflineCanvasContainer = ({ colour }) => {
       canvasReady={true}
     />
     <button onClick={() => saveProject(contextRef, navigate)}>Save as Project</button>
+    <button onClick={() => exportImage(canvasRef)}>Export</button>
   </>;
 };
 
@@ -170,6 +178,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       height={CANVAS_HEIGHT}
       canvasReady={canvasReady}
     />
+    <button onClick={() => exportImage(canvasRef)}>Export</button>
   </>;
 };
 
