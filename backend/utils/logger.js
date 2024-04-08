@@ -6,16 +6,26 @@ const consoleFormat = format.printf(
 
 const logger = createLogger({
   level: 'http',
+  format: format.combine(
+    format.errors({ stack: true }),
+  ),
   transports: [
     new transports.Console({
       level: 'info',
-      format: format.combine(format.timestamp(), format.colorize(), consoleFormat),
+      format: format.combine(
+        format.timestamp(),
+        format.colorize(),
+        consoleFormat,
+      ),
       stderrLevels: ['error'],
     }),
     new transports.File({
       filename: 'log',
       dirname: 'logs',
-      format: format.combine(format.timestamp(), format.json()),
+      format: format.combine(
+        format.timestamp(),
+        format.json(),
+      ),
       maxsize: 10_000_000,
       maxFiles: 10,
     }),

@@ -2,6 +2,8 @@ require('dotenv').config();
 
 const log = require('./utils/logger');
 
+process.on('uncaughtException', (err) => log.error(err));
+
 const http = require('http');
 
 const app = require('./app');
