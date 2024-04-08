@@ -71,7 +71,6 @@ describe('Posts can be liked', () => {
     let res = await api.post('/api/post/likes')
       .send({ post_id: projects[1] })
       .set('Authorization', tokens.other);
-    console.log(res.body);
     expect(res.statusCode).toBe(200);
 
     res = await api.post('/api/post/likes')
@@ -172,8 +171,6 @@ describe('Posts can be searched', () => {
   test('by title', async () => {
     const res = await api.post('/api/post/search')
       .send({ title: 'one' });
-
-    console.log(res.body);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toMatchObject([{
@@ -386,7 +383,6 @@ describe('Post queries can be sorted', () => {
     const res = await api.post('/api/post/search')
       .send({ order_by: 'likes', ascending: false });
     expect(res.statusCode).toBe(200);
-    console.log(res.body);
     expect(res.body).toMatchObject([
       {
         post_id: projects[0],
@@ -407,7 +403,6 @@ describe('Post queries can be sorted', () => {
     const res = await api.post('/api/post/search')
       .send({ order_by: 'likes', ascending: true });
     expect(res.statusCode).toBe(200);
-    console.log(res.body);
     expect(res.body).toMatchObject([
       {
         post_id: projects[2],

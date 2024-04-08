@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
     const result = await Comment.create(req.body.post_id, req.token.username, req.body.content);
     return res.status(201).json({ comment_id: result.insertId });
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -37,7 +37,7 @@ router.delete('/', async (req, res) => {
     await Comment.delete(req.body.comment_id);
     return res.status(204).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -60,7 +60,7 @@ const setLike = async (req, res) => {
 
     return res.status(404).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 };
@@ -90,7 +90,7 @@ const setHidden = async (req, res) => {
 
     return res.status(404).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 };

@@ -1,29 +1,34 @@
 require('dotenv').config();
 
+const log = require('./utils/logger');
+
 const http = require('http');
 
 const app = require('./app');
 const { attachWebSocketService } = require('./ws/wss');
 
-var server = null;
-if (process.env.NODE_ENV == 'production') {
+let server = null;
+if (process.env.NODE_ENV === 'production') {
+  log.info('Starting server in production mode over HTTPS');
+
   const fs = require('fs');
   const https = require('https');
 
-  var key = fs.readFileSync(__dirname + "/certs/selfsigned.key");
-  var cert = fs.readFileSync(__dirname + "/certs/selfsigned.crt");
-  var options = {
+  const key = fs.readFileSync(__dirname + "/certs/selfsigned.key");
+  const cert = fs.readFileSync(__dirname + "/certs/selfsigned.crt");
+  const options = {
     key: key,
     cert: cert
   };
 
   server = https.createServer(options, app);
 } else {
+  log.info('Starting server in test mode over HTTP');
   server = http.createServer(app);
 }
 
 server.listen(process.env.PORT, () => {
-  console.log(`API running on port ${process.env.PORT}`);
+  log.info(`API running on port ${process.env.PORT}`);
 });
 
 attachWebSocketService(server);

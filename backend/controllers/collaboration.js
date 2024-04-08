@@ -1,5 +1,6 @@
 const express = require('express');
 
+const log = require('../utils/logger');
 const Collaboration = require('../models/collaboration');
 const Project = require('../models/project');
 
@@ -32,7 +33,7 @@ router.get('/', async (req, res) => {
         return res.status(401).json({ error: 'Cannot retrieve invitations for non-owned project' });
       }
     } catch (error) {
-      console.error(error);
+      log.error(error);
       return res.status(400).send({ error: error.message });
     }
   }
@@ -45,7 +46,7 @@ router.get('/', async (req, res) => {
     const invites = await getInvitations();
     return res.status(200).json({ invites });
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).send({ error: error.message });
   }
 });
@@ -80,7 +81,7 @@ router.post('/', async (req, res) => {
       return res.status(404).send({ error: 'User could not be found' });
     }
 
-    console.error(error);
+    log.error(error);
     return res.status(400).send({ error: error.message });
   }
 });
@@ -111,7 +112,7 @@ router.put('/', async (req, res) => {
     await Collaboration.accept(req.token.username, projectId);
     return res.status(200).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -151,7 +152,7 @@ router.delete('/', async (req, res) => {
     await Collaboration.uninvite(username, projectId);
     return res.status(204).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });

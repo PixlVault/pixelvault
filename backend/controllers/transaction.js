@@ -1,5 +1,6 @@
 const express = require('express');
 
+const log = require('../utils/logger');
 const Transaction = require('../models/transaction');
 const Post = require('../models/post');
 
@@ -23,7 +24,7 @@ router.post('/', async (req, res) => {
     const result = await Transaction.create(postId, req.token.username, 'complete');
     return res.status(201).json({ transaction_id: result.insertId });
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).send();
   }
 });
@@ -37,7 +38,7 @@ router.get('/user', async (req, res) => {
     const transactions = await Transaction.getByUser(req.token.username);
     return res.status(200).json(transactions);
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).send();
   }
 });
@@ -60,7 +61,7 @@ router.get('/post/:postId', async (req, res) => {
     const transactions = await Transaction.getByPost(req.params.postId);
     return res.status(200).json(transactions);
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).send();
   }
 });
