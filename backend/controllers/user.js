@@ -1,5 +1,6 @@
 const express = require('express');
 
+const log = require('../utils/logger');
 const User = require('../models/user');
 
 const router = express.Router();
@@ -11,7 +12,7 @@ router.get('/:username', async (req, res) => {
       ? res.status(404).json({ error: 'User does not exist' })
       : res.status(200).json(user);
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -25,7 +26,7 @@ router.put('/', async (req, res) => {
     await User.update(req.token.username, req.body);
     return res.status(200).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -44,7 +45,7 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Email is already associated with an account' });
       }
     } else {
-      console.error(error);
+      log.error(error);
       return res.status(400).json({ error: error.message });
     }
     return res.status(400).send();
@@ -60,7 +61,7 @@ router.delete('/', async (req, res) => {
     await User.delete(req.token.username);
     return res.status(204).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: 'An error occurred, please contact support to delete your account' });
   }
 });
@@ -89,7 +90,7 @@ const setBanned = async (req, res) => {
     }
     return res.status(404).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).send();
   }
 };
@@ -102,7 +103,7 @@ router.get('/:username/following', async (req, res) => {
     const following = await User.getFollowing(req.params.username);
     return res.status(200).json(following);
   } catch (err) {
-    console.error(err);
+    log.error(err);
     return res.status(400).send();
   }
 });
@@ -133,7 +134,7 @@ const setAdmin = async (req, res) => {
 
     return res.status(404).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 };
@@ -155,7 +156,7 @@ router.post('/:username/following', async (req, res) => {
     await User.follow(req.params.username, followee);
     return res.status(201).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -173,7 +174,7 @@ router.delete('/:username/following', async (req, res) => {
     await User.unfollow(req.token.username, req.params.username);
     return res.status(201).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });

@@ -1,5 +1,6 @@
 const express = require('express');
 
+const log = require('../utils/logger');
 const Post = require('../models/post');
 const Project = require('../models/project');
 
@@ -48,7 +49,7 @@ router.post('/search', async (req, res) => {
 
     return res.status(200).json(posts);
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -80,7 +81,7 @@ router.post('/', async (req, res) => {
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({ error: 'Post already exists for this project' });
     }
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -113,7 +114,7 @@ router.put('/', async (req, res) => {
     if (error.code === 'ER_NO_REFERENCED_ROW_2') {
       return res.status(404).json({ error: 'Cannot update a post which does not exist' });
     }
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -135,12 +136,12 @@ const setLike = async (req, res) => {
     } else if (req.method === 'DELETE') {
       await Post.unlike(req.token.username, postId);
     } else {
-      console.error('Impossible route reached', req.method);
+      log.error('Impossible route reached', req.method);
       return res.status(404).send();
     }
     return res.status(200).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 };
@@ -200,7 +201,7 @@ const setHidden = async (req, res) => {
 
     return res.status(404).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 };

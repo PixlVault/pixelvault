@@ -1,6 +1,7 @@
 const argon2 = require('argon2');
 
 const { db, extractArgs } = require('../utils/database');
+const log = require('../utils/logger');
 
 const User = {
   /**
@@ -96,7 +97,7 @@ const User = {
       try {
         args.password_hash = await argon2.hash(args.password);
       } catch (err) {
-        console.error(err);
+        log.error(err);
         reject(new Error('Error in generating password hash.'));
       }
     }
@@ -254,7 +255,7 @@ const User = {
         );
       })
       .catch((err) => {
-        console.error(err);
+        log.error(err);
         reject(new Error('Error in generating password hash.'));
       });
   }),

@@ -1,6 +1,8 @@
 const mysql = require('mysql');
 const argon2 = require('argon2');
 
+const log = require('./logger');
+
 const host = process.env.NODE_ENV === 'test'
   ? process.env.MYSQL_TEST_HOST
   : process.env.MYSQL_HOST;
@@ -13,15 +15,15 @@ const db = mysql.createConnection({
 });
 
 db.connect();
-console.log('Connecting to DB:', host);
+log.info('Connecting to DB:', host);
 
 /**
  * Creates a root account according to `.env` variables - if it doesn't already exist.
  */
 const tryCreateRootAccount = () => {
   if (process.env.ROOT_USERNAME === undefined || process.env.ROOT_PASSWORD === undefined) {
-    console.log(
-      'WARNING: Missing `ROOT_USERNAME` and/or `ROOT_PASSWORD` environment variables. '
+    log.warning(
+      'Missing `ROOT_USERNAME` and/or `ROOT_PASSWORD` environment variables. '
       + 'Root user will not be created.',
     );
   } else {
@@ -32,14 +34,13 @@ const tryCreateRootAccount = () => {
           + ' ON DUPLICATE KEY UPDATE password_hash = ?;',
           [process.env.ROOT_USERNAME, passwordHash, `${process.env.ROOT_USER}@donotemail.com`, passwordHash],
           (err) => {
-            if (err) console.error('Error in creating root account');
+            if (err) log.error('Error in creating root account');
           },
         );
-        console.log('root user inserted, or already existed.');
+        log.info('root user inserted, or already existed.');
       })
       .catch((err) => {
-        console.log(err);
-        console.error('Error in generating password hash for root user');
+        log.error('Error in generating password hash for root user');
       });
   }
 };

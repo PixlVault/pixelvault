@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
+const log = require('./utils/logger');
 const apiRouter = require('./controllers/api');
 const User = require('./models/user');
 
@@ -25,24 +26,30 @@ if (process.env.NODE_ENV == 'production') {
 
 app.use(express.json());
 
+app.use(async (req, _res, next) => {
+  // Passing the raw req to the logger causes an error when it tries to stringify
+  // the object, due to an apparent circular reference.
+  log.http({
+    method: req.method, url: req.url, params: req.params, headers: req.headers,
+  });
+  next();
+});
+
 // Basic token extractor:
 app.use(async (req, _res, next) => {
   let auth = req.headers.authorization;
   auth = auth ? auth.split(' ')[1] : undefined;
 
-  if (auth) {
+  if (auth !== undefined) {
     try {
       const token = jwt.verify(auth, process.env.JWT_SECRET);
       if (await User.isBanned(token.username)) {
-        console.log(`Banned user ${token.username} attempted to authenticate`);
+        log.http(`Banned user '${token.username}' attempted to authenticate`);
       } else {
         req.token = token;
       }
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) { log.warn(e); }
   }
-
   next();
 });
 
@@ -53,10 +60,6 @@ app.use(cors());
 
 app.use('/api', apiRouter);
 
-app.use((err, req, res, next) => {
-  console.error(err);
-});
-
 if (process.env.NODE_ENV == 'production') {
   app.use(express.static(__dirname + '/../frontend/dist'));
 
@@ -66,5 +69,9 @@ if (process.env.NODE_ENV == 'production') {
     res.sendFile(path.resolve(__dirname + '/../frontend/dist/index.html'));
   });
 }
+
+app.use((err, req, res, next) => {
+  log.error(err);
+});
 
 module.exports = app;

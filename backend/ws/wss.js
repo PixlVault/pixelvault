@@ -1,25 +1,26 @@
 const jwt = require('jsonwebtoken');
 const LZString = require('lz-string');
 
+const log = require('../utils/logger');
 const Project = require('../models/project');
 
 const AUTOSAVE_INTERVAL_MS = 60000;
 
 const saveProject = async (projectId, imageData) => {
-  console.log(`Saving '${projectId}'...`);
+  log.info(`Saving '${projectId}'...`);
   try {
     await Project.setImageData(
       projectId,
       LZString.compressToBase64(JSON.stringify(imageData)),
     );
-    console.log(`Successfully saved project '${projectId}'.`);
+    log.info(`Successfully saved project '${projectId}'.`);
   } catch (error) {
-    console.error('error saving project :', error);
+    log.warn('error saving project :', error);
   }
 };
 
 const attachWebSocketService = (server) => {
-  console.log('Initialising WS Server');
+  log.info('Initialising WS Server');
 
   // Keep track of which sessions are open, using a project's ID as the session ID.
   const sessions = {};
@@ -33,14 +34,13 @@ const attachWebSocketService = (server) => {
       const auth = socket.handshake.auth.token;
       jwt.verify(auth, process.env.JWT_SECRET, (err, decoded) => {
         if (err !== null) {
-          next(new Error('Could not authenticate user'));
+          return socket.disconnect('Could not authenticate user');
         }
         socket.user = decoded.username;
       });
     } catch (e) {
-      console.error(e);
-      socket.disconnect();
-      next(new Error('Something went wrong!'));
+      log.error(e);
+      return socket.disconnect('Something went wrong!');
     }
     next();
   });
@@ -61,6 +61,7 @@ const attachWebSocketService = (server) => {
         // User is allowed to edit this project, initialise the session:
         sessions[projectId] = { collaborators };
       } catch (e) {
+        log.error(e);
         return socket.disconnect('Error occurred in opening session');
       }
     } else if (!sessions[projectId].collaborators.includes(user)) {
@@ -77,10 +78,10 @@ const attachWebSocketService = (server) => {
         const data = JSON.parse(LZString.decompressFromBase64(rawData.toString()));
         sessions[projectId].canvas = data;
       } catch (e) {
-        console.error(e);
+        log.error(e);
         socket.disconnect();
       }
-      console.log(`Created new session ${projectId}`);
+      log.info(`Created new session ${projectId}`);
 
       // Automatically save the canvas back to the database to avoid loss
       // of work in the event of a crash.
@@ -94,18 +95,18 @@ const attachWebSocketService = (server) => {
       sessions[projectId].clients.push(socket);
     }
     socket.emit('load', LZString.compressToBase64(JSON.stringify(Uint8Array.from(sessions[projectId].canvas))));
-    console.log(`Client connected to session ${projectId} (total: ${sessions[projectId].clients.length})`);
+    log.http(`Client connected to session ${projectId} (total: ${sessions[projectId].clients.length})`);
 
     const updateCanvasState = (newState, projectId) => {
       const updates = JSON.parse(newState);
 
-      console.log('UPDATE', projectId);
+      log.debug('UPDATE', projectId);
       Object.keys(updates).forEach((i) => {
         if (!isNaN(i)) {
-          console.log(i, sessions[projectId].canvas[i], '<-', updates[i]);
+          log.debug(i, sessions[projectId].canvas[i], '<-', updates[i]);
           sessions[projectId].canvas[i] = updates[i];
         } else {
-          console.error('Non-Numeric key detected');
+          log.warn('Non-Numeric key detected');
         }
       });
 
@@ -123,11 +124,11 @@ const attachWebSocketService = (server) => {
       const loc = sessions[projectId].clients.indexOf(socket);
       sessions[projectId].clients.splice(loc, 1);
 
-      console.log(`Client disconnected from session ${projectId}`);
+      log.http(`Client disconnected from session ${projectId}`);
       // If no users are connected to a session, clean it up:
       if (sessions[projectId].clients.length === 0) {
         delete sessions[projectId];
-        console.log(`Session ${projectId} is now closed`);
+        log.info(`Session ${projectId} is now closed`);
       }
     });
   });

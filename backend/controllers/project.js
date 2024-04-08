@@ -1,6 +1,7 @@
 const express = require('express');
 const LZString = require('lz-string');
 
+const log = require('../utils/logger');
 const Project = require('../models/project');
 
 const router = express.Router();
@@ -25,7 +26,7 @@ router.get('/:projectId', async (req, res) => {
 
     return res.status(200).json(project);
   } catch (error) {
-    console.error(error);
+    log.error(error);
     // TODO: May not be wise to send verbatim error back?
     return res.status(400).json({ error: error.message });
   }
@@ -46,7 +47,7 @@ router.get('/createdBy/:username', async (req, res) => {
       ? res.status(404).json({ error: 'No projects found' })
       : res.status(200).json(projects);
   } catch (e) {
-    console.error(e);
+    log.error(e);
     return res.status(400).json({ error: 'Something went wrong' });
   }
 });
@@ -63,7 +64,7 @@ router.put('/:projectId', async (req, res) => {
     project = await Project.get(req.params.projectId);
     collaborators = await Project.collaborators(req.params.projectId);
   } catch (err) {
-    console.error(err);
+    log.error(err);
     return res.status(400).send();
   }
 
@@ -81,7 +82,7 @@ router.put('/:projectId', async (req, res) => {
     await Project.update(req.params.projectId, req.body);
     return res.status(200).json({});
   } catch (err) {
-    console.error(err);
+    log.error(err);
     return res.status(400).send();
   }
 });
@@ -105,7 +106,7 @@ router.delete('/:projectId', async (req, res) => {
     await Project.delete(req.params.projectId);
     return res.status(204).send();
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });
@@ -117,13 +118,13 @@ router.post('/', async (req, res) => {
 
   const { title, imageData } = req.body;
 
-  console.log('received', imageData);
+  log.info('received', imageData);
 
   try {
     const result = await Project.insert(title, req.token.username, imageData);
     return res.status(201).json({ projectId: result.project_id });
   } catch (error) {
-    console.error(error);
+    log.error(error);
     return res.status(400).json({ error: error.message });
   }
 });

@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
     }
     return res.status(401).json({ error: 'Invalid username or password provided' });
   } catch (err) {
-    console.error(err);
+    log.error(err);
     return res.status(400).send();
   }
 });
