@@ -57,9 +57,13 @@ const saveProject = async (contextRef, navigate) => {
   const title = prompt('Please enter a project title');
   if (title !== undefined && title !== '') {
     try {
-      const compressedData = LZString.compressToBase64(JSON.stringify(
-        Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data),
-      ));
+      const obj = {
+        data: Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data),
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      };
+
+      const compressedData = LZString.compressToBase64(JSON.stringify(obj));
       const response = await createNewProject(title, compressedData);
       if (response.projectId !== undefined) {
         navigate(`${response.projectId}`);
@@ -124,7 +128,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
 
     socket.on('load', (data) => {
       const decompressed = JSON.parse(LZString.decompressFromBase64(data));
-      initialiseCanvas(canvasRef, contextRef, decompressed);
+      initialiseCanvas(canvasRef, contextRef, decompressed.data);
       setCanvasReady(true);
     });
 

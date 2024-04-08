@@ -166,12 +166,11 @@ const Post = {
     Project.getImageData(args.post_id)
       .then((data) => {
         const parsed = JSON.parse(LZString.decompressFromBase64(data.toString()));
-        // TODO, hardcoded width/height, fix this!
-        writePostImage(args.post_id, parsed, 256, 256);
+        writePostImage(args.post_id, parsed.data, parsed.width, parsed.height);
       })
       .catch((e) => {
         log.error(e);
-        reject(new Error('An error occurred in converting the project\'s data to an image.'))
+        reject(new Error('An error occurred in converting the project\'s data to an image.'));
       });
 
     const query = `INSERT INTO post 

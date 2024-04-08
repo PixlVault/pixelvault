@@ -13,8 +13,10 @@ const tokens = {};
 let projects = [];
 
 beforeAll(async () => {
-  const buf = Buffer.alloc(256 * 256 * 4).fill(0);
-  const compressed = LZString.compressToBase64(JSON.stringify(Array.from(buf)));
+  const [width, height] = [256, 256];
+  const buf = Buffer.alloc(width * height * 4).fill(0);
+  const img = { data: Array.from(buf), width, height };
+  const compressed = LZString.compressToBase64(JSON.stringify(img));
 
   db.query('DELETE FROM transaction;');
   db.query('DELETE FROM project;');
