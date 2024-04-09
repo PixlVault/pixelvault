@@ -7,7 +7,7 @@ import LZString from 'lz-string';
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
-import { createNewProject, fetchProjectById } from '../api';
+import { createProject, getProject } from '../api';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -71,10 +71,8 @@ const saveProject = async (contextRef, navigate) => {
       };
 
       const compressedData = LZString.compressToBase64(JSON.stringify(obj));
-      const response = await createNewProject(title, compressedData);
-      if (response.projectId !== undefined) {
-        navigate(`${response.projectId}`);
-      }
+      const newProjectId = await createProject(title, compressedData);
+      if (newProjectId !== null) navigate(`${newProjectId}`);
     } catch (err) { console.error(err); }
   }
 };
@@ -123,7 +121,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
-    fetchProjectById(projectId)
+    getProject(projectId)
       .then((project) => setCurrentProject(project))
       .catch((error) => console.error(error));
   }, [projectId]);

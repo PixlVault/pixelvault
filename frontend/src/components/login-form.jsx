@@ -31,6 +31,7 @@ const LoginForm = ({ setUser }) => {
       await Api.createAccount(username, password, email);
       login(e);
     } catch (error) {
+      console.log(error, error.message);
       setAlertMessage(error.message);
       setTimeout(() => setAlertMessage(''), 2000);
     }

@@ -21,13 +21,13 @@ const likePosts = async () => {
   localStorage.setItem('auth', users.userone.token);
 
   // creates project for the user which has their token set in localStorage
-  const project = await Api.createNewProject('original', null);
+  const project = await Api.createProject('original', null);
 
   // used to push the project's ID into the "user's storage"
   users.userone.projects.push(project.projectId);
 
   // actually posts the project
-  await Api.postProject(`token ${users.userone.token}`, users.userone.projects[0]);
+  await Api.createProject(`token ${users.userone.token}`, users.userone.projects[0]);
 
   /*
   / below is code used for liking a post. the steps are:
@@ -75,4 +75,4 @@ export default createData;
 // await postUser(users.usertwo.username, users.usertwo.password, users.usertwo.email);
 // users.userthree.token = await Api.login(users.userthree.username, users.userthree.password);
 // users.useron.projects.forEach((u) => {})
-// const project = await Api.createNewProject('notsooriginal', null);
+// const project = await Api.createProject('notsooriginal', null);

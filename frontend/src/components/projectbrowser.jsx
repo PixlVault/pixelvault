@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react'
-// import './projectbrowser.css'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 import * as Api from './../api.js'
-import { Link } from 'react-router-dom';
 
 const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) => {
   const [projects, setProjects] = useState(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
-      setProjects(await Api.fetchProjectsCreatedBy(username));
-    }
+      setProjects(await Api.fetchCreatedProjects(username));
+    };
 
     fetchProjects().catch(console.error);
   }, [username]);
