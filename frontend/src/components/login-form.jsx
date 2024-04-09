@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import * as Api from '../api.js';
 
-const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
+const LoginForm = ({ setUser }) => {
   const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);
   const [email, setEmail] = useState(null);
@@ -19,7 +19,6 @@ const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
       localStorage.setItem('user', username);
       localStorage.setItem('auth', token);
       setUser(username);
-      setLoginFormOpen(false);
     } else {
       setAlertMessage('Could not log in!');
       setTimeout(() => setAlertMessage(''), 2000);
@@ -36,15 +35,6 @@ const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
       setTimeout(() => setAlertMessage(''), 2000);
     }
   };
-
-  useEffect(() => {
-    const detectOutsideClick = (e) => {
-      if (!formRef.current.contains(e.target)) setLoginFormOpen(false);
-    };
-
-    document.addEventListener('mousedown', detectOutsideClick);
-    return (() => document.removeEventListener('mousedown', detectOutsideClick));
-  }, []);
 
   const inputClass = 'mb-4 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500';
 

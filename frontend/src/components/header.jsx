@@ -32,9 +32,12 @@ const Header = ({ user, setUser }) => {
       </nav>
       {
         loginFormOpen
-          ? 
-          <Popup>
-            <LoginForm setUser={setUser} loginFormOpen={loginFormOpen} setLoginFormOpen={setLoginFormOpen} />
+          ?
+          <Popup onClose={() => setLoginFormOpen(false)}>
+            <LoginForm setUser={(user) => {
+              setUser(user);
+              setLoginFormOpen(false)
+            }} />
           </Popup>
           : null
       }
