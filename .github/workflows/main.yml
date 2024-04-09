@@ -1,5 +1,8 @@
 name: deploy pixelvault
-on: push
+on:
+  push:
+    branches:
+      - main
 jobs:
   build:
     name: Build

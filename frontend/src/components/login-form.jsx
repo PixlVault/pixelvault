@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import * as Api from '../api.js';
 
-const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
+const LoginForm = ({ setUser }) => {
   const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);
   const [email, setEmail] = useState(null);
@@ -19,7 +19,6 @@ const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
       localStorage.setItem('user', username);
       localStorage.setItem('auth', token);
       setUser(username);
-      setLoginFormOpen(false);
     } else {
       setAlertMessage('Could not log in!');
       setTimeout(() => setAlertMessage(''), 2000);
@@ -37,20 +36,11 @@ const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
     }
   };
 
-  useEffect(() => {
-    const detectOutsideClick = (e) => {
-      if (!formRef.current.contains(e.target)) setLoginFormOpen(false);
-    };
-
-    document.addEventListener('mousedown', detectOutsideClick);
-    return (() => document.removeEventListener('mousedown', detectOutsideClick));
-  }, []);
-
   const inputClass = 'mb-4 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500';
 
   return <>
-    <div className='z-20 w-full fixed top-40 flex flex-col basis-0 content-center'>
-      <form ref={formRef} id="login-form" className='backdrop-blur bg-white-200 w-2/12 shadow-md rounded px-8 pt-6 pb-8 mb-4 mx-auto flex flex-col items-center' onSubmit={login}>
+    <div>
+      <form ref={formRef} id="login-form" className='px-8 pt-6 pb-8 mb-4 mx-auto flex flex-col items-center' onSubmit={login}>
         <span className='text-lg font-semibold mb-4'>{!creatingAccount ? 'Log In' : 'Sign Up' }</span>
         <input className={inputClass} type="text" placeholder='Username' name="username" onChange={(e) => setUsername(e.target.value)} />
         <input className={inputClass} type="password" placeholder='Password' name="password" onChange={(e) => setPassword(e.target.value)} />
