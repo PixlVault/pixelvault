@@ -92,6 +92,62 @@ export const fetchProjectById = (projectId) => {
 
   return response;
 };
+/*
+/ fetches all posts with paramaters (parameters are not required, and can be
+/ left blank if all posts are needed)
+*/
+export const fetchPosts = (searchParams) => {
+  const response = makeRequest(`${urlBase}/post/search`, 'post', searchParams);
+  if (response == null) {
+    console.error('Fetching posts failed.');
+  }
+  return response;
+};
+
+/*
+/ makes a request to like the post using the post (referenced with id) and
+/ the user's token stored in localStorage (see makeRequest for explanation)
+*/
+export const likePost = async (postID) => {
+  const response = await makeRequest(`${urlBase}/post/likes`, 'post', { post_id: postID });
+  if (response == null) {
+    console.error('Liking post failed.');
+  }
+  return response;
+};
+
+
+export const commentOnPost = async (postID, content) => {
+  const response = await makeRequest(`${urlBase}/comment`, 'post', { post_id: postID, content });
+  if (response == null) {
+    console.error('Commenting on post failed');
+  }
+  return response;
+};
+
+export const likeComment = async (commentID) => {
+  const response = await makeRequest(`${urlBase}/comment/likes`, 'post', { comment_id: commentID });
+  if (response == null) {
+    console.error('Liking the comment failed');
+  }
+  return response;
+};
+
+export const postProject = (project_id) => { // TO BE CHANGED
+  const authToken = localStorage.getItem('auth');
+  fetch(`${urlBase}/project`, {
+    method: 'POST',
+    body: JSON.stringify({
+      post_id: project_id,
+    }),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      Authorization: `token ${authToken}`,
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+};
 
 const makeRequest = async (url, method, body) => {
   const authToken = localStorage.getItem('auth');
@@ -102,13 +158,12 @@ const makeRequest = async (url, method, body) => {
       'Content-Type': 'application/json',
       Authorization: `token ${authToken}`,
     },
-    body: method === 'get' ? null : JSON.stringify(body),
+    body: method == 'get' ? null : JSON.stringify(body),
   });
 
   if (response.ok) {
     return response.json();
   }
-
   console.error(`Request failed: ${response.status}`);
   return null;
 };
