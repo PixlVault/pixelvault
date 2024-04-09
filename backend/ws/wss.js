@@ -19,6 +19,22 @@ const saveProject = async (projectId, imageData) => {
   }
 };
 
+/**
+ * Tests whether a username is allowed to join a room or not.
+ * @param {string} username The username of the user.
+ * @param {string} projectId The ID of the project they wish to join.
+ * @returns {Promise<boolean>} true if they have permission, else false.
+ */
+const canJoinSession = async (username, projectId) => {
+  try {
+    const collaborators = await Project.collaborators(projectId);
+    if (collaborators.includes(username)) return true;
+  } catch (e) {
+    log.error(e);
+  }
+  return false;
+};
+
 const attachWebSocketService = (server) => {
   log.info('Initialising WS Server');
 
@@ -47,32 +63,22 @@ const attachWebSocketService = (server) => {
 
   io.on('connection', async (socket) => {
     if (socket.handshake.query.pid === undefined) {
-      return socket.disconnect('Must specify a project id');
+      return socket.disconnect('Must specify a project ID');
     }
 
     // Test if the user has permission to join a project.
     const projectId = socket.handshake.query.pid;
-    if (!(projectId in sessions)) {
-      try {
-        const collaborators = await Project.collaborators(projectId);
-        if (!collaborators.includes(socket.user)) {
-          return socket.disconnect(`User ${socket.user} does not have permission to edit ${projectId}`);
-        }
-        // User is allowed to edit this project, initialise the session:
-        sessions[projectId] = { collaborators };
-      } catch (e) {
-        log.error(e);
-        return socket.disconnect('Error occurred in opening session');
-      }
-    } else if (!sessions[projectId].collaborators.includes(user)) {
-      return socket.disconnect(`User ${user} does not have permission to edit ${projectId}`);
+
+    if (await canJoinSession(socket.user, projectId)) {
+      socket.join(projectId);
+    } else {
+      return socket.disconnect(`User ${socket.user} does not have permission to edit ${projectId}`);
     }
 
-    if (sessions[projectId].clients === undefined) {
-      // If the session hasn't already been initialised, do so:
-      sessions[projectId] = { ...sessions[projectId], canvas: null, clients: [socket] };
-
-      // Fetch image data from the database, store it, and send a copy to the user:
+    if (sessions[projectId] === undefined) {
+      // If the session hasn't already been initialised, do so;
+      // Fetch image data from the database and store it in the session's data.
+      sessions[projectId] = { canvas: null, clients: [] };
       try {
         const rawData = await Project.getImageData(projectId);
         const data = JSON.parse(LZString.decompressFromBase64(rawData.toString()));
@@ -85,46 +91,42 @@ const attachWebSocketService = (server) => {
 
       // Automatically save the canvas back to the database to avoid loss
       // of work in the event of a crash.
-      setInterval(() => {
+      sessions[projectId].autosave = setInterval(() => {
         if (sessions[projectId] !== undefined && sessions[projectId].canvas !== undefined) {
           saveProject(projectId, sessions[projectId].canvas);
         }
       }, AUTOSAVE_INTERVAL_MS);
-    } else {
-      // Session already exists, so we only need to send the user the canvas' state:
-      sessions[projectId].clients.push(socket);
     }
-    socket.emit('load', LZString.compressToBase64(JSON.stringify(Uint8Array.from(sessions[projectId].canvas))));
-    log.http(`Client connected to session ${projectId} (total: ${sessions[projectId].clients.length})`);
 
-    const updateCanvasState = (newState, projectId) => {
+    sessions[projectId].clients.push(socket);
+    socket.emit('load', LZString.compressToBase64(JSON.stringify(sessions[projectId].canvas)));
+    socket.broadcast.to(projectId).emit('joined', socket.user);
+    log.http(`Client connected to session ${projectId} (${sessions[projectId].clients.length} total).`);
+
+    const updateCanvasState = (newState) => {
       const updates = JSON.parse(newState);
-
-      log.debug('UPDATE', projectId);
       Object.keys(updates).forEach((i) => {
         if (!isNaN(i)) {
-          log.debug(i, sessions[projectId].canvas[i], '<-', updates[i]);
-          sessions[projectId].canvas[i] = updates[i];
+          sessions[projectId].canvas.data[i] = updates[i];
         } else {
           log.warn('Non-Numeric key detected');
         }
       });
-
-      sessions[projectId].clients.forEach((clientSocket) => {
-        clientSocket.emit('update', JSON.stringify(updates));
-      });
+      socket.broadcast.to(projectId).emit('update', JSON.stringify(updates));
     };
 
-    socket.on('update', (data) => updateCanvasState(data, projectId));
+    socket.on('update', (data) => updateCanvasState(data));
 
     socket.on('disconnect', async () => {
+      socket.broadcast.to(projectId).emit('left', socket.user);
       saveProject(projectId, sessions[projectId].canvas);
+      clearInterval(sessions[projectId].autosave);
 
       // Remove the client from the session:
       const loc = sessions[projectId].clients.indexOf(socket);
       sessions[projectId].clients.splice(loc, 1);
-
       log.http(`Client disconnected from session ${projectId}`);
+
       // If no users are connected to a session, clean it up:
       if (sessions[projectId].clients.length === 0) {
         delete sessions[projectId];

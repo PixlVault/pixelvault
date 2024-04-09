@@ -3,6 +3,7 @@ require('dotenv').config();
 const supertest = require('supertest');
 const app = require('../app');
 const { db } = require('../utils/database');
+const LZString = require('lz-string');
 
 const api = supertest(app);
 
@@ -12,6 +13,11 @@ const tokens = {};
 let projects = [];
 
 beforeAll(async () => {
+  const [width, height] = [256, 256];
+  const buf = Buffer.alloc(width * height * 4).fill(0);
+  const img = { data: Array.from(buf), width, height };
+  const compressed = LZString.compressToBase64(JSON.stringify(img));
+
   db.query('DELETE FROM transaction;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM user;');
@@ -33,7 +39,7 @@ beforeAll(async () => {
 
   projects = ['one', 'two', 'three'].map(
     (title) => api.post('/api/project')
-      .send({ title, imageData: null })
+      .send({ title, imageData: compressed })
       .set('Authorization', tokens.creator)
       .then((res) => res.body.projectId),
   );
@@ -157,7 +163,6 @@ describe('Posts can be searched', () => {
       created_by: 'creator',
       licence: 'Creative Commons',
       cost: 7,
-      artwork: null,
     }]);
   });
 
@@ -179,7 +184,6 @@ describe('Posts can be searched', () => {
       created_by: 'creator',
       licence: null,
       cost: 1,
-      artwork: null,
     }]);
   });
 
@@ -195,7 +199,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[1],
@@ -203,7 +206,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
       {
         post_id: projects[2],
@@ -211,7 +213,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
 
@@ -231,7 +232,6 @@ describe('Posts can be searched', () => {
       created_by: 'creator',
       licence: 'Creative Commons',
       cost: 7,
-      artwork: null,
     }]);
   });
 
@@ -245,7 +245,6 @@ describe('Posts can be searched', () => {
       created_by: 'creator',
       licence: 'Creative Commons',
       cost: 7,
-      artwork: null,
     }]);
 
     res = await api.post('/api/post/search')
@@ -258,7 +257,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[1],
@@ -266,7 +264,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
       {
         post_id: projects[2],
@@ -274,7 +271,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
 
@@ -288,7 +284,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
 
@@ -310,7 +305,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[2],
@@ -318,7 +312,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
   });
@@ -338,7 +331,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
     ]);
   });
@@ -356,7 +348,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[1],
@@ -364,7 +355,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
       {
         post_id: projects[2],
@@ -372,7 +362,6 @@ describe('Posts can be searched', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
   });
@@ -430,7 +419,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
       {
         post_id: projects[0],
@@ -438,7 +426,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[1],
@@ -446,7 +433,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
     ]);
   });
@@ -462,7 +448,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
       {
         post_id: projects[0],
@@ -470,7 +455,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[2],
@@ -478,7 +462,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
   });
@@ -494,7 +477,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
       {
         post_id: projects[1],
@@ -502,7 +484,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
       {
         post_id: projects[2],
@@ -510,7 +491,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
     ]);
   });
@@ -526,7 +506,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 0,
-        artwork: null,
       },
       {
         post_id: projects[1],
@@ -534,7 +513,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: 'Creative Commons',
         cost: 7,
-        artwork: null,
       },
       {
         post_id: projects[0],
@@ -542,7 +520,6 @@ describe('Post queries can be sorted', () => {
         created_by: 'creator',
         licence: null,
         cost: 1,
-        artwork: null,
       },
     ]);
   });
