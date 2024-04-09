@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 import LoginForm from './login-form.jsx';
+import Popup from './popup.jsx';
 
 const Header = ({ user, setUser }) => {
   const logOut = () => {
@@ -31,7 +32,13 @@ const Header = ({ user, setUser }) => {
       </nav>
       {
         loginFormOpen
-          ? <LoginForm setUser={setUser} loginFormOpen={loginFormOpen} setLoginFormOpen={setLoginFormOpen} />
+          ?
+          <Popup onClose={() => setLoginFormOpen(false)}>
+            <LoginForm setUser={(user) => {
+              setUser(user);
+              setLoginFormOpen(false)
+            }} />
+          </Popup>
           : null
       }
     </div>
