@@ -7,6 +7,7 @@ import Footer from './components/footer.jsx';
 import ExplorePage from './components/explore-page.jsx';
 import ProfilePage from './components/Profiles';
 import FeedbackForm from './components/FeedbackForm.jsx';
+import Report from './components/report.jsx';
 //import Search from './components/search.jsx';
 
 function App() {
@@ -59,7 +60,19 @@ function App() {
       <>
         <Header user={user} setUser={setUser}/>
         <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
-          <FeedbackForm/>
+          <FeedbackForm />
+        </div>
+        <Footer/>
+      </>
+      ),
+    },
+    {
+      path: '/report',
+      element: (
+      <>
+        <Header user={user} setUser={setUser}/>
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+          <Report />
         </div>
         <Footer/>
       </>
