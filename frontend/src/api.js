@@ -150,22 +150,6 @@ export const postProject = (token, project_id) => { // TO BE CHANGED
     .then((json) => console.log(json));
 };
 
-export const postUser = (username, password, email) => {
-  fetch(`${urlBase}/user`, {
-    method: 'POST',
-    body: JSON.stringify({
-      username,
-      password,
-      email,
-    }),
-    headers: {
-      'Content-type': 'application/json; charset=UTF-8',
-    },
-  })
-    .then((response) => response.json())
-    .then((json) => console.log(json));
-};
-
 export const followUser = async (username) => {
   const response = await makeRequest(`${urlBase}/user/following`, 'post', { username });
   console.log(response);
