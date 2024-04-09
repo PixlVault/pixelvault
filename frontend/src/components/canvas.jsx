@@ -4,8 +4,10 @@ import pointsBetween from '../utils/line-points';
 
 let prevMousePos = { x: 0, y: 0 };
 let changeBuffer = {};
-let prevState = {};
-const editHistory = [];
+let undoBuffer = {};
+
+const undoHistory = [];
+const redoHistory = [];
 
 const areAdjacent = (x0, y0, x1, y1) => {
   const dx = Math.abs(x1 - x0);
@@ -24,23 +26,41 @@ const Canvas = ({
 
   useEffect(() => {
     const undo = (() => {
-      console.log(editHistory);
-      if (editHistory.length === 0) return;
-
-      console.log('undoing');
-      const change = editHistory.pop();
+      if (undoHistory.length === 0) return;
+      const change = undoHistory.pop();
 
       sendMessage(JSON.stringify(change));
-
       const pixelData = contextRef.current.getImageData(0, 0, width, height);
 
-      Object.keys(change).forEach((i) => { pixelData.data[i] = change[i]; });
+      const redoBuffer = {};
+      Object.keys(change).forEach((i) => {
+        redoBuffer[i] = pixelData.data[i];
+        pixelData.data[i] = change[i];
+      });
+      redoHistory.push(redoBuffer);
+
+      contextRef.current.putImageData(pixelData, 0, 0);
+    });
+
+    const redo = (() => {
+      if (redoHistory.length === 0) return;
+      const change = redoHistory.pop();
+
+      sendMessage(JSON.stringify(change));
+      const pixelData = contextRef.current.getImageData(0, 0, width, height);
+      const tmpUndoBuffer = {};
+      Object.keys(change).forEach((i) => {
+        tmpUndoBuffer[i] = pixelData.data[i];
+        pixelData.data[i] = change[i];
+      });
+      undoHistory.push(tmpUndoBuffer);
 
       contextRef.current.putImageData(pixelData, 0, 0);
     });
 
     const handleKeyDown = (e) => {
-      if (e.keyCode === 90 && e.ctrlKey) undo();
+      if ((e.keyCode === 89 && e.ctrlKey) || (e.keyCode === 90 && e.ctrlKey && e.shiftKey)) redo();
+      else if (e.keyCode === 90 && e.ctrlKey) undo();
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -48,7 +68,7 @@ const Canvas = ({
     return (() => {
       document.removeEventListener('keydown', handleKeyDown);
     });
-  }, [contextRef, height, width]);
+  }, [contextRef, height, width, sendMessage]);
 
   /**
    * Sets a single pixel given some ImageData.
@@ -65,16 +85,32 @@ const Canvas = ({
 
     const [r, g, b, a] = pixelColour;
 
-    prevState[redIndex] = pixelData.data[redIndex];
-    prevState[greenIndex] = pixelData.data[greenIndex];
-    prevState[blueIndex] = pixelData.data[blueIndex];
-    prevState[alphaIndex] = pixelData.data[alphaIndex];
+    // Keep track of the pre-edit state of the canvas.
+    // This undefined test guards against cases where the same pixel is visited
+    // twice in the same action. Not doing this leads to incomplete undo behaviour.
+    undoBuffer[redIndex] = undoBuffer[redIndex] === undefined
+      ? pixelData.data[redIndex]
+      : undoBuffer[redIndex];
 
+    undoBuffer[greenIndex] = undoBuffer[greenIndex] === undefined
+      ? pixelData.data[greenIndex]
+      : undoBuffer[greenIndex];
+
+    undoBuffer[blueIndex] = undoBuffer[blueIndex] === undefined
+      ? pixelData.data[blueIndex]
+      : undoBuffer[blueIndex];
+
+    undoBuffer[alphaIndex] = undoBuffer[alphaIndex] === undefined
+      ? pixelData.data[alphaIndex]
+      : undoBuffer[alphaIndex];
+
+    // Store the changes that have been made to the canvas.
     changeBuffer[redIndex] = r;
     changeBuffer[greenIndex] = g;
     changeBuffer[blueIndex] = b;
     changeBuffer[alphaIndex] = a;
 
+    // Action the change to the canvas.
     pixelData.data[redIndex] = r;
     pixelData.data[greenIndex] = g;
     pixelData.data[blueIndex] = b;
@@ -157,8 +193,8 @@ const Canvas = ({
     sendMessage(JSON.stringify(changeBuffer));
     changeBuffer = {};
 
-    editHistory.push(prevState);
-    prevState = {};
+    undoHistory.push(undoBuffer);
+    undoBuffer = {};
   };
 
   const mouseLeftCanvas = () => setIsDrawing(false);
