@@ -57,7 +57,7 @@ const LoginForm = ({ ref, setUser, loginFormOpen, setLoginFormOpen }) => {
         { creatingAccount
           ? <>
             <input className={inputClass} type='email' placeholder='Email' name='email' onChange={(e) => setEmail(e.target.value)}></input>
-            <button className='mb-4' type="submit" onClick={createAccount}>Registern</button>
+            <button className='mb-4' type="submit" onClick={createAccount}>Register</button>
             <span className='text-red-600  mb-4'>{ alertMessage } &nbsp;</span>
             <span className='cursor-pointer text-violet-500 underline' onClick={() => setCreatingAccount(false)}>Already have an account? Log in!</span>
           </>
