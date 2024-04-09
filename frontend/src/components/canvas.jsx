@@ -7,7 +7,7 @@ let changeBuffer = {};
 let undoBuffer = {};
 
 const undoHistory = [];
-const redoHistory = [];
+let redoHistory = [];
 
 const areAdjacent = (x0, y0, x1, y1) => {
   const dx = Math.abs(x1 - x0);
@@ -193,6 +193,9 @@ const Canvas = ({
     sendMessage(JSON.stringify(changeBuffer));
     changeBuffer = {};
 
+    // Append the action to the undo history, and empty the redo history due
+    // to the actions it may refer to now being invalidated.
+    redoHistory = [];
     undoHistory.push(undoBuffer);
     undoBuffer = {};
   };
