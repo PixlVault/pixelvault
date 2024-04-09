@@ -7,7 +7,7 @@ const Listing = () => {
       <ListingInfo />
 
       <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
-        <textarea className="w-full h-12 resize-y border rounded-md p-2" placeholder="Add a comment..."></textarea>
+        <textarea className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
         <button className="max-w-third mx-auto">Comment</button>
       </div>
 
