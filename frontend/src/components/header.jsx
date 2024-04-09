@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
-import { LoginForm } from './login-form.jsx';
+import LoginForm from './login-form.jsx';
 
 const Header = ({ user, setUser }) => {
   const logOut = () => {
@@ -9,25 +10,30 @@ const Header = ({ user, setUser }) => {
     localStorage.removeItem('auth');
   };
 
+  const [loginFormOpen, setLoginFormOpen] = useState(false);
+
   return (
     <div className="sticky top-0">
       <nav className="flex flex-col text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
         <div>
           <Link to="/explore" className="text-2xl no-underline">PixelVault</Link>
         </div>
-        <div>
-          <Link to="/explore" className="text-lg no-underline ml-2">Explore | </Link>
-          <Link to="/edit" className="text-lg no-underline ml-2">Edit | </Link>
-          <Link to="/profile" className="text-lg no-underline ml-2">My Profile</Link>
+        <div className='divide-x'>
+          <Link to="/explore" className="text-lg no-underline px-2">Explore</Link>
+          <Link to="/edit" className="text-lg no-underline px-2">Edit</Link>
+          <Link to="/profile" className="text-lg no-underline px-2">My Profile</Link>
+          {
+            user !== null
+              ? <span>Logged in as {user} <button onClick={logOut}>Log Out</button> </span>
+              : <button onClick={() => setLoginFormOpen(true)}>Log In</button>
+          }
         </div>
       </nav>
-      <div className="bg-gray-100">
-        <div align="right"> {
-          user !== null
-            ? <p>Logged in as {user} <button onClick={logOut}>Log Out</button> </p>
-            : <LoginForm setUser={setUser} />
-        } </div>
-      </div>
+      {
+        loginFormOpen
+          ? <LoginForm setUser={setUser} loginFormOpen={loginFormOpen} setLoginFormOpen={setLoginFormOpen} />
+          : null
+      }
     </div>
   );
 };
