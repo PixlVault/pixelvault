@@ -110,16 +110,15 @@ export const fetchPosts = (searchParams) => {
 */
 export const likePost = async (postID) => {
   const response = await makeRequest(`${urlBase}/post/likes`, 'post', { post_id: postID });
-  console.log(response);
   if (response == null) {
     console.error('Liking post failed.');
   }
   return response;
 };
 
+
 export const commentOnPost = async (postID, content) => {
   const response = await makeRequest(`${urlBase}/comment`, 'post', { post_id: postID, content });
-  console.log(response);
   if (response == null) {
     console.error('Commenting on post failed');
   }
@@ -128,14 +127,14 @@ export const commentOnPost = async (postID, content) => {
 
 export const likeComment = async (commentID) => {
   const response = await makeRequest(`${urlBase}/comment/likes`, 'post', { comment_id: commentID });
-  console.log(response);
   if (response == null) {
-    console.error('Commenting on post failed');
+    console.error('Liking the comment failed');
   }
   return response;
 };
 
-export const postProject = (token, project_id) => { // TO BE CHANGED
+export const postProject = (project_id) => { // TO BE CHANGED
+  const authToken = localStorage.getItem('auth');
   fetch(`${urlBase}/project`, {
     method: 'POST',
     body: JSON.stringify({
@@ -143,20 +142,11 @@ export const postProject = (token, project_id) => { // TO BE CHANGED
     }),
     headers: {
       'Content-type': 'application/json; charset=UTF-8',
-      Authorization: token,
+      Authorization: `token ${authToken}`,
     },
   })
     .then((response) => response.json())
     .then((json) => console.log(json));
-};
-
-export const followUser = async (username) => {
-  const response = await makeRequest(`${urlBase}/user/following`, 'post', { username });
-  console.log(response);
-  if (response == null) {
-    console.error('Commenting on post failed');
-  }
-  return response;
 };
 
 const makeRequest = async (url, method, body) => {

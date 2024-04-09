@@ -14,7 +14,7 @@ const likePosts = async () => {
     },
   };
   // commented out code below is used for actually creating the user accounts
-  // await Api.postUser(users.userone.username, users.userone.password, users.userone.email);
+  // await Api.createUser(users.userone.username, users.userone.password, users.userone.email);
 
   // used to login in and retrieve token in order to create project
   users.userone.token = await Api.login(users.userone.username, users.userone.password);
