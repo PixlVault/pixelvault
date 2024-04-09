@@ -7,9 +7,11 @@ import Footer from './components/footer.jsx';
 import ExplorePage from './components/explore-page.jsx';
 import ProfilePage from './components/profile-page.jsx';
 import Listing from './components/listing.jsx';
+import Popup from './components/popup.jsx';
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem('user'));
+  const [popupOpen, setPopupOpen] = useState(true);
 
   const router = createBrowserRouter([
     {
@@ -53,17 +55,16 @@ function App() {
       ),
     },
     {
-      
       path: '/listing',
       element: (
       <>
         <Header user={user} setUser={setUser}/>
-        <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="flex flex-col justify-center items-center bg-gray-100">
+          { popupOpen ?
+          <Popup onClose={() => setPopupOpen(false)}>
             <Listing/>
-          </div>
-        </div>
-        
+          </Popup>
+          : ""
+          }
         <Footer/>
       </>
       ),
