@@ -60,6 +60,13 @@ const User = {
     });
   }),
 
+  /**
+   * Test if a user account is banned or not.
+   * @param {string} username The user to query.
+   * @returns A boolean: true -> banned, false -> not banned.
+   *          Note that if the user's account has been deleted from the system,
+   *          this will return true.
+   */
   isBanned: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Invalid username provided'));
@@ -68,7 +75,8 @@ const User = {
 
     db.query('SELECT is_banned = 1 AS is_banned FROM user WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
-      else resolve(result[0].is_banned === 1);
+      // If the user's account is missing from the database, we should return false by default.
+      else resolve(result.length === 0 || result[0].is_banned === 1);
     });
   }),
 

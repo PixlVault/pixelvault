@@ -1,6 +1,10 @@
 const { validate: isValidUuid } = require('uuid');
+const LZString = require('lz-string');
 
+const log = require('../utils/logger');
 const { db, extractArgs } = require('../utils/database');
+const Project = require('./project');
+const { writePostImage } = require('../utils/image');
 
 const Post = {
   /** Search for posts according to some criteria.
@@ -158,6 +162,16 @@ const Post = {
       reject(new Error('Invalid UUID provided'));
       return;
     }
+
+    Project.getImageData(args.post_id)
+      .then((data) => {
+        const parsed = JSON.parse(LZString.decompressFromBase64(data.toString()));
+        writePostImage(args.post_id, parsed.data, parsed.width, parsed.height);
+      })
+      .catch((e) => {
+        log.error(e);
+        reject(new Error('An error occurred in converting the project\'s data to an image.'));
+      });
 
     const query = `INSERT INTO post 
       (post_id${(argValuePairs.fields.length > 0 ? `, ${argValuePairs.fields.join(', ')}` : '')}) 

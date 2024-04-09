@@ -206,6 +206,8 @@ const setHidden = async (req, res) => {
   }
 };
 
+router.use('/img', express.static('post_img'));
+
 router.post('/hide', setHidden);
 router.delete('/hide', setHidden);
 
