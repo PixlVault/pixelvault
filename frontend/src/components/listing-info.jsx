@@ -11,6 +11,7 @@ const ListingInfo = () => {
             <h4>Author</h4>
           </div>
           <div className="flex flex-col justify-center items-center">
+            <img className="w-12" src="pixelartheart.png"/>
             <h2 className="text-xl">12k</h2>
           </div>
           <div className="flex flex-col justify-center items-center">
