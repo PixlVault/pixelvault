@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import Comment from './comment.jsx';
 import ListingInfo from './listing-info.jsx';
 
@@ -22,6 +24,10 @@ const Listing = () => {
         <Comment />
         <Comment />
         <Comment />
+      </div>
+
+      <div className="flex justify-center">
+        <Link to="#">More like this...</Link>
       </div>
     </div>
   );
