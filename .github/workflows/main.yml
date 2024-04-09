@@ -1,0 +1,16 @@
+name: deploy pixelvault
+on: push
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: run deploy script via ssh
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        script: |
+          cd /home/${{ secrets.USERNAME }}/dev/pixelvault
+          sudo bash ./deploy.sh
