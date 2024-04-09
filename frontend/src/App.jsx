@@ -6,12 +6,9 @@ import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
 import ExplorePage from './components/explore-page.jsx';
 import ProfilePage from './components/profile-page.jsx';
-import Listing from './components/listing.jsx';
-import Popup from './components/popup.jsx';
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem('user'));
-  const [popupOpen, setPopupOpen] = useState(true);
 
   const router = createBrowserRouter([
     {
@@ -54,21 +51,6 @@ function App() {
       </>
       ),
     },
-    {
-      path: '/listing',
-      element: (
-      <>
-        <Header user={user} setUser={setUser}/>
-          { popupOpen ?
-          <Popup onClose={() => setPopupOpen(false)}>
-            <Listing/>
-          </Popup>
-          : ""
-          }
-        <Footer/>
-      </>
-      ),
-    }
   ]);
 
   return (
