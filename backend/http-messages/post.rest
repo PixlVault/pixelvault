@@ -1,0 +1,7 @@
+POST http://localhost:3000/api/post
+Content-Type: application/json
+Authorization: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIiLCJlbWFpbCI6InRlc3QiLCJiaW9ncmFwaHkiOm51bGwsImV4cGVyaWVuY2UiOjAsImlzX3ZlcmlmaWVkIjowLCJpc19iYW5uZWQiOjAsImlzX2FkbWluIjowLCJ0d2l0dGVyIjpudWxsLCJpbnN0YWdyYW0iOm51bGwsInRpa3RvayI6bnVsbCwieW91dHViZSI6bnVsbCwiaWF0IjoxNzEyNTk1NDc1LCJleHAiOjE3MTMyMDAyNzV9.cc5nWIoJqb5xeCwXMsT64lcZFmUKVnCNvVETN4D7_AQ
+
+{
+    "post_id": "82e1afb0-f5d2-11ee-aea7-abe9d26d6cfb"
+}

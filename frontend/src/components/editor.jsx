@@ -53,13 +53,24 @@ const initialiseCanvas = (canvasRef, contextRef, initialData) => {
   };
 };
 
+const exportImage = async (canvasRef) => {
+  const link = document.createElement('a');
+  link.download = 'export.png';
+  link.href = canvasRef.current.toDataURL();
+  link.click();
+};
+
 const saveProject = async (contextRef, navigate) => {
   const title = prompt('Please enter a project title');
   if (title !== undefined && title !== '') {
     try {
-      const compressedData = LZString.compressToBase64(JSON.stringify(
-        Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data),
-      ));
+      const obj = {
+        data: Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data),
+        width: CANVAS_WIDTH,
+        height: CANVAS_HEIGHT,
+      };
+
+      const compressedData = LZString.compressToBase64(JSON.stringify(obj));
       const response = await createNewProject(title, compressedData);
       if (response.projectId !== undefined) {
         navigate(`${response.projectId}`);
@@ -86,6 +97,7 @@ const OfflineCanvasContainer = ({ colour }) => {
       canvasReady={true}
     />
     <button onClick={() => saveProject(contextRef, navigate)}>Save as Project</button>
+    <button onClick={() => exportImage(canvasRef)}>Export</button>
   </>;
 };
 
@@ -124,7 +136,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
 
     socket.on('load', (data) => {
       const decompressed = JSON.parse(LZString.decompressFromBase64(data));
-      initialiseCanvas(canvasRef, contextRef, decompressed);
+      initialiseCanvas(canvasRef, contextRef, decompressed.data);
       setCanvasReady(true);
     });
 
@@ -166,6 +178,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       height={CANVAS_HEIGHT}
       canvasReady={canvasReady}
     />
+    <button onClick={() => exportImage(canvasRef)}>Export</button>
   </>;
 };
 

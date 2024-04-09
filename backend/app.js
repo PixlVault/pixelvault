@@ -60,6 +60,7 @@ app.use(cors());
 
 app.use('/api', apiRouter);
 
+
 if (process.env.NODE_ENV == 'production') {
   app.use(express.static(__dirname + '/../frontend/dist'));
 

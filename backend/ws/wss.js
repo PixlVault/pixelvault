@@ -64,8 +64,8 @@ const attachWebSocketService = (server) => {
         log.error(e);
         return socket.disconnect('Error occurred in opening session');
       }
-    } else if (!sessions[projectId].collaborators.includes(user)) {
-      return socket.disconnect(`User ${user} does not have permission to edit ${projectId}`);
+    } else if (!sessions[projectId].collaborators.includes(socket.user)) {
+      return socket.disconnect(`User ${socket.user} does not have permission to edit ${projectId}`);
     }
 
     if (sessions[projectId].clients === undefined) {
@@ -94,7 +94,7 @@ const attachWebSocketService = (server) => {
       // Session already exists, so we only need to send the user the canvas' state:
       sessions[projectId].clients.push(socket);
     }
-    socket.emit('load', LZString.compressToBase64(JSON.stringify(Uint8Array.from(sessions[projectId].canvas))));
+    socket.emit('load', LZString.compressToBase64(JSON.stringify(sessions[projectId].canvas)));
     log.http(`Client connected to session ${projectId} (total: ${sessions[projectId].clients.length})`);
 
     const updateCanvasState = (newState, projectId) => {
@@ -103,8 +103,8 @@ const attachWebSocketService = (server) => {
       log.debug('UPDATE', projectId);
       Object.keys(updates).forEach((i) => {
         if (!isNaN(i)) {
-          log.debug(i, sessions[projectId].canvas[i], '<-', updates[i]);
-          sessions[projectId].canvas[i] = updates[i];
+          log.debug(i, sessions[projectId].canvas.data[i], '<-', updates[i]);
+          sessions[projectId].canvas.data[i] = updates[i];
         } else {
           log.warn('Non-Numeric key detected');
         }
