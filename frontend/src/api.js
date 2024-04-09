@@ -1,21 +1,21 @@
-const urlBase = import.meta.env.VITE_API_URL_BASE;
+const urlBase = 'http://localhost:3000/api';
 
 export const login = async (username, password) => {
-  const response = await makeRequest(urlBase + "/login", "post", {username: username, password: password}, null);
+  const response = await makeRequest(`${urlBase}/login`, 'post', { username, password }, null);
   if (response == null) {
-    console.error("Login Failed.");
+    console.error('Login Failed.');
     return null;
   }
 
   return response.token;
-}
+};
 
 // Here we make requests to do the following:
 // 1. Create the new project.
 // 2. Save the actual canvas state to this new project.
 // 3. Fetch the actual new project object and return it.
 export const createNewProject = async (title, canvasState) => {
-  console.log("Creating Project.");
+  console.log('Creating Project.');
   const authToken = localStorage.getItem('auth');
 
   // TODO: This was rewritten to try and resolve another bug;
@@ -23,70 +23,150 @@ export const createNewProject = async (title, canvasState) => {
 
   const body = { title, imageData: canvasState };
 
-  let response = await fetch(urlBase + "/project/", {
+  const response = await fetch(`${urlBase}/project/`, {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'token ' + authToken
+      Authorization: `token ${authToken}`,
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
   });
 
   if (response.ok) {
     return response.json();
-  } else {
-    console.error("Request failed: " + response.status);
-    return null;
   }
-}
+  console.error(`Request failed: ${response.status}`);
+  return null;
+};
 
 export const trySaveProject = async (projectId, canvasState) => {
-  console.log("Saving Project.");
+  console.log('Saving Project.');
   const authToken = localStorage.getItem('auth');
 
-  const response = makeRequest(urlBase + "/project/" + projectId, "put", { projectData: { imageData: canvasState }}, authToken);
+  const response = makeRequest(`${urlBase}/project/${projectId}`, 'put', { projectData: { imageData: canvasState } }, authToken);
   if (response == null) {
-    console.error("Saving Project Failed.");
+    console.error('Saving Project Failed.');
     return false;
   }
 
   return true;
-}
+};
 
 export const fetchProjectsCreatedBy = (username) => {
-  let response = makeRequest(urlBase + "/project/createdBy/" + username, "get", null);
+  const response = makeRequest(`${urlBase}/project/createdBy/${username}`, 'get', null);
   if (response == null) {
-   console.error("Fetch projects created by failed.");
+    console.error('Fetch projects created by failed.');
   }
 
   return response;
-}
+};
 
 export const fetchProjectById = (projectId) => {
-  let response = makeRequest(urlBase + "/project/" + projectId, "get", null);
+  const response = makeRequest(`${urlBase}/project/${projectId}`, 'get', null);
   if (response == null) {
-   console.error('Fetch project by ID failed.');
+    console.error('Fetch project by ID failed.');
   }
 
   return response;
-}
+};
+/*
+/ fetches all posts with paramaters (parameters are not required, and can be
+/ left blank if all posts are needed)
+*/
+export const fetchPosts = (searchParams) => {
+  const response = makeRequest(`${urlBase}/post/search`, 'post', searchParams);
+  if (response == null) {
+    console.error('Fetching posts failed.');
+  }
+  return response;
+};
+
+/*
+/ makes a request to like the post using the post (referenced with id) and
+/ the user's token stored in localStorage (see makeRequest for explanation)
+*/
+export const likePost = async (postID) => {
+  const response = await makeRequest(`${urlBase}/post/likes`, 'post', { post_id: postID });
+  console.log(response);
+  if (response == null) {
+    console.error('Liking post failed.');
+  }
+  return response;
+};
+
+export const commentOnPost = async (postID, content) => {
+  const response = await makeRequest(`${urlBase}/comment`, 'post', { post_id: postID, content });
+  console.log(response);
+  if (response == null) {
+    console.error('Commenting on post failed');
+  }
+  return response;
+};
+
+export const likeComment = async (commentID) => {
+  const response = await makeRequest(`${urlBase}/comment/likes`, 'post', { comment_id: commentID });
+  console.log(response);
+  if (response == null) {
+    console.error('Commenting on post failed');
+  }
+  return response;
+};
+
+export const postProject = (token, project_id) => { // TO BE CHANGED
+  fetch(`${urlBase}/project`, {
+    method: 'POST',
+    body: JSON.stringify({
+      post_id: project_id,
+    }),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+      Authorization: token,
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+};
+
+export const postUser = (username, password, email) => {
+  fetch(`${urlBase}/user`, {
+    method: 'POST',
+    body: JSON.stringify({
+      username,
+      password,
+      email,
+    }),
+    headers: {
+      'Content-type': 'application/json; charset=UTF-8',
+    },
+  })
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+};
+
+export const followUser = async (username) => {
+  const response = await makeRequest(`${urlBase}/user/following`, 'post', { username });
+  console.log(response);
+  if (response == null) {
+    console.error('Commenting on post failed');
+  }
+  return response;
+};
 
 const makeRequest = async (url, method, body) => {
   const authToken = localStorage.getItem('auth');
 
-  let response = await fetch(url, {
-    method: method,
+  const response = await fetch(url, {
+    method,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'token ' + authToken
+      Authorization: `token ${authToken}`,
     },
-    body: method == "get" ? null : JSON.stringify(body)
+    body: method == 'get' ? null : JSON.stringify(body),
   });
 
   if (response.ok) {
     return response.json();
-  } else {
-    console.error("Request failed: " + response.status);
-    return null;
   }
-}
+  console.error(`Request failed: ${response.status}`);
+  return null;
+};
