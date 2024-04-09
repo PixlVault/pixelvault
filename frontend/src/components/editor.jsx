@@ -140,6 +140,14 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       setCanvasReady(true);
     });
 
+    socket.on('joined', (user) => {
+      console.log(`${user} has joined the session`);
+    });
+
+    socket.on('left', (user) => {
+      console.log(`${user} has left the session`);
+    });
+
     socket.on('update', (data) => {
       const imageData = contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       const parsed = JSON.parse(data);
@@ -160,6 +168,8 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       socket.off('disconnect');
       socket.off('load');
       socket.off('update');
+      socket.off('joined');
+      socket.off('left');
       socket.disconnect();
     };
   }, [projectId]);

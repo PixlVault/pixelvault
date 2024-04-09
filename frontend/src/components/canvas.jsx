@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import pointsBetween from '../utils/line-points';
 
 let prevMousePos = { x: 0, y: 0 };
 let changeBuffer = {};
+let undoBuffer = {};
+
+const undoHistory = [];
+let redoHistory = [];
 
 const areAdjacent = (x0, y0, x1, y1) => {
   const dx = Math.abs(x1 - x0);
@@ -20,6 +24,52 @@ const Canvas = ({
   const getWidthScaleFactor = () => canvasRef.current.offsetWidth / width;
   const getHeightScaleFactor = () => canvasRef.current.offsetHeight / height;
 
+  useEffect(() => {
+    const undo = (() => {
+      if (undoHistory.length === 0) return;
+      const change = undoHistory.pop();
+
+      sendMessage(JSON.stringify(change));
+      const pixelData = contextRef.current.getImageData(0, 0, width, height);
+
+      const redoBuffer = {};
+      Object.keys(change).forEach((i) => {
+        redoBuffer[i] = pixelData.data[i];
+        pixelData.data[i] = change[i];
+      });
+      redoHistory.push(redoBuffer);
+
+      contextRef.current.putImageData(pixelData, 0, 0);
+    });
+
+    const redo = (() => {
+      if (redoHistory.length === 0) return;
+      const change = redoHistory.pop();
+
+      sendMessage(JSON.stringify(change));
+      const pixelData = contextRef.current.getImageData(0, 0, width, height);
+      const tmpUndoBuffer = {};
+      Object.keys(change).forEach((i) => {
+        tmpUndoBuffer[i] = pixelData.data[i];
+        pixelData.data[i] = change[i];
+      });
+      undoHistory.push(tmpUndoBuffer);
+
+      contextRef.current.putImageData(pixelData, 0, 0);
+    });
+
+    const handleKeyDown = (e) => {
+      if ((e.keyCode === 89 && e.ctrlKey) || (e.keyCode === 90 && e.ctrlKey && e.shiftKey)) redo();
+      else if (e.keyCode === 90 && e.ctrlKey) undo();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return (() => {
+      document.removeEventListener('keydown', handleKeyDown);
+    });
+  }, [contextRef, height, width, sendMessage]);
+
   /**
    * Sets a single pixel given some ImageData.
    * @param {number} x The x coordinate of the pixel.
@@ -35,11 +85,32 @@ const Canvas = ({
 
     const [r, g, b, a] = pixelColour;
 
+    // Keep track of the pre-edit state of the canvas.
+    // This undefined test guards against cases where the same pixel is visited
+    // twice in the same action. Not doing this leads to incomplete undo behaviour.
+    undoBuffer[redIndex] = undoBuffer[redIndex] === undefined
+      ? pixelData.data[redIndex]
+      : undoBuffer[redIndex];
+
+    undoBuffer[greenIndex] = undoBuffer[greenIndex] === undefined
+      ? pixelData.data[greenIndex]
+      : undoBuffer[greenIndex];
+
+    undoBuffer[blueIndex] = undoBuffer[blueIndex] === undefined
+      ? pixelData.data[blueIndex]
+      : undoBuffer[blueIndex];
+
+    undoBuffer[alphaIndex] = undoBuffer[alphaIndex] === undefined
+      ? pixelData.data[alphaIndex]
+      : undoBuffer[alphaIndex];
+
+    // Store the changes that have been made to the canvas.
     changeBuffer[redIndex] = r;
     changeBuffer[greenIndex] = g;
     changeBuffer[blueIndex] = b;
     changeBuffer[alphaIndex] = a;
 
+    // Action the change to the canvas.
     pixelData.data[redIndex] = r;
     pixelData.data[greenIndex] = g;
     pixelData.data[blueIndex] = b;
@@ -118,8 +189,15 @@ const Canvas = ({
   const endDrawing = () => {
     setIsDrawing(false);
     setIsErasing(false);
+
     sendMessage(JSON.stringify(changeBuffer));
     changeBuffer = {};
+
+    // Append the action to the undo history, and empty the redo history due
+    // to the actions it may refer to now being invalidated.
+    redoHistory = [];
+    undoHistory.push(undoBuffer);
+    undoBuffer = {};
   };
 
   const mouseLeftCanvas = () => setIsDrawing(false);
