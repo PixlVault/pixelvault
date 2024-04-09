@@ -10,6 +10,29 @@ export const login = async (username, password) => {
   return response.token;
 };
 
+export const createAccount = async (username, password, email) => {
+  if (!username || username.length < 3) {
+    throw new Error('Username must be at least 3 characters long.');
+  }
+  if (!password || password.length < 6) {
+    throw new Error('Password must be at least 6 characters long.');
+  }
+  const emailRegex = /^\S+@\S+\.\S+$/;
+  if (!emailRegex.test(email)) {
+    throw new Error('Email must be in a valid format.');
+  }
+
+  const response = await fetch(`${urlBase}/user/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password, email }),
+  });
+
+  return null;
+};
+
 // Here we make requests to do the following:
 // 1. Create the new project.
 // 2. Save the actual canvas state to this new project.
