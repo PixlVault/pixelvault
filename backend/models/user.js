@@ -75,7 +75,7 @@ const User = {
 
     db.query('SELECT is_banned = 1 AS is_banned FROM user WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
-      // If the user's account is missing from the database, we probably
+      // If the user's account is missing from the database, we should return false by default.
       else resolve(result.length === 0 || result[0].is_banned === 1);
     });
   }),
