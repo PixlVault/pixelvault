@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import pointsBetween from '../utils/line-points';
 
 let prevMousePos = { x: 0, y: 0 };
 let changeBuffer = {};
+let prevState = {};
+const editHistory = [];
 
 const areAdjacent = (x0, y0, x1, y1) => {
   const dx = Math.abs(x1 - x0);
@@ -20,6 +22,34 @@ const Canvas = ({
   const getWidthScaleFactor = () => canvasRef.current.offsetWidth / width;
   const getHeightScaleFactor = () => canvasRef.current.offsetHeight / height;
 
+  useEffect(() => {
+    const undo = (() => {
+      console.log(editHistory);
+      if (editHistory.length === 0) return;
+
+      console.log('undoing');
+      const change = editHistory.pop();
+
+      sendMessage(JSON.stringify(change));
+
+      const pixelData = contextRef.current.getImageData(0, 0, width, height);
+
+      Object.keys(change).forEach((i) => { pixelData.data[i] = change[i]; });
+
+      contextRef.current.putImageData(pixelData, 0, 0);
+    });
+
+    const handleKeyDown = (e) => {
+      if (e.keyCode === 90 && e.ctrlKey) undo();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return (() => {
+      document.removeEventListener('keydown', handleKeyDown);
+    });
+  }, [contextRef, height, width]);
+
   /**
    * Sets a single pixel given some ImageData.
    * @param {number} x The x coordinate of the pixel.
@@ -34,6 +64,11 @@ const Canvas = ({
     const alphaIndex = redIndex + 3;
 
     const [r, g, b, a] = pixelColour;
+
+    prevState[redIndex] = pixelData.data[redIndex];
+    prevState[greenIndex] = pixelData.data[greenIndex];
+    prevState[blueIndex] = pixelData.data[blueIndex];
+    prevState[alphaIndex] = pixelData.data[alphaIndex];
 
     changeBuffer[redIndex] = r;
     changeBuffer[greenIndex] = g;
@@ -118,8 +153,12 @@ const Canvas = ({
   const endDrawing = () => {
     setIsDrawing(false);
     setIsErasing(false);
+
     sendMessage(JSON.stringify(changeBuffer));
     changeBuffer = {};
+
+    editHistory.push(prevState);
+    prevState = {};
   };
 
   const mouseLeftCanvas = () => setIsDrawing(false);
