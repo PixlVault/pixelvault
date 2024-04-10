@@ -14,7 +14,7 @@ const Popup = ({ children, onClose }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 fade-in backdrop-blur-sm">
       <div ref={overlayRef} className="flex flex-col items-stretch justify-center bg-gray-100 rounded-lg">
         <div className="flex">
           <div className="grow"></div>
