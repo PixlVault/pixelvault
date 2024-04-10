@@ -81,8 +81,8 @@ const Project = {
       return;
     }
 
-    if (imageData === undefined || imageData === null) {
-      reject(new Error('No image data provided'));
+    if (typeof imageData !== 'string' || imageData.length === 0) {
+      reject(new Error('No valid image data provided'));
       return;
     }
 
