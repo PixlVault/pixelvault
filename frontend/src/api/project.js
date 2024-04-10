@@ -1,4 +1,4 @@
-import makeRequest from './core';
+import { makeRequest } from './core';
 
 /**
  * Creates a new project.

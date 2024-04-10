@@ -1,4 +1,6 @@
-import makeRequest from './core';
+import { makeRequest, urlBase } from './core';
+
+export const userImageBase = `${urlBase}/user/img/`;
 
 /**
  * Attempts to sign a user in.
@@ -36,13 +38,11 @@ export const create = async (username, password, email) => {
 };
 
 export const uploadProfilePicture = async (formData) => {
-  const res = await fetch('http://localhost:3000/api/user/upload_img', {
+  await fetch(`${urlBase}/user/upload_img`, {
     method: 'POST',
     body: formData,
     headers: {
       Authorization: `token ${localStorage.getItem('auth')}`,
     },
   });
-
-  console.log(res);
 };
