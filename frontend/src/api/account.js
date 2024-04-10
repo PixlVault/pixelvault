@@ -34,3 +34,15 @@ export const create = async (username, password, email) => {
 
   await makeRequest('/user/', 'POST', { username, password, email }, false);
 };
+
+export const uploadProfilePicture = async (formData) => {
+  const res = await fetch('http://localhost:3000/api/user/upload_img', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      Authorization: `token ${localStorage.getItem('auth')}`,
+    },
+  });
+
+  console.log(res);
+};

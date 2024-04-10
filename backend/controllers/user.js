@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 
 const log = require('../utils/logger');
 const User = require('../models/user');
@@ -178,5 +179,37 @@ router.delete('/:username/following', async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 });
+
+const isLoggedIn = (req, res, next) => {
+  if (!req.token) {
+    return res.status(401).json({ error: 'Not logged in' });
+  }
+  return next();
+};
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: 'profile_img',
+    filename: (req, _file, callback) => callback(null, `${req.token.username}.png`),
+  }),
+  limits: { fields: 0, files: 1, fileSize: 100000 },
+  fileFilter: (req, file, callback) => {
+    if (file.mimetype !== 'image/png') {
+      console.error('unaccepted MIME');
+      callback(new Error('Image must be a PNG.'));
+    }
+    else {
+      console.log('File accepted', file);
+      callback(null, true);
+    }
+  },
+});
+
+router.post('/upload_img', isLoggedIn, upload.single('avatar'), (req, res) => {
+  console.log(req.file);
+  res.status(201).send();
+});
+
+router.use('/img', express.static('profile_img'));
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const urlBase = import.meta.env.VITE_API_URL_BASE;
+export const urlBase = import.meta.env.VITE_API_URL_BASE;
 
 const hasJsonResponseType = (response) => {
   const contentType = response.headers.get('content-type');
