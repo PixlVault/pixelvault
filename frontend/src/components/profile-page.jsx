@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 
-import { uploadProfilePicture, userImageBase } from '../api/account';
+import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
 
 const ProfilePage = () => {
   const params = useParams();
@@ -19,7 +19,14 @@ const ProfilePage = () => {
     <div>
       Profile Page.
       <div>
-        <img src={`${userImageBase}${params.username}.png`}></img>
+        PLACEHOLDER!
+        <img
+          src={`${userImageBase}${params.username}.png`}
+          onError={({ currentTarget }) => {
+            currentTarget.onerror = null;
+            currentTarget.src = defaultImageUrl;
+          }}
+        />
         <label className='rounded border hover:cursor-pointer'>
           Upload a new Profile Picture
           <input type='file' className='hidden' onChange={uploadImage} name='avatar' />

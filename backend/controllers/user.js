@@ -189,7 +189,7 @@ const isLoggedIn = (req, res, next) => {
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: 'profile_img',
+    destination: 'img/profile_img',
     filename: (req, _file, callback) => callback(null, `${req.token.username}.png`),
   }),
   limits: { fields: 0, files: 1, fileSize: 100000 },
@@ -210,6 +210,6 @@ router.post('/upload_img', isLoggedIn, upload.single('avatar'), (req, res) => {
   res.status(201).send();
 });
 
-router.use('/img', express.static('profile_img'));
+router.use('/img', express.static('img/profile_img'));
 
 module.exports = router;

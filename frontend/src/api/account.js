@@ -1,6 +1,7 @@
 import { makeRequest, urlBase } from './core';
 
 export const userImageBase = `${urlBase}/user/img/`;
+export const defaultImageUrl = `${urlBase}/img/user-default.png`;
 
 /**
  * Attempts to sign a user in.
