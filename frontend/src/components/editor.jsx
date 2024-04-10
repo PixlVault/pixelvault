@@ -3,11 +3,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import LZString from 'lz-string';
 
-
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
-import { createProject, getProject } from '../api';
+import * as project from '../api/project';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -71,7 +70,7 @@ const saveProject = async (contextRef, navigate) => {
       };
 
       const compressedData = LZString.compressToBase64(JSON.stringify(obj));
-      const newProjectId = await createProject(title, compressedData);
+      const newProjectId = await project.create(title, compressedData);
       if (newProjectId !== null) navigate(`${newProjectId}`);
     } catch (err) { console.error(err); }
   }
@@ -121,7 +120,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   const [canvasReady, setCanvasReady] = useState(false);
 
   useEffect(() => {
-    getProject(projectId)
+    project.get(projectId)
       .then((project) => setCurrentProject(project))
       .catch((error) => console.error(error));
   }, [projectId]);
