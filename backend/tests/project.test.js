@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const LZString = require('lz-string');
 const supertest = require('supertest');
 const app = require('../app');
 const { db } = require('../utils/database');
@@ -53,11 +54,17 @@ beforeAll(async () => {
 
 describe('Projects can be created', () => {
   test('Valid project is created', async () => {
+    // Create a compressed canvas state:
+    const [width, height] = [128, 256];
+    const buf = Buffer.alloc(width * height * 4).fill(0);
+    const img = { data: Array.from(buf), width, height };
+    const imageData = LZString.compressToBase64(JSON.stringify(img));
+
     // POST the project to the API:
     const res = await api
       .post('/api/project')
       .set('Authorization', userToken)
-      .send({ title: 'For lack of a better name', imageData: [] });
+      .send({ title: 'For lack of a better name', imageData });
 
     expect(res.statusCode).toBe(201);
     newProjectId = res.body.projectId;
