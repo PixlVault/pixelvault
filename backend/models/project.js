@@ -68,6 +68,7 @@ const Project = {
    * Insert a new project into the database.
    * @param {*} title The title of the project.
    * @param {*} author The username of the author.
+   * @param {string} imageData The stringified version of a canvas state.
    */
   insert: (title, author, imageData) => new Promise((resolve, reject) => {
     if (title === undefined) {
@@ -80,7 +81,7 @@ const Project = {
       return;
     }
 
-    if (imageData === undefined) {
+    if (imageData === undefined || imageData === null) {
       reject(new Error('No image data provided'));
       return;
     }

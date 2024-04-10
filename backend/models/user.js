@@ -178,7 +178,7 @@ const User = {
     }
 
     db.query(
-      'INSERT INTO follow (follower, follows) VALUES (?, ?) DUPLICATE KEY UPDATE follower=follower;',
+      'INSERT INTO follow (follower, follows) VALUES (?, ?) ON DUPLICATE KEY UPDATE follower=follower;',
       [username, targetUsername],
       (err, result) => {
         if (err) reject(err);
