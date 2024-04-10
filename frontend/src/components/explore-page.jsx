@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchProjectsCreatedBy, fetchPosts } from "../api";
+import { search } from '../api/post';
 import createData from '../createData';
 import Listing from './listing.jsx';
 import Popup from './popup.jsx';
@@ -8,10 +8,10 @@ const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   useEffect(() => {
-    fetchPosts({ order_by: 'likes', ascending: false, post_id: 'bad50740-f33a-11ee-87e2-b3758f99a7d8' })
-      .then((result) => {console.log(result); setProjects(result)})
-      .catch((error) => console.error(error));
-    createData('CC'); 
+    // search({ order_by: 'likes', ascending: false, post_id: 'bad50740-f33a-11ee-87e2-b3758f99a7d8' })
+    //   .then((result) => {console.log(result); setProjects(result)})
+    //   .catch((error) => console.error(error));
+    // createData('CC');
   }, []);
   return (
     <>

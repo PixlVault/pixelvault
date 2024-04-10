@@ -1,5 +1,5 @@
-import { useRef, useState, useEffect } from 'react';
-import * as Api from '../api.js';
+import { useRef, useState } from 'react';
+import Api from '../api';
 
 const LoginForm = ({ setUser }) => {
   const [username, setUsername] = useState(null);
@@ -13,7 +13,7 @@ const LoginForm = ({ setUser }) => {
 
   const login = async (e) => {
     e.preventDefault();
-    const token = await Api.login(username, password);
+    const token = await Api.account.login(username, password);
 
     if (token !== null) {
       localStorage.setItem('user', username);
@@ -28,9 +28,10 @@ const LoginForm = ({ setUser }) => {
   const createAccount = async (e) => {
     e.preventDefault();
     try {
-      await Api.createAccount(username, password, email);
+      await Api.account.create(username, password, email);
       login(e);
     } catch (error) {
+      console.log(error, error.message);
       setAlertMessage(error.message);
       setTimeout(() => setAlertMessage(''), 2000);
     }

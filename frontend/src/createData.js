@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import * as Api from './api.js';
+import Api from './api';
 
 const likePosts = async () => {
   const users = {
@@ -17,17 +17,17 @@ const likePosts = async () => {
   // await Api.createUser(users.userone.username, users.userone.password, users.userone.email);
 
   // used to login in and retrieve token in order to create project
-  users.userone.token = await Api.login(users.userone.username, users.userone.password);
+  users.userone.token = await Api.account.login(users.userone.username, users.userone.password);
   localStorage.setItem('auth', users.userone.token);
 
   // creates project for the user which has their token set in localStorage
-  const project = await Api.createNewProject('original', null);
+  const project = await Api.project.create('original', null);
 
   // used to push the project's ID into the "user's storage"
   users.userone.projects.push(project.projectId);
 
   // actually posts the project
-  await Api.postProject(`token ${users.userone.token}`, users.userone.projects[0]);
+  await Api.project.create(`token ${users.userone.token}`, users.userone.projects[0]);
 
   /*
   / below is code used for liking a post. the steps are:
@@ -35,9 +35,9 @@ const likePosts = async () => {
   / 2. call likePost which takes some project ID and uses the token in local storage
   /    for identifying which user will like the image.
   */
-  users.usertwo.token = await Api.login(users.usertwo.username, users.usertwo.password);
+  users.usertwo.token = await Api.account.login(users.usertwo.username, users.usertwo.password);
   localStorage.setItem('auth', users.usertwo.token);
-  const likedReturn = await Api.likePost(users.userone.projects[0]);
+  const likedReturn = await Api.post.like(users.userone.projects[0]);
 };
 
 const createComment = async () => {
@@ -54,9 +54,9 @@ const createComment = async () => {
   };
   // used to login in and retrieve token in order to create project
 
-  users.usertwo.token = await Api.login(users.usertwo.username, users.usertwo.password);
+  users.usertwo.token = await Api.account.login(users.usertwo.username, users.usertwo.password);
   localStorage.setItem('auth', users.usertwo.token);
-  const commentReturn = await Api.commentOnPost('bad50740-f33a-11ee-87e2-b3758f99a7d8', 'Great Work!');
+  const commentReturn = await Api.post.addComment('bad50740-f33a-11ee-87e2-b3758f99a7d8', 'Great Work!');
 };
 
 const createData = async (deciding) => {
@@ -75,4 +75,4 @@ export default createData;
 // await postUser(users.usertwo.username, users.usertwo.password, users.usertwo.email);
 // users.userthree.token = await Api.login(users.userthree.username, users.userthree.password);
 // users.useron.projects.forEach((u) => {})
-// const project = await Api.createNewProject('notsooriginal', null);
+// const project = await Api.createProject('notsooriginal', null);
