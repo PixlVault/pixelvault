@@ -16,7 +16,7 @@ const ProfilePage = () => {
 
     const formData = new FormData();
     formData.append('avatar', image);
-    const success = await uploadProfilePicture(formData);
+    const success = await uploadProfilePicture(formData, params.username);
     if (!success) alert('Upload Failed, please try again');
     refreshImage();
   };

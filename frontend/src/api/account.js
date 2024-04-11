@@ -38,8 +38,8 @@ export const create = async (username, password, email) => {
   await makeRequest('/user/', 'POST', { username, password, email }, false);
 };
 
-export const uploadProfilePicture = async (formData) => {
-  const res = await fetch(`${urlBase}/user/upload_img`, {
+export const uploadProfilePicture = async (formData, username) => {
+  const res = await fetch(`${urlBase}/user/upload_img/${username}`, {
     method: 'POST',
     body: formData,
     headers: {

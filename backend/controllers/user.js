@@ -193,6 +193,12 @@ const isLoggedIn = (req, res, next) => {
   if (!req.token) {
     return res.status(401).json({ error: 'Not logged in' });
   }
+
+  console.log(req.token.username, req.params.username);
+  if (req.token.username !== req.params.username) {
+    return res.status(401).json({ error: 'Cannot change another user\'s profile picture' });
+  }
+
   return next();
 };
 
@@ -228,7 +234,7 @@ const uploadImage = (req, res, next) => {
   });
 };
 
-router.post('/upload_img', isLoggedIn, uploadImage, (req, res) => {
+router.post('/upload_img/:username', isLoggedIn, uploadImage, (req, res) => {
   if (req.file === undefined) {
     return res.status(400).json({ error: 'Could not upload image; please ensure it is a valid PNG file of size at most 100KB.' });
   }
