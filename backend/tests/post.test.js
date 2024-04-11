@@ -72,6 +72,43 @@ describe('Posts can be created', () => {
   });
 });
 
+describe('Posts can be deleted', () => {
+  test('published project', async () => {
+    const [width, height] = [256, 256];
+    const buf = Buffer.alloc(width * height * 4).fill(0);
+    const img = { data: Array.from(buf), width, height };
+    const compressed = LZString.compressToBase64(JSON.stringify(img));
+
+    let res = await api.post('/api/project')
+      .send({ title: 'delete me!', imageData: compressed })
+      .set('Authorization', tokens.creator);
+
+    const pid = res.body.projectId;
+
+    // Publish project
+    await api.post('/api/post')
+      .send({ post_id: pid })
+      .set('Authorization', tokens.creator);
+
+    // Verify success.
+    res = await api.post('/api/post/search/')
+      .send({ post_id: pid });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveLength(1);
+
+    // Delete post.
+    res = await api.delete('/api/post')
+      .send({ post_id: pid })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(204);
+
+    // Verify deletion.
+    res = await api.post('/api/post/search/')
+      .send({ post_id: pid });
+    expect(res.statusCode).toBe(404);
+  });
+});
+
 describe('Posts can be liked', () => {
   test('by users', async () => {
     let res = await api.post('/api/post/likes')

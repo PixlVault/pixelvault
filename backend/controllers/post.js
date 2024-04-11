@@ -86,6 +86,37 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.delete('/', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  if (req.body === undefined || req.body.post_id === undefined) { 
+    return res.status(400).json({ error: 'Missing required field: `post_id`' });
+  }
+
+  const postId = req.body.post_id;
+
+  try {
+    // Only allow a user to unpublish a project they own.
+    const project = await Project.get(postId);
+    if (project === null) {
+      return res.status(404).json({ error: 'No such project exists' });
+    }
+
+    if (project.created_by !== req.token.username) {
+      return res.status(401).json({ error: 'Cannot delete a non-owned project' });
+    }
+
+    // console.log('entering', postId);
+    await Post.delete(postId);
+    return res.status(204).send();
+  } catch (error) {
+    log.error(error);
+    return res.status(400).json({ error: 'Could not delete project.' });
+  }
+});
+
 router.put('/', async (req, res) => {
   if (req.token === undefined) {
     return res.status(401).json({ error: 'Must be logged in' });
@@ -128,7 +159,6 @@ const setLike = async (req, res) => {
   if (postId === undefined) {
     return res.status(400).json({ error: 'Missing required field: `post_id`' });
   }
-
 
   try {
     if (req.method === 'POST') {

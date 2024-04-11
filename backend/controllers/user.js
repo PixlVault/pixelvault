@@ -194,7 +194,6 @@ const isLoggedIn = (req, res, next) => {
     return res.status(401).json({ error: 'Not logged in' });
   }
 
-  console.log(req.token.username, req.params.username);
   if (req.token.username !== req.params.username) {
     return res.status(401).json({ error: 'Cannot change another user\'s profile picture' });
   }
@@ -212,7 +211,6 @@ const upload = multer({
   }),
   limits: { fields: 0, files: 1, fileSize: 100000 },
   fileFilter: (req, file, callback) => {
-    console.log('b', req.file, req.file?.buffer);
     if (file.mimetype !== 'image/png') {
       callback(new Error('Image must be a PNG.'));
     } else {
@@ -227,7 +225,7 @@ const uploadImage = (req, res, next) => {
       return res.status(400).json({ error: 'Could not upload image; please ensure it is a valid PNG file of size at most 100KB.' });
     }
     if (err) {
-      console.error(err);
+      log.error(err);
       next(new Error('Server Error'));
     }
     next();
