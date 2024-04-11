@@ -45,6 +45,8 @@ router.post('/search', async (req, res) => {
       req.body.min_cost,
       req.body.max_cost,
       req.body.title,
+      req.body.limit,
+      req.body.offset,
     )).map((p) => removeSensitiveData(p));
 
     return res.status(200).json(posts);
