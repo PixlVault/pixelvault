@@ -1,6 +1,7 @@
 const express = require('express');
 
 const Comment = require('../models/comment');
+const log = require('../utils/logger');
 
 const router = express.Router();
 
