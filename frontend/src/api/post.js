@@ -65,3 +65,18 @@ export const addComment = async (postId, content) => {
 export const likeComment = async (commentId) => {
   await makeRequest('/comment/likes', 'post', { comment_id: commentId });
 };
+
+export const Licence = {
+  Commercial: 'Commercial',
+  Education: 'Education',
+  CreativeCommons: 'Creative Commons'
+};
+
+export const setLicense = async (postId, licence) => {
+  await makeRequest('/post', 'put', { post_id: postId, licence})
+}
+
+export const setCost = async (postId, cost) => {
+  await makeRequest('/post', 'put', { post_id: postId, cost})
+}
+
