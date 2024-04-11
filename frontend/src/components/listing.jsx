@@ -42,7 +42,7 @@ const Listing = ({ postId }) => {
       {loadedPost !== null && loadedProject !== null ?
         <div className="flex flex-col">
 
-          <ListingInfo title={loadedPost.title} author={loadedPost.author} licence={loadedPost.licence} likes={loadedPost.likes} tags={loadedPost.tags}/>
+          <ListingInfo title={loadedPost.title} author={loadedPost.author} licence={loadedPost.licence} likes={loadedPost.likes} tags={loadedPost.tags} />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
@@ -50,16 +50,9 @@ const Listing = ({ postId }) => {
           </div>
 
           <div className="max-h-80 overflow-auto divide-y">
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
-            <Comment />
+            {
+              loadedPost.comments.map(c => <Comment author={c.author} content={c.content} likes={c.likes} />)
+            }
           </div>
 
           <div className="flex justify-center">
