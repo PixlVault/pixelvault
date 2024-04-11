@@ -187,6 +187,17 @@ const Post = {
     }
   }),
 
+  /**
+   * Deletes a project.
+   * @param {string} postId The ID of the project to delete.
+   */
+  delete: (postId) => new Promise((resolve, reject) => {
+    db.query('DELETE FROM post WHERE post_id = UUID_TO_BIN(?, TRUE);', [postId], (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  }),
+
   setTags: (postId, tags) => new Promise((resolve, reject) => {
     if (postId === undefined) {
       reject(new Error('Missing required field: `post_id`'));
