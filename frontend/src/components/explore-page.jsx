@@ -41,7 +41,7 @@ const ExplorePage = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      navigate(`/search?q=${searchQuery}`);
+      navigate(`/search?q=${searchQuery}`, { state: { title: searchQuery } });
     }
   };
 
