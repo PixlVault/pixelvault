@@ -39,11 +39,12 @@ export const create = async (username, password, email) => {
 };
 
 export const uploadProfilePicture = async (formData) => {
-  await fetch(`${urlBase}/user/upload_img`, {
+  const res = await fetch(`${urlBase}/user/upload_img`, {
     method: 'POST',
     body: formData,
     headers: {
       Authorization: `token ${localStorage.getItem('auth')}`,
     },
   });
+  return res.ok;
 };

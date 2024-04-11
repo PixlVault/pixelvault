@@ -1,9 +1,13 @@
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 
 import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
 
 const ProfilePage = () => {
   const params = useParams();
+
+  const [imageToggle, setImageToggle] = useState(Date.now());
+  const refreshImage = () => setImageToggle(Date.now());
 
   const uploadImage = async (e) => {
     e.preventDefault();
@@ -12,7 +16,9 @@ const ProfilePage = () => {
 
     const formData = new FormData();
     formData.append('avatar', image);
-    await uploadProfilePicture(formData);
+    const success = await uploadProfilePicture(formData);
+    if (!success) alert('Upload Failed, please try again');
+    refreshImage();
   };
 
   return (
@@ -21,7 +27,7 @@ const ProfilePage = () => {
       <div>
         PLACEHOLDER!
         <img
-          src={`${userImageBase}${params.username}.png`}
+          src={`${userImageBase}${params.username}.png?r=${imageToggle}`}
           onError={({ currentTarget }) => {
             currentTarget.onerror = null;
             currentTarget.src = defaultImageUrl;

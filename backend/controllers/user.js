@@ -195,7 +195,6 @@ const upload = multer({
   limits: { fields: 0, files: 1, fileSize: 100000 },
   fileFilter: (req, file, callback) => {
     if (file.mimetype !== 'image/png') {
-      console.error('unaccepted MIME');
       callback(new Error('Image must be a PNG.'));
     }
     else {
@@ -205,9 +204,24 @@ const upload = multer({
   },
 });
 
-router.post('/upload_img', isLoggedIn, upload.single('avatar'), (req, res) => {
-  console.log(req.file);
-  res.status(201).send();
+const uploadImage = (req, res, next) => {
+  upload.single('avatar')(req, res, (err) => {
+    if (err instanceof multer.MulterError || (err !== undefined && err.message === 'Image must be a PNG.')) {
+      return res.status(400).json({ error: 'Could not upload image; please ensure it is a valid PNG file of size at most 100KB.' });
+    }
+    if (err) {
+      console.error(err);
+      next(new Error('Server Error'));
+    }
+    next();
+  });
+};
+
+router.post('/upload_img', isLoggedIn, uploadImage, (req, res) => {
+  if (req.file === undefined) {
+    return res.status(400).json({ error: 'Could not upload image; please ensure it is a valid PNG file of size at most 100KB.' });
+  }
+  return res.status(201).send();
 });
 
 router.use('/img', express.static('img/profile_img'));
