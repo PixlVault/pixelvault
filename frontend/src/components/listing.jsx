@@ -55,7 +55,7 @@ const Listing = ({ postId }) => {
       {loadedPost !== null && loadedProject !== null ?
         <div className="flex flex-col">
 
-          <ListingInfo title={loadedPost.title} author={loadedPost.author} licence={loadedPost.licence} likes={loadedPost.likes} tags={loadedPost.tags} />
+          <ListingInfo postId={postId} title={loadedPost.title} author={loadedPost.author} licence={loadedPost.licence} likes={loadedPost.likes} tags={loadedPost.tags} />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>

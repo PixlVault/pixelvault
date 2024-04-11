@@ -1,4 +1,6 @@
-import { makeRequest } from './core';
+import { makeRequest, urlBase } from './core';
+
+export const postImageBase = `${urlBase}/post/img/`;
 
 /**
  * Search for posts according to some filtering criteria.
