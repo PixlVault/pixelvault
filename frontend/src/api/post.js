@@ -1,4 +1,4 @@
-import makeRequest from './core';
+import { makeRequest } from './core';
 
 /**
  * Search for posts according to some filtering criteria.

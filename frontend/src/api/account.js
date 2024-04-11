@@ -1,4 +1,7 @@
-import makeRequest from './core';
+import { makeRequest, urlBase } from './core';
+
+export const userImageBase = `${urlBase}/user/img/`;
+export const defaultImageUrl = `${urlBase}/img/user-default.png`;
 
 /**
  * Attempts to sign a user in.
@@ -33,4 +36,15 @@ export const create = async (username, password, email) => {
   }
 
   await makeRequest('/user/', 'POST', { username, password, email }, false);
+};
+
+export const uploadProfilePicture = async (formData, username) => {
+  const res = await fetch(`${urlBase}/user/upload_img/${username}`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      Authorization: `token ${localStorage.getItem('auth')}`,
+    },
+  });
+  return res.ok;
 };

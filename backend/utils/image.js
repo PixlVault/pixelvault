@@ -4,7 +4,7 @@ const path = require('path');
 
 const log = require('../utils/logger');
 
-const POST_IMG_DIR = path.join(__dirname, '/../post_img/');
+const POST_IMG_DIR = path.join(__dirname, '/../img/post_img/');
 
 if (!fs.existsSync(POST_IMG_DIR)) {
   fs.mkdirSync(POST_IMG_DIR);

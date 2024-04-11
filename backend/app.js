@@ -54,6 +54,7 @@ app.use(async (req, _res, next) => {
 });
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Needed to prevent CORS errors when developing.
 app.use(cors());
