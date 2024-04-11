@@ -65,7 +65,7 @@ export const addComment = async (postId, content) => {
 * @param {number} commentId The (integer) ID of the comment to like.
 */
 export const likeComment = async (commentId) => {
-  await makeRequest('/comment/likes', 'post', { comment_id: commentId });
+  await makeRequest('/comment/like', 'post', { comment_id: commentId });
 };
 
 export const Licence = {

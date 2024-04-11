@@ -22,15 +22,11 @@ const Listing = ({ postId }) => {
         return;
       }
 
-      console.log("post: " + JSON.stringify(post));
-
       const project = await projectApi.get(postId);
       if (project === null) {
         console.error("Failed to retrieve project data.");
         return;
       }
-
-      console.log("project: " + JSON.stringify(project));
 
       setLoadedPost(post);
       setLoadedProject(project);
@@ -40,13 +36,23 @@ const Listing = ({ postId }) => {
     setDataChanged(false);
   }, [dataChanged]);
 
-  const submitComment = () => {
+  const submitComment = async () => {
     const content = newCommentRef.current.value;
     if (content.length == 0) {
       return;
     }
 
-    postApi.addComment(postId, content);
+    await postApi.addComment(postId, content);
+    setDataChanged(true);
+  }
+
+  const likePost = async () => {
+    await postApi.like(postId);
+    setDataChanged(true);
+  }
+
+  const likeComment = async (commentId) => {
+    await postApi.likeComment(commentId);
     setDataChanged(true);
   }
 
@@ -55,7 +61,14 @@ const Listing = ({ postId }) => {
       {loadedPost !== null && loadedProject !== null ?
         <div className="flex flex-col">
 
-          <ListingInfo postId={postId} title={loadedPost.title} author={loadedPost.author} licence={loadedPost.licence} likes={loadedPost.likes} tags={loadedPost.tags} />
+          <ListingInfo
+            postId={postId}
+            title={loadedPost.title}
+            author={loadedPost.author}
+            licence={loadedPost.licence}
+            likes={loadedPost.likes}
+            tags={loadedPost.tags} 
+            likePost={likePost}/>
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
@@ -64,7 +77,7 @@ const Listing = ({ postId }) => {
 
           <div className="max-h-80 overflow-auto divide-y">
             {
-              loadedPost.comments.map(c => <Comment author={c.author} content={c.content} likes={c.likes} />)
+              loadedPost.comments.map(c => <Comment commentId={c.comment_id} author={c.author} content={c.content} likes={c.likes} likeComment={likeComment}/>)
             }
           </div>
 
