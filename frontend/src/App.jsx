@@ -42,7 +42,7 @@ function App() {
       ),
     },
     {
-      path: '/profile',
+      path: '/profile/:username',
       element: (
         <>
           <Header user={user} setUser={setUser}/>

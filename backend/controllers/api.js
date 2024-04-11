@@ -18,4 +18,6 @@ router.use('/post', postRouter);
 router.use('/comment', commentRouter);
 router.use('/transaction', transactionRouter);
 
+router.use('/img', express.static('img/assets'));
+
 module.exports = router;

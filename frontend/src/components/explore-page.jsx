@@ -136,7 +136,6 @@ const ExplorePage = () => {
     <div>
       <div>Explore Page.</div>
       <img className="w-64 h-64 hover:cursor-pointer" src="sr25f64d3c492aws3.png" onClick={() => setPopupOpen(true)} />
-
       {popupOpen ?
         <Popup onClose={() => setPopupOpen(false)}>
           <Listing />

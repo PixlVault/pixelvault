@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const LZString = require('lz-string');
 const supertest = require('supertest');
 const app = require('../app');
 const { db } = require('../utils/database');
@@ -12,6 +13,11 @@ const tokens = {};
 let projects = [];
 
 beforeAll(async () => {
+  const [width, height] = [256, 256];
+  const buf = Buffer.alloc(width * height * 4).fill(0);
+  const img = { data: Array.from(buf), width, height };
+  const compressed = LZString.compressToBase64(JSON.stringify(img));
+
   db.query('DELETE FROM transaction;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM follow;');
@@ -30,7 +36,7 @@ beforeAll(async () => {
 
   projects = ['one', 'two', 'three'].map(
     (title) => api.post('/api/project')
-      .send({ title, imageData: null })
+      .send({ title, imageData: compressed })
       .set('Authorization', tokens.creator)
       .then((res) => res.body.projectId),
   );

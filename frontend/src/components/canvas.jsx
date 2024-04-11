@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 
 import pointsBetween from '../utils/line-points';
 
+// Prevent the undo stack getting too large.
+// Lower this to potentially improve memory usage.
+const UNDO_LIMIT = 50;
+
 let prevMousePos = { x: 0, y: 0 };
 let changeBuffer = {};
 let undoBuffer = {};
@@ -197,6 +201,7 @@ const Canvas = ({
     // to the actions it may refer to now being invalidated.
     redoHistory = [];
     undoHistory.push(undoBuffer);
+    if (undoHistory.length > UNDO_LIMIT) undoHistory.shift();
     undoBuffer = {};
   };
 

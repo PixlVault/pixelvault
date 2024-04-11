@@ -85,7 +85,6 @@ const User = {
    * @param {string} username The user account to update.
    * @param {{
    *    password: string | undefined,
-   *    profile_picture: string | undefined,
    *    biography: string | undefined,
    *    experience: number | undefined,
    *    twitter: string | undefined,
@@ -113,7 +112,7 @@ const User = {
     const fields = {
       required: [],
       optional: [
-        'password_hash', 'profile_picture', 'biography', 'experience',
+        'password_hash', 'biography', 'experience',
         'twitter', 'instagram', 'tiktok', 'youtube',
       ],
     };
@@ -178,7 +177,7 @@ const User = {
     }
 
     db.query(
-      'INSERT INTO follow (follower, follows) VALUES (?, ?) DUPLICATE KEY UPDATE follower=follower;',
+      'INSERT INTO follow (follower, follows) VALUES (?, ?) ON DUPLICATE KEY UPDATE follower=follower;',
       [username, targetUsername],
       (err, result) => {
         if (err) reject(err);

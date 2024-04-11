@@ -3,6 +3,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
+const log = require('../utils/logger');
 
 const router = express.Router();
 
