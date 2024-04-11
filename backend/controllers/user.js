@@ -22,8 +22,16 @@ router.put('/', async (req, res) => {
     return res.status(401).json({ error: 'Not logged in' });
   }
 
+  if (req.body === undefined || req.body.username === undefined) {
+    return res.status(400).json({ error: 'Must specify a user to update' });
+  }
+
+  if (req.token.is_admin !== 1 && req.token.username !== req.body.username) {
+    return res.status(401).json({ error: 'Not authorised to update this user\'s details.' });
+  }
+
   try {
-    await User.update(req.token.username, req.body);
+    await User.update(req.body.username, req.body);
     return res.status(200).send();
   } catch (error) {
     log.error(error);
