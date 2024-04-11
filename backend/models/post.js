@@ -125,10 +125,26 @@ const Post = {
           }
           posts[0].tags = rows.map((row) => row.tag);
 
-          db.query(`SELECT comment_id, author, content, timestamp,
-              (SELECT COUNT(*) FROM comment_likes WHERE comment_id IN (SELECT comment_id FROM comment WHERE post_id = UUID_TO_BIN(?, TRUE))) AS likes
-            FROM comment
-            WHERE post_id = UUID_TO_BIN(?, TRUE)`, [postId, postId], (error, comments) => {
+          db.query(` SELECT comment_id,
+          author,
+          content,
+          timestamp,
+          IFNULL((SELECT likes
+                  FROM   (SELECT DISTINCT *
+                          FROM   (SELECT comment_likes.comment_id,
+                                         Count(*) AS likes
+                                  FROM   comment_likes
+                                  GROUP  BY comment_likes.comment_id) AS t1
+                                 JOIN (SELECT post_id
+                                       FROM   comment) AS t2
+                                   ON comment_id
+                          WHERE  post_id = UUID_TO_BIN(
+                                           ?,
+                                           true)) AS
+                         t3
+                  WHERE  comment.comment_id = t3.comment_id), 0) AS likes
+   FROM   comment
+   WHERE  post_id = UUID_TO_BIN(?, true)`, [postId, postId], (error, comments) => {
             if (error !== null) {
               reject(error);
               return;
