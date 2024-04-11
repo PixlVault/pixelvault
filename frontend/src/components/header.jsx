@@ -22,7 +22,7 @@ const Header = ({ user, setUser }) => {
         <div className='divide-x'>
           <Link to="/explore" className="text-lg no-underline px-2">Explore</Link>
           <Link to="/edit" className="text-lg no-underline px-2">Edit</Link>
-          <Link to="/profile" className="text-lg no-underline px-2">My Profile</Link>
+          <Link to={`/profile/${user}`} className="text-lg no-underline px-2">My Profile</Link>
           {
             user !== null
               ? <span>Logged in as {user} <button onClick={logOut}>Log Out</button> </span>

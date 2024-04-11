@@ -1,4 +1,4 @@
-const urlBase = import.meta.env.VITE_API_URL_BASE;
+export const urlBase = import.meta.env.VITE_API_URL_BASE;
 
 const hasJsonResponseType = (response) => {
   const contentType = response.headers.get('content-type');
@@ -16,7 +16,7 @@ const hasJsonResponseType = (response) => {
  *                       (`true` by default).
  * @returns The data returned by the API, or an error.
  */
-const makeRequest = async (endpoint, method, body = undefined, auth = true) => {
+export const makeRequest = async (endpoint, method, body = undefined, auth = true) => {
   if (method === undefined) throw new Error('Request method cannot be undefined.');
   if (endpoint === undefined) throw new Error('Request endpoint cannot be undefined.');
 
@@ -58,4 +58,3 @@ const makeRequest = async (endpoint, method, body = undefined, auth = true) => {
   }
 };
 
-export default makeRequest;
