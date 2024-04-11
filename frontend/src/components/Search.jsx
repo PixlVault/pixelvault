@@ -4,28 +4,34 @@ import { postImageBase } from '../api/post';
 import { search } from '../api/post';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
-const tile = (project) => (
-  <div key={project.project_id} className='mb-4 relative'>
-    <img className="w-full rounded-lg" src={`https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-${project.project_id}.jpg`} alt="" />
-    {/* <img className="w-full rounded-lg" src={`${postImageBase}${project.project_id}.png`} alt="" /> */}
+const Tile = ({ post }) => (
+  <div className='mb-4 relative'>
+    <img className="w-full rounded-lg" src={`https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-${post.post_id}.jpg`} alt="" />
+    {/* <img className="w-full rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" /> */}
     <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-3xl text-white font-semibold">
-      <span className='ml-2 mb-1'>{project.title}</span>
+      <span className='ml-2 mb-1'>{post.title}</span>
     </div>
   </div>
 );
 
-const projects = [
-  { project_id:  1, title: 'foo' },
-  { project_id:  2, title: 'bar' },
-  { project_id:  3, title: 'baz' },
-  { project_id:  4, title: 'bing' },
-  { project_id:  5, title: 'bang' },
-  { project_id:  6, title: 'bong' },
-  { project_id:  7, title: 'bash' },
-  { project_id:  8, title: 'boop' },
-  { project_id:  9, title: 'ran' },
-  { project_id: 10, title: 'out' },
-  { project_id: 11, title: 'of words' },
+const Results = ({ posts }) => (
+  <div className="m-4 columns-1 md:columns-3 gap-4">
+    { posts.map((post) => <Tile key={post.post_id} post={post} />) }
+  </div>
+);
+
+const posts = [
+  { post_id:  1, title: 'foo' },
+  { post_id:  2, title: 'bar' },
+  { post_id:  3, title: 'baz' },
+  { post_id:  4, title: 'bing' },
+  { post_id:  5, title: 'bang' },
+  { post_id:  6, title: 'bong' },
+  { post_id:  7, title: 'bash' },
+  { post_id:  8, title: 'boop' },
+  { post_id:  9, title: 'ran' },
+  { post_id: 10, title: 'out' },
+  { post_id: 11, title: 'of words' },
 ];
 
 const Search = () => {
@@ -69,9 +75,7 @@ const Search = () => {
                 </div>
             </form>
         </div>
-        <div className="m-4 columns-1 md:columns-3 gap-4">
-            {projects.map((project) => tile(project))}
-        </div>
+        <Results posts={posts} />
     </div>
   );
 };
