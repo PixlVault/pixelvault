@@ -4,23 +4,68 @@ import createData from '../createData';
 import Listing from './listing.jsx';
 import Popup from './popup.jsx';
 
+import * as postApi from './../api/post.js';
+import { postImageBase } from '../api/post';
+
 const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
+  const [loadedPosts, setLoadedPosts] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const posts = await postApi.search({});
+      if (posts === null || posts === undefined) {
+        console.error("Failed to retrieve post data.");
+        return;
+      }
+
+      setLoadedPosts(posts);
+
+      console.log(posts);
+    }
+
+    fetchData().catch(console.error);
+  }, []);
+
+  const openPopup = (postId) => {
+    setSelectedPost(postId);
+    setPopupOpen(true)
+  }
+
+  const closePopup = () => {
+
+  }
 
   return (
     <>
-    <div>
-      <div>Explore Page.</div>
-      
-      {/* TODO: Use actual published posts rather than this hardcoded one */}
-      <img className="w-64 h-64 hover:cursor-pointer" src="sr25f64d3c492aws3.png" onClick={() => setPopupOpen(true)} />
-      {popupOpen ?
-        <Popup onClose={() => setPopupOpen(false)}>
-          <Listing postId='8ab21ce0-f81e-11ee-aed8-21a81ea1c251'/>
-        </Popup>
-        : ""
-      }
-    </div>
+      <div>
+        <div>Explore Page.</div>
+        {
+          loadedPosts != null ?
+            <div>
+              {
+                loadedPosts.map(p =>
+                  <div>
+                    <img className="w-64 h-64 hover:cursor-pointer" src={`${postImageBase}${p.post_id}.png`} onClick={() => openPopup(p.post_id)} />
+                  </div>
+                )
+              }
+
+              {
+                popupOpen ?
+                  <Popup onClose={() => setPopupOpen(false)}>
+                    <Listing postId={selectedPost} />
+                  </Popup>
+                  : ""
+              }
+
+
+            </div>
+            :
+            ""
+        }
+      </div>
     </>
   );
 };
