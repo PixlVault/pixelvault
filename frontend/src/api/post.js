@@ -80,3 +80,6 @@ export const setCost = async (postId, cost) => {
   await makeRequest('/post', 'put', { post_id: postId, cost})
 }
 
+export const setTags = async (postId, tags) => {
+  await makeRequest('/post', 'put', { post_id: postId, tags })
+}

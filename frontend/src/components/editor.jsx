@@ -131,6 +131,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
     post.create(projectId);
     post.setLicense(projectId, post.Licence.CreativeCommons);
     post.setCost(projectId, 30);
+    post.setTags(projectId, ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']);
   }
 
   useEffect(() => {

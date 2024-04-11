@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom';
 
-const ListingInfo = ({title, author, licence, likes}) => {
+const ListingInfo = ({ title, author, licence, likes, tags }) => {
+  if (tags != null) {
+    var tagRows = []
+    for (let i = 0; i < tags.length; i += 3) {
+      tagRows.push(tags.slice(i, i + 3));
+    }
+  }
+
   return (
     <div className="w-full h-full grid grid-flow-row-dense grid-cols-2 grid-rows-1">
       <div>
@@ -13,7 +20,7 @@ const ListingInfo = ({title, author, licence, likes}) => {
             <h4>{author}</h4>
           </div>
           <div className="flex flex-col justify-center items-center">
-            <img className="w-12" src="pixelartheart.png"/>
+            <img className="w-12" src="pixelartheart.png" />
             <h2 className="text-xl">{likes}</h2>
           </div>
           <div className="flex flex-col justify-center items-center text-center">
@@ -22,15 +29,20 @@ const ListingInfo = ({title, author, licence, likes}) => {
           <div className="flex flex-col justify-center items-center">
             <button className="bg-red-600">Report</button>
           </div>
-          <div className="flex flex-col col-span-2 space-y-2">
-            <div className="flex w-full">
-              <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md">#Tag1LongTextHere</div>
-              <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md">#Tag2</div>
-              <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md">#Tag3</div>
-            </div>
-            <div className="flex justify-center">
-              <button className="w-1/2 justify-center items-center">See More...</button>
-            </div>
+          <div className="flex flex-col col-span-2 space-y-2 max-h-[70px] overflow-y-auto">
+            {
+              tags != null ?
+                tagRows.map(row =>
+                  <div className="flex w-full" key={row}>
+                    {row.map(x =>
+                      <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md" key={x}>
+                        <Link to="#">{x}</Link>
+                      </div>
+                    )}
+                  </div>
+                )
+                : ""
+            }
           </div>
         </div>
       </div>
