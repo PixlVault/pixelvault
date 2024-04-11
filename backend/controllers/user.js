@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require('multer');
+const fs = require('fs');
 
 const log = require('../utils/logger');
 const User = require('../models/user');
@@ -187,18 +188,20 @@ const isLoggedIn = (req, res, next) => {
   return next();
 };
 
+// The following code supports uploading of profile pictures.
+// Note that multer writes to disk even when the file is too large, so we first
+// write to a temporary directory, and only when this has succeeded do we move the
+// image to its final location.
 const upload = multer({
   storage: multer.diskStorage({
-    destination: 'img/profile_img',
-    filename: (req, _file, callback) => callback(null, `${req.token.username}.png`),
+    destination: 'img/temp',
   }),
   limits: { fields: 0, files: 1, fileSize: 100000 },
   fileFilter: (req, file, callback) => {
+    console.log('b', req.file, req.file?.buffer);
     if (file.mimetype !== 'image/png') {
       callback(new Error('Image must be a PNG.'));
-    }
-    else {
-      console.log('File accepted', file);
+    } else {
       callback(null, true);
     }
   },
@@ -221,6 +224,14 @@ router.post('/upload_img', isLoggedIn, uploadImage, (req, res) => {
   if (req.file === undefined) {
     return res.status(400).json({ error: 'Could not upload image; please ensure it is a valid PNG file of size at most 100KB.' });
   }
+
+  fs.rename(req.file.path, `img/profile_img/${req.token.username}.png`, (err) => {
+    if (err) {
+      log.error(err);
+      return res.status(400).json({ error: 'Server error, image could not be saved' });
+    }
+  });
+
   return res.status(201).send();
 });
 
