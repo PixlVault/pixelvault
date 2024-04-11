@@ -45,7 +45,7 @@ const Post = {
         (SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id =  post.post_id) AS likes
       FROM post
       LEFT JOIN project ON project.project_id = post.post_id
-      WHERE`;
+      WHERE is_hidden = 0 AND`;
 
     if (tags !== undefined) {
       query = `${query} post.post_id IN (SELECT post_id FROM post_tags WHERE tag IN (?)) AND `;
@@ -144,7 +144,7 @@ const Post = {
                          t3
                   WHERE  comment.comment_id = t3.comment_id), 0) AS likes
    FROM   comment
-   WHERE  post_id = UUID_TO_BIN(?, true)`, [postId, postId], (error, comments) => {
+   WHERE  post_id = UUID_TO_BIN(?, true) AND comment.is_hidden = 0`, [postId, postId], (error, comments) => {
             if (error !== null) {
               reject(error);
               return;

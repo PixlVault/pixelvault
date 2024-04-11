@@ -4,6 +4,7 @@ const LZString = require('lz-string');
 const supertest = require('supertest');
 const app = require('../app');
 const { db } = require('../utils/database');
+const Comment = require('../models/comment');
 
 const api = supertest(app);
 
@@ -200,6 +201,9 @@ describe('Comments can be hidden', () => {
       .send({ comment_id: comments[0] })
       .set('Authorization', tokens.admin);
     expect(res.statusCode).toBe(201);
+
+    const comment = await Comment.get(comments[0]);
+    expect(comment.is_hidden).toBe(1);
   });
 
   test('but not by non-admins', async () => {
