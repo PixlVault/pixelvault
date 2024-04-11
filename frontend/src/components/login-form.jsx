@@ -55,9 +55,10 @@ const LoginForm = ({ setUser }) => {
           : <>
             <button className='mb-4' type="submit" onClick={login}>Log In</button>
             <span className='text-red-600 mb-4'>{ alertMessage } &nbsp;</span>
-            <span className='cursor-pointer text-violet-500 underline' onClick={() => setCreatingAccount(true)}>Don&apos;t have an account? Sign up!</span>
+            <span className='mb-2 cursor-pointer text-violet-500 underline' onClick={() => setCreatingAccount(true)}>Don&apos;t have an account? Sign up!</span>
           </>
         }
+        <a className='cursor-pointer text-violet-500 underline' href="mailto:contact.pixelvault@gmail.com?subject=Account%20Recovery%20Request">Forgot your Password?</a>
       </form>
     </div>
   </>
