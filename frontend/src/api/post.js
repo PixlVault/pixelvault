@@ -57,6 +57,14 @@ export const like = async (postId) => {
 };
 
 /**
+ * Unlikes a post.
+ * @param {*} postId The ID of the post to unlike.
+ */
+export const unlike = async (postId) => {
+  await makeRequest('/post/likes', 'delete', { post_id: postId });
+}
+
+/**
 * Adds a comment to a post.
 * @param {string} postId The ID of the post.
 * @param {string} content The textual content of the comment.
@@ -71,6 +79,14 @@ export const addComment = async (postId, content) => {
 */
 export const likeComment = async (commentId) => {
   await makeRequest('/comment/like', 'post', { comment_id: commentId });
+};
+
+/**
+* Remove a like from a post's comment.
+* @param {number} commentId The (integer) ID of the comment to unlike.
+*/
+export const unlikeComment = async (commentId) => {
+  await makeRequest('/comment/like', 'delete', { comment_id: commentId });
 };
 
 export const Licence = {

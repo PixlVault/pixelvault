@@ -60,8 +60,18 @@ const Listing = ({ user, postId }) => {
     setDataChanged(true);
   }
 
+  const unlikePost = async () => {
+    await postApi.unlike(postId);
+    setDataChanged(true);
+  }
+
   const likeComment = async (commentId) => {
     await postApi.likeComment(commentId);
+    setDataChanged(true);
+  }
+
+  const unlikeComment = async (commentId) => {
+    await postApi.unlikeComment(commentId);
     setDataChanged(true);
   }
 
@@ -78,6 +88,7 @@ const Listing = ({ user, postId }) => {
             likes={loadedPost.likes}
             tags={loadedPost.tags}
             likePost={likePost}
+            unlikePost={unlikePost}
             likedThisPost={likedThisPost} />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
@@ -94,6 +105,7 @@ const Listing = ({ user, postId }) => {
                   content={c.content}
                   likes={c.likes}
                   likeComment={likeComment}
+                  unlikeComment={unlikeComment}
                   likedComments={likedComments} />
               )
             }
