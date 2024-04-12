@@ -14,6 +14,14 @@ export const login = async (username, password) => {
   return response.token;
 };
 
+export const followUser = async (follower, followee) => {
+  await makeRequest(`/user/${follower}/following`, 'post', { followee });
+};
+
+export const deleteUser = async (username) => {
+  await makeRequest('/user', 'delete', { username });
+}; // TEST
+
 /**
  * Creates a new user account.
  * Has no return value, but will throw an errors upon validation failure.
