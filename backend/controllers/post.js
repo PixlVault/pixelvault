@@ -54,7 +54,7 @@ router.post('/search', async (req, res) => {
   }
 });
 
-router.get('/:username/likedPosts', async (req, res) => {
+router.get('/:username/liked', async (req, res) => {
   try {
     const likedPosts = await Post.getLikedBy(req.params.username);
     return res.status(200).json(likedPosts);

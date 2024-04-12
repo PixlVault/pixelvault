@@ -6,11 +6,13 @@ import ListingInfo from './listing-info.jsx';
 
 import * as postApi from './../api/post.js';
 import * as projectApi from './../api/project.js';
+import * as commentApi from './../api/comment.js';
 
 const Listing = ({ user, postId }) => {
   const [loadedPost, setLoadedPost] = useState(null);
   const [loadedProject, setLoadedProject] = useState(null);
   const [likedThisPost, setLikedThisPost] = useState(false);
+  const [likedComments, setLikedComments] = useState(false);
   const [dataChanged, setDataChanged] = useState(false);
   const newCommentRef = useRef(null);
 
@@ -31,6 +33,9 @@ const Listing = ({ user, postId }) => {
 
       const likedPosts = await postApi.likedBy(user);
       setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
+
+      const likedComments = await commentApi.likedBy(user);
+      setLikedComments(likedComments);
 
       setLoadedPost(post);
       setLoadedProject(project);
@@ -71,9 +76,9 @@ const Listing = ({ user, postId }) => {
             author={loadedPost.author}
             licence={loadedPost.licence}
             likes={loadedPost.likes}
-            tags={loadedPost.tags} 
+            tags={loadedPost.tags}
             likePost={likePost}
-            likedThisPost={likedThisPost}/>
+            likedThisPost={likedThisPost} />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
@@ -82,7 +87,15 @@ const Listing = ({ user, postId }) => {
 
           <div className="max-h-80 overflow-auto divide-y">
             {
-              loadedPost.comments.map(c => <Comment commentId={c.comment_id} author={c.author} content={c.content} likes={c.likes} likeComment={likeComment}/>)
+              loadedPost.comments.map(c =>
+                <Comment
+                  commentId={c.comment_id}
+                  author={c.author}
+                  content={c.content}
+                  likes={c.likes}
+                  likeComment={likeComment}
+                  likedComments={likedComments} />
+              )
             }
           </div>
 

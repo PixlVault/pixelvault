@@ -1,4 +1,12 @@
-const Comment = ({ commentId, author, content, likes, likeComment }) => {
+import { useState, useEffect } from 'react';
+
+const Comment = ({ commentId, author, content, likes, likeComment, likedComments }) => {
+  const [likedThisComment, setLikedThisComment] = useState(false);
+
+  useEffect(() => {
+    setLikedThisComment(likedComments.map(c => c.comment_id).includes(commentId));
+  }, []);
+
   return (
     <div className="flex flex-col w-full justify-center items-center px-5">
       <div className="flex w-full items-stretch">
@@ -9,7 +17,12 @@ const Comment = ({ commentId, author, content, likes, likeComment }) => {
         <div className="flex flex-row space-x-5 justify-center items-center">
           <div className="flex flex-col justify-center items-center">
             <div>
-              <img className="w-4 h-4 space-x-0 hover:cursor-pointer" src="pixelartheart_empty.png" onClick={() => likeComment(commentId)}/>
+              {
+                likedThisComment ?
+                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer" src="pixelartheart.png" onClick={() => likeComment(commentId)} />
+                  :
+                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer" src="pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
+              }
             </div>
             <div>{likes}</div>
           </div>

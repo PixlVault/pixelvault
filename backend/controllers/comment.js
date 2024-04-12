@@ -96,6 +96,16 @@ const setHidden = async (req, res) => {
   }
 };
 
+router.get('/:username/liked', async (req, res) => {
+  try {
+    const likedComments = await Comment.getLikedBy(req.params.username);
+    return res.status(200).json(likedComments);
+  } catch (err) {
+    log.error(err);
+    return res.status(400).send();
+  } 
+});
+
 router.post('/hide', setHidden);
 router.delete('/hide', setHidden);
 

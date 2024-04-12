@@ -36,7 +36,7 @@ export const search = (searchParams = undefined) => {
 };
 
 export const likedBy = async (username) => {
-  const response = makeRequest(`/post/${username}/likedPosts`, 'get');
+  const response = makeRequest(`/post/${username}/liked`, 'get');
   return response;
 }
 

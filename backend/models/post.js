@@ -157,6 +157,11 @@ const Post = {
     );
   }),
 
+  /**
+   * Retrieve all posts that have been liked by the specified user.
+   * @param {string} username The username of the user who liked the posts. 
+   * @returns The posts that were liked by the user.
+   */
   getLikedBy: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Invalid username provided'));
@@ -166,7 +171,6 @@ const Post = {
     db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) as post_id FROM post WHERE post_id IN (SELECT post_id FROM post_likes WHERE username = ?);', [username], (err, result) => {
       if (err) reject(err);
       else {
-        console.log("Query Response: " + JSON.stringify(result));
         resolve(result);
       }
     });
