@@ -7,7 +7,7 @@ import Popup from './popup.jsx';
 import * as postApi from './../api/post.js';
 import { postImageBase } from '../api/post';
 
-const ExplorePage = () => {
+const ExplorePage = ({ user }) => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [loadedPosts, setLoadedPosts] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -55,7 +55,7 @@ const ExplorePage = () => {
               {
                 popupOpen ?
                   <Popup onClose={() => setPopupOpen(false)}>
-                    <Listing postId={selectedPost} />
+                    <Listing user={user} postId={selectedPost} />
                   </Popup>
                   : ""
               }

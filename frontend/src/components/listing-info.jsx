@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { postImageBase } from '../api/post';
 
-const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost}) => {
+const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, likedThisPost }) => {
   if (tags != null) {
     var tagRows = []
     for (let i = 0; i < tags.length; i += 3) {
@@ -22,7 +22,13 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost}) =
             <h4>{author}</h4>
           </div>
           <div className="flex flex-col justify-center items-center">
-            <img className="w-12 hover:cursor-pointer" src="pixelartheart.png" onClick={likePost}/>
+            {
+              likedThisPost ?
+                <img className="w-12 hover:cursor-pointer" src="pixelartheart.png" onClick={likePost} />
+                :
+                <img className="w-12 hover:cursor-pointer" src="pixelartheart_empty.png" onClick={likePost} />
+            }
+
             <h2 className="text-xl">{likes}</h2>
           </div>
           <div className="flex flex-col justify-center items-center text-center">

@@ -33,7 +33,7 @@ function App() {
       <>
         <Header user={user} setUser={setUser}/>
         <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
-          <ExplorePage/>
+          <ExplorePage user={user} />
         </div>
         <Footer/>
       </>

@@ -157,6 +157,21 @@ const Post = {
     );
   }),
 
+  getLikedBy: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) as post_id FROM post WHERE post_id IN (SELECT post_id FROM post_likes WHERE username = ?);', [username], (err, result) => {
+      if (err) reject(err);
+      else {
+        console.log("Query Response: " + JSON.stringify(result));
+        resolve(result);
+      }
+    });
+  }),
+
   /**
    * Publishes a project.
    * @param {*} args An object containing the values of the post.

@@ -7,9 +7,10 @@ import ListingInfo from './listing-info.jsx';
 import * as postApi from './../api/post.js';
 import * as projectApi from './../api/project.js';
 
-const Listing = ({ postId }) => {
+const Listing = ({ user, postId }) => {
   const [loadedPost, setLoadedPost] = useState(null);
   const [loadedProject, setLoadedProject] = useState(null);
+  const [likedThisPost, setLikedThisPost] = useState(false);
   const [dataChanged, setDataChanged] = useState(false);
   const newCommentRef = useRef(null);
 
@@ -27,6 +28,9 @@ const Listing = ({ postId }) => {
         console.error("Failed to retrieve project data.");
         return;
       }
+
+      const likedPosts = await postApi.likedBy(user);
+      setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
 
       setLoadedPost(post);
       setLoadedProject(project);
@@ -68,7 +72,8 @@ const Listing = ({ postId }) => {
             licence={loadedPost.licence}
             likes={loadedPost.likes}
             tags={loadedPost.tags} 
-            likePost={likePost}/>
+            likePost={likePost}
+            likedThisPost={likedThisPost}/>
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>

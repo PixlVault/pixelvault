@@ -35,6 +35,11 @@ export const search = (searchParams = undefined) => {
   return response;
 };
 
+export const likedBy = async (username) => {
+  const response = makeRequest(`/post/${username}/likedPosts`, 'get');
+  return response;
+}
+
 /**
 * Creates a new post.
 * @param {string} projectId

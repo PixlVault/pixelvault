@@ -9,7 +9,7 @@ const Comment = ({ commentId, author, content, likes, likeComment }) => {
         <div className="flex flex-row space-x-5 justify-center items-center">
           <div className="flex flex-col justify-center items-center">
             <div>
-              <img className="w-4 h-4 space-x-0 hover:cursor-pointer" src="pixelartheart.png" onClick={() => likeComment(commentId)}/>
+              <img className="w-4 h-4 space-x-0 hover:cursor-pointer" src="pixelartheart_empty.png" onClick={() => likeComment(commentId)}/>
             </div>
             <div>{likes}</div>
           </div>
