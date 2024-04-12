@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Api from '../api';
 
 const calculateAge = (date) => {
@@ -39,16 +39,15 @@ const LoginForm = ({ setUser }) => {
       await Api.account.create(username, password, email);
       login(e);
     } catch (error) {
-      console.log(error, error.message);
       setAlertMessage(error.message);
       setTimeout(() => setAlertMessage(''), 2000);
     }
   };
 
-  const inputClass = 'mb-4 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500';
+  const inputClass = 'transition-all ease-in duration-50 mb-4 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-violet-500';
 
   return <>
-    <form ref={formRef} id="login-form" className='min-w-full px-8 pt-6 pb-8 mb-4 mx-auto flex flex-col items-center' onSubmit={login}>
+    <form ref={formRef} id="login-form" className='px-8 pt-6 pb-8 mb-4 mx-auto flex flex-col items-center' onSubmit={login}>
       <span className='text-lg font-semibold mb-4'>{!creatingAccount ? 'Log In' : 'Sign Up' }</span>
       <input className={inputClass} type="text" placeholder='Username' name="username" onChange={(e) => setUsername(e.target.value)} />
       <input className={inputClass} type="password" placeholder='Password' name="password" onChange={(e) => setPassword(e.target.value)} />
