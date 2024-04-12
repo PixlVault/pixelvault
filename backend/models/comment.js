@@ -24,6 +24,25 @@ const Comment = {
   }),
 
   /**
+   * Retrieve all comments that have been liked by the specified user.
+   * @param {string} username The username of the user who liked the comments. 
+   * @returns The comments that have been liked by the specified user.
+   */
+  getLikedBy: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) as post_id FROM comment WHERE comment_id IN (SELECT comment_id FROM comment_likes WHERE username = ?) AND is_hidden = 0;', [username], (err, result) => {
+      if (err) reject(err);
+      else {
+        resolve(result);
+      }
+    });
+  }),
+
+  /**
    * Add a new comment to a post.
    * @param {string} postId The UUID of the post.
    * @param {string} username The username of the comment's author.

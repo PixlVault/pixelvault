@@ -32,3 +32,13 @@ export const unhideComment = async (commentId) => {
 export const deleteComment = async (commentId) => {
   await makeRequest('/comment', 'delete', { comment_id: commentId});
 };
+
+/**
+ * Get the comments that have been liked by the specified user.
+ * @param {*} username The username of the user that liked the comments.
+ * @returns The comments that have been liked by the specified user.
+ */
+export const likedBy = async (username) => {
+    const response = makeRequest(`/comment/${username}/liked`, 'get');
+    return response;
+}
