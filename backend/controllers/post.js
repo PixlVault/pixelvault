@@ -6,15 +6,15 @@ const Project = require('../models/project');
 
 const router = express.Router();
 
+const removeSensitiveData = (post) => {
+  delete post.hidden_by;
+  delete post.project_id;
+  return post;
+};
+
 // POST for resource retrieval isn't entirely appropriate for a RESTful API,
 // but given GET requests do not have a request body we cannot avoid this.
 router.post('/search', async (req, res) => {
-  const removeSensitiveData = (post) => {
-    delete post.hidden_by;
-    delete post.project_id;
-    return post;
-  };
-
   try {
     if (req.body.post_id !== undefined) {
       const post = (await Post.getById(req.body.post_id))
@@ -58,7 +58,8 @@ router.post('/search', async (req, res) => {
 
 router.get('/:username/liked', async (req, res) => {
   try {
-    const likedPosts = await Post.getLikedBy(req.params.username);
+    const likedPosts = (await Post.getLikedBy(req.params.username))
+      .map(removeSensitiveData);
     return res.status(200).json(likedPosts);
   } catch (err) {
     log.error(err);

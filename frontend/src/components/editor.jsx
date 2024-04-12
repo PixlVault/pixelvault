@@ -117,6 +117,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
 
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
+  const navigate = useNavigate();
 
   const [connected, setConnected] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
@@ -161,6 +162,20 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       console.log(`${user} has left the session`);
     });
 
+    socket.on('error', (message) => {
+      if (message === 'This project has been deleted.') {
+        alert('This project has been deleted.');
+        navigate('../edit/');
+      }
+
+      if (message === 'Project has been published and can no longer be edited.') {
+        alert('This project has been published and can no longer be edited.');
+        navigate('../edit/');
+      }
+
+      console.error(message);
+    });
+
     socket.on('update', (data) => {
       const imageData = contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
       const parsed = JSON.parse(data);
@@ -183,6 +198,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       socket.off('update');
       socket.off('joined');
       socket.off('left');
+      socket.off('error');
       socket.disconnect();
     };
   }, [projectId]);
