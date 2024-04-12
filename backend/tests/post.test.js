@@ -718,6 +718,12 @@ describe('Posts can be hidden/unhidden', () => {
       .send({ post_id: projects[0] })
       .set('Authorization', tokens.admin);
     expect(res.statusCode).toBe(401);
+
+    // Cleanup:
+    res = await api.delete('/api/post/hide')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.creator);
+    expect(res.statusCode).toBe(204);
   });
 });
 
