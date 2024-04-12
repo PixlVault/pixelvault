@@ -20,7 +20,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
         <div className="h-full grid grid-flow-row-dense grid-cols-2 grid-rows-3">
           <div className="flex flex-col justify-center items-center">
             <h2 className="text-xl font-bold">{title}</h2>
-            <h4><Link to="#">{author}</Link></h4> {/* TODO: Link to profile page of author. */}
+            <h4><Link to={`/profile/${author}`}>{author}</Link></h4>
           </div>
           <div className="flex flex-col justify-center items-center">
             {
