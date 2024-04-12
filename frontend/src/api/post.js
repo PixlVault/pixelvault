@@ -30,19 +30,22 @@ export const postImageBase = `${urlBase}/post/img/`;
 * }} searchParams
 */
 export const search = async (searchParams = undefined) => {
-  const response = await makeRequest('/post/search', 'POST', searchParams);
+  // Token is only required if limiting results to those from followed accounts.
+  const includeAuth = searchParams.onlyShowFollowed === true;
+  const response = await makeRequest('/post/search', 'POST', searchParams, includeAuth);
   return response;
 };
 
 /**
- * Get the posts that have been liked by the specified user.
- * @param {*} username The username of the user that liked the posts.
- * @returns The posts that have been liked by the specified user.
+ * Get the posts that have been liked by the logged-in user.
+ * @returns The posts that have been liked by the logged-in user.
  */
-export const likedBy = async (username) => {
+export const likedBy = async () => {
+  const username = localStorage.getItem('user');
+  if (username === null) return new Error('Cannot retrieve liked posts without signing in.');
   const response = makeRequest(`/post/${username}/liked`, 'get');
   return response;
-}
+};
 
 /**
 * Creates a new post.
