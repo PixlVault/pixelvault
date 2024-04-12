@@ -56,11 +56,15 @@ app.use(async (req, _res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Needed to prevent CORS errors when developing.
-app.use(cors());
+if (process.env.NODE_ENV == 'production') {
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN
+  }));
+} else {
+  app.use(cors());
+}
 
 app.use('/api', apiRouter);
-
 
 if (process.env.NODE_ENV == 'production') {
   app.use(express.static(__dirname + '/../frontend/dist'));
