@@ -5,12 +5,10 @@ import Comment from './comment.jsx';
 import ListingInfo from './listing-info.jsx';
 
 import * as postApi from './../api/post.js';
-import * as projectApi from './../api/project.js';
 import * as commentApi from './../api/comment.js';
 
 const Listing = ({ user, postId }) => {
   const [loadedPost, setLoadedPost] = useState(null);
-  const [loadedProject, setLoadedProject] = useState(null);
   const [likedThisPost, setLikedThisPost] = useState(false);
   const [likedComments, setLikedComments] = useState(false);
   const [dataChanged, setDataChanged] = useState(false);
@@ -25,20 +23,21 @@ const Listing = ({ user, postId }) => {
         return;
       }
 
-      const project = await projectApi.get(postId);
-      if (project === null) {
-        console.error("Failed to retrieve project data.");
+      const likedPosts = await postApi.likedBy(user);
+      if (likedPosts === null || likedPosts === undefined) {
+        console.error("Failed to retrieve liked posts.");
         return;
       }
 
-      const likedPosts = await postApi.likedBy(user);
-      setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
-
       const likedComments = await commentApi.likedBy(user);
-      setLikedComments(likedComments);
+      if (likedComments === null || likedComments === undefined) {
+        console.error("Failed to retrieve liked comments.");
+        return;
+      }
 
+      setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
+      setLikedComments(likedComments);
       setLoadedPost(post);
-      setLoadedProject(project);
     }
 
     fetchData().catch(console.error);
@@ -77,9 +76,8 @@ const Listing = ({ user, postId }) => {
 
   return (
     <div>
-      {loadedPost !== null && loadedProject !== null ?
+      {loadedPost !== null ?
         <div className="flex flex-col">
-
           <ListingInfo
             postId={postId}
             title={loadedPost.title}
@@ -112,7 +110,7 @@ const Listing = ({ user, postId }) => {
           </div>
 
           <div className="flex justify-center">
-            <Link to="#">More like this...</Link>
+            <Link to="#">More like this...</Link> {/* TODO: Link to an appropriate search. */}
           </div>
         </div>
         :

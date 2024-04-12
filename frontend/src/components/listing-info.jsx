@@ -4,9 +4,10 @@ import { postImageBase } from '../api/post';
 
 const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost }) => {
   if (tags != null) {
-    var tagRows = []
+    var tagRows = [];
+    const tagsPerRow = 3;
     for (let i = 0; i < tags.length; i += 3) {
-      tagRows.push(tags.slice(i, i + 3));
+      tagRows.push(tags.slice(i, i + tagsPerRow));
     }
   }
 
@@ -19,7 +20,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
         <div className="h-full grid grid-flow-row-dense grid-cols-2 grid-rows-3">
           <div className="flex flex-col justify-center items-center">
             <h2 className="text-xl font-bold">{title}</h2>
-            <h4>{author}</h4>
+            <h4><Link to="#">{author}</Link></h4> {/* TODO: Link to profile page of author. */}
           </div>
           <div className="flex flex-col justify-center items-center">
             {
@@ -44,7 +45,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
                   <div className="flex w-full" key={row}>
                     {row.map(x =>
                       <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md" key={x}>
-                        <Link to="#">{x}</Link>
+                        <Link to="#">{x}</Link> {/* TODO: Link to an appropriate search. */}
                       </div>
                     )}
                   </div>
