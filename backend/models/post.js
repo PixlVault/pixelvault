@@ -168,7 +168,7 @@ const Post = {
       return;
     }
 
-    db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) as post_id FROM post WHERE post_id IN (SELECT post_id FROM post_likes WHERE username = ?);', [username], (err, result) => {
+    db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) as post_id FROM post WHERE post_id IN (SELECT post_id FROM post_likes WHERE username = ?) AND is_hidden = 0;', [username], (err, result) => {
       if (err) reject(err);
       else {
         resolve(result);
