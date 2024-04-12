@@ -4,41 +4,38 @@ import { postImageBase } from '../api/post';
 import { search } from '../api/post';
 import { useLocation, useSearchParams } from 'react-router-dom';
 
-const Tile = ({ post }) => (
-  <div className='mb-4 relative'>
-    <img className="w-full rounded-lg" src={`https://flowbite.s3.amazonaws.com/docs/gallery/masonry/image-${post.post_id}.jpg`} alt="" />
-    {/* <img className="w-full rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" /> */}
+import Popup from './popup';
+import Listing from './listing';
+
+const Tile = ({ post, clickHandler }) => (
+  <div className='mb-4 relative' onClick={clickHandler}>
+    <img className="h-auto max-w-full rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
     <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-3xl text-white font-semibold">
       <span className='ml-2 mb-1'>{post.title}</span>
     </div>
   </div>
 );
 
-const Results = ({ posts }) => (
+const Results = ({ posts, onTileClick }) => (
   <div className="m-4 columns-1 md:columns-3 gap-4">
-    { posts.map((post) => <Tile key={post.post_id} post={post} />) }
+    {
+      posts.map((post) => <Tile
+        key={post.post_id}
+        post={post}
+        clickHandler={() => onTileClick(post.post_id)}
+      />)
+    }
   </div>
 );
 
-const posts = [
-  { post_id:  1, title: 'foo' },
-  { post_id:  2, title: 'bar' },
-  { post_id:  3, title: 'baz' },
-  { post_id:  4, title: 'bing' },
-  { post_id:  5, title: 'bang' },
-  { post_id:  6, title: 'bong' },
-  { post_id:  7, title: 'bash' },
-  { post_id:  8, title: 'boop' },
-  { post_id:  9, title: 'ran' },
-  { post_id: 10, title: 'out' },
-  { post_id: 11, title: 'of words' },
-];
-
-const Search = () => {
+const Search = ({ user }) => {
   // We can pass in state from other components, which will land here:
   const location = useLocation();
+
   const [query, setQuery] = useState(location?.state !== null ? location?.state : {});
   const [results, setResults] = useState([]);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [popupOpen, setPopupOpen] = useState(false);
 
   /** TODO: Search parameters to support:
    * @param {string} author Only show results published by a specific author.
@@ -55,10 +52,18 @@ const Search = () => {
    */
 
   useEffect(() => {
+    // TODO make this actually use the search string.
     console.log(query);
-    search().then((res) => setResults(res));
-    console.log(results);
+    search({}).then((res) => {
+      console.log(res);
+      setResults(res);
+    });
   }, [query]);
+
+  const openPopup = (postId) => {
+    setSelectedPost(postId);
+    setPopupOpen(true);
+  };
 
   return (
       <div>
@@ -76,7 +81,14 @@ const Search = () => {
                 </div>
             </form>
         </div>
-        <Results posts={posts} />
+        <Results posts={results} onTileClick={(postId) => openPopup(postId)} />
+        {
+          popupOpen
+            ? <Popup onClose={() => setPopupOpen(false)}>
+                <Listing user={user} postId={selectedPost} />
+              </Popup>
+            : null
+        }
     </div>
   );
 };
