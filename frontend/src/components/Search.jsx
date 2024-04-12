@@ -56,7 +56,8 @@ const Search = () => {
 
   useEffect(() => {
     console.log(query);
-    search(query).then((res) => setResults(res));
+    search().then((res) => setResults(res));
+    console.log(results);
   }, [query]);
 
   return (

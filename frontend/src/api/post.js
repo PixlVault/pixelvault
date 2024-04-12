@@ -84,9 +84,8 @@ export const unlike = async (postId) => {
   await makeRequest('/post/likes', 'delete', { post_id: postId });
 }
 
-
 export const Licence = {
   Commercial: 'Commercial',
   Education: 'Education',
-  CreativeCommons: 'Creative Commons'
+  CreativeCommons: 'Creative Commons',
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Listing from './listing.jsx';
@@ -27,7 +27,7 @@ const ExplorePage = ({ user }) => {
 
   const openPopup = (postId) => {
     setSelectedPost(postId);
-    setPopupOpen(true)
+    setPopupOpen(true);
   };
 
   const imagesSet1 = [
@@ -82,7 +82,6 @@ const ExplorePage = ({ user }) => {
           className="w-full p-2 border border-gray-300 rounded-md"
         />
       </div>
-      
       <div className="mb-8">
         <div className="grid grid-cols-4 gap-1"> {/* Adjusted gap between pictures */}
           {imagesSet1.map((image, index) => (
@@ -156,16 +155,30 @@ const ExplorePage = ({ user }) => {
           </button>
         </div>
       </div>
-      
-    <div>
-      <div>Explore Page.</div>
-      <img className="w-64 h-64 hover:cursor-pointer" src="sr25f64d3c492aws3.png" onClick={() => setPopupOpen(true)} />
-      {popupOpen ?
-        <Popup onClose={() => setPopupOpen(false)}>
-          <Listing />
-        </Popup>
-        : ""
-      }
+      <div>
+        <div>Explore Page (Placeholder).</div>
+        {
+          loadedPosts != null ?
+            <div className="flex">
+              {
+                loadedPosts.map(p =>
+                  <div className="px-4" key={p.post_id}>
+                    <img className="w-64 h-64 hover:cursor-pointer" src={`${postImageBase}${p.post_id}.png`} onClick={() => openPopup(p.post_id)} />
+                  </div>
+                )
+              }
+
+              {
+                popupOpen ?
+                  <Popup onClose={() => setPopupOpen(false)}>
+                    <Listing user={user} postId={selectedPost} />
+                  </Popup>
+                  : ""
+              }
+            </div>
+            :
+            ""
+        }
     </div>
     </div>
   );
