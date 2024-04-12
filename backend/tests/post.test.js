@@ -749,7 +749,7 @@ describe('Liked posts can be', () => {
       },
     ]);
   });
-})
+});
 
 afterAll(() => {
   db.end();
