@@ -43,9 +43,9 @@ function Profiles() {
             <picture>
                 <img src="src/assets/Screenshot 2024-03-31 132315.jpg" alt="profilePicture" className="w-100 h-100"/>
             </picture>
-            <label for="level">L42</label>
+            <label htmlFor="level">L42</label>
             <progress id="level" value="32" max="100"></progress>
-            <label for="level" className="mr-70">L43</label>
+            <label htmlFor="level" className="mr-70">L43</label>
         </div>
             <div><p className="max-w-sm text-xl">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo.</p></div>
             {!isFollowing ? (

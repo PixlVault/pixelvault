@@ -148,7 +148,3 @@ const ExplorePage = () => {
 };
 
 export default ExplorePage;
-//  order_by: 'likes', ascending: false
-// {project.likes}
-// {project.title}
-// post_id: '71adbd60-f839-11ee-896c-3f74d452b3d7'
