@@ -8,11 +8,11 @@ const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   useEffect(() => {
-    createData('LP').then(() => {
+    // createData('LP').then(() => {
       search({})
         .then((result) => {console.log(result); setProjects(result)})
         .catch((error) => console.error(error));
-    });
+    // });
   }, []);
   return (
     <>
