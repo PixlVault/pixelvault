@@ -8,16 +8,18 @@ const { writePostImage } = require('../utils/image');
 
 const Post = {
   /** Search for posts according to some criteria.
-   * @param {*} author Only show results published by a specific author.
-   * @param {*} licence Only show results with a certain licence.
-   * @param {*} orderByField If specified, orders results by this field.
-   * @param {*} ascending Boolean - should ordering be ascending or descending?
-   * @param {*} onlyShowFollowed Boolean - only show publications from followed users?
+   * @param {string} author Only show results published by a specific author.
+   * @param {string} licence Only show results with a certain licence.
+   * @param {string} orderByField If specified, orders results by this field.
+   * @param {boolean} ascending Boolean - should ordering be ascending or descending?
+   * @param {boolean} onlyShowFollowed Boolean - only show publications from followed users?
    *                             Note that this requires the requestingUser field.
-   * @param {*} requestingUser
-   * @param {*} tags An array of tags to filter against.
-   * @param {*} minCost The minimum cost item that should be returned.
-   * @param {*} maxCost The maximum cost item that should be returned.
+   * @param {string} requestingUser
+   * @param {string} tags An array of tags to filter against.
+   * @param {number} minCost The minimum cost item that should be returned.
+   * @param {number} maxCost The maximum cost item that should be returned.
+   * @param {number} limit The number of results to fetch. Defaults to 25.
+   * @param {number} offset The offset for returned results. Defaults to 0.
    */
   search: (
     requestingUser,
@@ -30,6 +32,8 @@ const Post = {
     minCost = 0,
     maxCost = 1000000000000,
     title = undefined,
+    limit = 25,
+    offset = 0,
   ) => new Promise((resolve, reject) => {
     if (typeof minCost !== 'number' || typeof maxCost !== 'number') {
       reject(new Error('`cost` range must consist of numeric values'));
@@ -45,7 +49,7 @@ const Post = {
         (SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id =  post.post_id) AS likes
       FROM post
       LEFT JOIN project ON project.project_id = post.post_id
-      WHERE`;
+      WHERE is_hidden = 0 AND`;
 
     if (tags !== undefined) {
       query = `${query} post.post_id IN (SELECT post_id FROM post_tags WHERE tag IN (?)) AND `;
@@ -76,10 +80,20 @@ const Post = {
 
     if (orderByField !== undefined) {
       if (['title', 'cost', 'published_on', 'likes'].includes(orderByField)) {
-        query = `${query} ORDER BY ${orderByField} ${ascending ? 'ASC' : 'DESC'};`;
+        query = `${query} ORDER BY ${orderByField} ${ascending ? 'ASC' : 'DESC'}`;
       } else {
         reject(new Error(`Invalid sort field: \`${orderByField}\``));
       }
+    }
+
+    if (limit > 0) {
+      if (offset > 0) {
+        query = `${query} LIMIT ?, ?;`;
+        params.push(offset);
+      } else {
+        query = `${query} LIMIT ?;`;
+      }
+      params.push(limit);
     }
 
     db.query(query, params, (err, result) => {
@@ -144,7 +158,7 @@ const Post = {
                          t3
                   WHERE  comment.comment_id = t3.comment_id), 0) AS likes
    FROM   comment
-   WHERE  post_id = UUID_TO_BIN(?, true)`, [postId, postId], (error, comments) => {
+   WHERE  post_id = UUID_TO_BIN(?, true) AND comment.is_hidden = 0`, [postId, postId], (error, comments) => {
             if (error !== null) {
               reject(error);
               return;

@@ -14,10 +14,13 @@ const Comment = {
       return;
     }
 
-    db.query('SELECT * FROM comment WHERE comment_id = ?', commentId, (error, result) => {
-      if (error !== null) reject(error);
-      else resolve(result.length > 0 ? result[0] : null);
-    });
+    db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, is_hidden = 1 AS is_hidden FROM comment WHERE comment_id = ?',
+      commentId,
+      (error, result) => {
+        if (error !== null) reject(error);
+        else resolve(result.length > 0 ? result[0] : null);
+      },
+    );
   }),
 
   /**
@@ -156,7 +159,7 @@ const Comment = {
     }
 
     db.query(
-      'UPDATE comment_likes SET is_hidden = 1, hidden_by = ? WHERE comment_id = ?;',
+      'UPDATE comment SET is_hidden = 1, hidden_by = ? WHERE comment_id = ?;',
       [hiddenBy, commentId],
       (err, result) => {
         if (err !== null) reject(err);
@@ -176,7 +179,7 @@ const Comment = {
     }
 
     db.query(
-      'UPDATE comment_likes SET is_hidden = 0, hidden_by = NULL WHERE comment_id = ?;',
+      'UPDATE comment SET is_hidden = 0, hidden_by = NULL WHERE comment_id = ?;',
       [commentId],
       (err, result) => {
         if (err !== null) reject(err);

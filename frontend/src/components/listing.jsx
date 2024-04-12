@@ -50,7 +50,7 @@ const Listing = ({ user, postId }) => {
       return;
     }
 
-    await postApi.addComment(postId, content);
+    await commentApi.addComment(postId, content);
     setDataChanged(true);
   }
 
@@ -65,12 +65,12 @@ const Listing = ({ user, postId }) => {
   }
 
   const likeComment = async (commentId) => {
-    await postApi.likeComment(commentId);
+    await commentApi.likeComment(commentId);
     setDataChanged(true);
   }
 
   const unlikeComment = async (commentId) => {
-    await postApi.unlikeComment(commentId);
+    await commentApi.unlikeComment(commentId);
     setDataChanged(true);
   }
 

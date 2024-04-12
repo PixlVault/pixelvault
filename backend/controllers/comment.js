@@ -80,12 +80,12 @@ const setHidden = async (req, res) => {
 
   try {
     if (req.method === 'POST') {
-      await Comment.like(req.body.comment_id, req.token.username);
+      await Comment.hide(req.body.comment_id, req.token.username);
       return res.status(201).send();
     }
 
     if (req.method === 'DELETE') {
-      await Comment.unlike(req.body.comment_id, req.token.username);
+      await Comment.unhide(req.body.comment_id, req.token.username);
       return res.status(204).send();
     }
 

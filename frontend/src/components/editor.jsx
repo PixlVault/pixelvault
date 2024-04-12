@@ -8,6 +8,7 @@ import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
 import * as project from '../api/project';
 import * as post from '../api/post';
+import * as comment from '../api/comment';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -129,12 +130,15 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   // This just a placeholder until we have a proper UI for publishing.
   const publishProject = async() => {
     post.create(projectId);
-    post.setLicense(projectId, post.Licence.CreativeCommons);
-    post.setCost(projectId, 30);
-    post.setTags(projectId, ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']);
-    post.addComment(projectId, "Test comment 1");
-    post.addComment(projectId, "Test comment 2");
-    post.addComment(projectId, "Test comment 3");
+    post.edit(projectId, {
+      licence: post.Licence.CreativeCommons,
+      cost: 30,
+      tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
+    });
+    
+    comment.addComment(projectId, "Test comment 1");
+    comment.addComment(projectId, "Test comment 2");
+    comment.addComment(projectId, "Test comment 3");
   }
 
   useEffect(() => {
