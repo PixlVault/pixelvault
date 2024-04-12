@@ -6,7 +6,7 @@ const Project = require('../models/project');
 
 const AUTOSAVE_INTERVAL_MS = 60000;
 
-const saveProject = async (projectId, imageData) => {
+const saveProject = async (projectId, imageData, io) => {
   log.info(`Saving '${projectId}'...`);
   try {
     await Project.setImageData(
@@ -15,6 +15,16 @@ const saveProject = async (projectId, imageData) => {
     );
     log.info(`Successfully saved project '${projectId}'.`);
   } catch (error) {
+    if (error.message === 'Project does not exist.') {
+      io.in(projectId).emit('error', 'This project has been deleted.');
+      io.in(projectId).disconnectSockets();
+    }
+
+    if (error.message === 'Cannot alter a published project\'s image data.') {
+      io.in(projectId).emit('error', 'Project has been published and can no longer be edited.');
+      io.in(projectId).disconnectSockets();
+    }
+
     log.warn('error saving project :', error);
   }
 };
@@ -50,20 +60,23 @@ const attachWebSocketService = (server) => {
       const auth = socket.handshake.auth.token;
       jwt.verify(auth, process.env.JWT_SECRET, (err, decoded) => {
         if (err !== null) {
-          return socket.disconnect('Could not authenticate user');
+          socket.emit('error', 'Could not authenticate user');
+          return socket.disconnect();
         }
         socket.user = decoded.username;
       });
     } catch (e) {
       log.error(e);
-      return socket.disconnect('Something went wrong!');
+      socket.emit('error', 'Something went wrong!');
+      return socket.disconnect();
     }
     next();
   });
 
   io.on('connection', async (socket) => {
     if (socket.handshake.query.pid === undefined) {
-      return socket.disconnect('Must specify a project ID');
+      socket.emit('error', 'Must specify a project ID');
+      return socket.disconnect();
     }
 
     // Test if the user has permission to join a project.
@@ -72,10 +85,18 @@ const attachWebSocketService = (server) => {
     if (await canJoinSession(socket.user, projectId)) {
       socket.join(projectId);
     } else {
-      return socket.disconnect(`User ${socket.user} does not have permission to edit ${projectId}`);
+      socket.emit('error', `User ${socket.user} does not have permission to edit ${projectId}`);
+      return socket.disconnect();
     }
 
     if (sessions[projectId] === undefined) {
+      const isPublished = (await Project.isPublished(projectId)).is_published === 1;
+      console.log(isPublished);
+      if (isPublished) {
+        socket.emit('error', 'Project has been published and can no longer be edited.');
+        return socket.disconnect();
+      }
+
       // If the session hasn't already been initialised, do so;
       // Fetch image data from the database and store it in the session's data.
       sessions[projectId] = { canvas: null, clients: [] };
@@ -85,6 +106,7 @@ const attachWebSocketService = (server) => {
         sessions[projectId].canvas = data;
       } catch (e) {
         log.error(e);
+        socket.emit('error', 'Something went wrong!');
         socket.disconnect();
       }
       log.info(`Created new session ${projectId}`);
@@ -93,7 +115,7 @@ const attachWebSocketService = (server) => {
       // of work in the event of a crash.
       sessions[projectId].autosave = setInterval(() => {
         if (sessions[projectId] !== undefined && sessions[projectId].canvas !== undefined) {
-          saveProject(projectId, sessions[projectId].canvas);
+          saveProject(projectId, sessions[projectId].canvas, io);
         }
       }, AUTOSAVE_INTERVAL_MS);
     }
@@ -119,7 +141,7 @@ const attachWebSocketService = (server) => {
 
     socket.on('disconnect', async () => {
       socket.broadcast.to(projectId).emit('left', socket.user);
-      saveProject(projectId, sessions[projectId].canvas);
+      saveProject(projectId, sessions[projectId].canvas, io);
       clearInterval(sessions[projectId].autosave);
 
       // Remove the client from the session:

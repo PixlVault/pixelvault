@@ -32,7 +32,6 @@ const Listing = ({ postId }) => {
         setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
 
         const likedComments = await commentApi.likedBy();
-        console.log(likeComments);
         if (likedComments === null || likedComments === undefined) {
           console.error("Failed to retrieve liked comments.");
           return;

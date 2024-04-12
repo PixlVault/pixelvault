@@ -14,8 +14,11 @@ const Project = {
     }
 
     db.query(
-      'SELECT *, BIN_TO_UUID(project_id, TRUE) AS project_id FROM project WHERE project_id = UUID_TO_BIN(?, TRUE);',
-      [projectId],
+      `SELECT *, BIN_TO_UUID(project_id, TRUE) AS project_id,
+      (SELECT COUNT(*) FROM post WHERE post_id = UUID_TO_BIN(?, TRUE)) AS is_published
+      FROM project
+      WHERE project_id = UUID_TO_BIN(?, TRUE);`,
+      [projectId, projectId],
       (err, result) => {
         if (err !== null) reject(err);
         else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
@@ -118,6 +121,27 @@ const Project = {
   }),
 
   /**
+   * Test whether a project has been published or not.
+   * @param {*} projectId The ID of the project to query.
+   * @returns an object with a value of 1 if the project has been published, else 0.
+   */
+  isPublished: (projectId) => new Promise((resolve, reject) => {
+    if (!isValidUuid(projectId)) {
+      reject(new Error('Invalid Project ID provided'));
+      return;
+    }
+
+    db.query(
+      'SELECT COUNT(*) AS is_published FROM post WHERE post_id = UUID_TO_BIN(?, TRUE);',
+      [projectId],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result[0]);
+      },
+    );
+  }),
+
+  /**
    * Retrieve the raw image data for a project.
    * @param {*} projectId The ID of the project to query.
    */
@@ -142,21 +166,29 @@ const Project = {
    * @param {*} projectId The ID of the project to update.
    * @param {*} imageData Binary representing the new image state.
    */
-  setImageData: (projectId, imageData) => new Promise((resolve, reject) => {
-    if (!isValidUuid(projectId)) {
-      reject(new Error('Invalid UUID provided'));
-      return;
-    }
+  setImageData: async (projectId, imageData) => {
+    if (!isValidUuid(projectId)) throw new Error('Invalid UUID provided');
 
-    db.query(
-      'UPDATE project SET image_data = ? WHERE project_id = UUID_TO_BIN(?, TRUE);',
-      [imageData, projectId],
-      (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      },
-    );
-  }),
+    console.log((await Project.isPublished(projectId)));
+    const isPublished = (await Project.isPublished(projectId)).is_published;
+    console.log(projectId, isPublished);
+    if (isPublished) throw new Error('Cannot alter a published project\'s image data.');
+
+    return new Promise((resolve, reject) => {
+      db.query(
+        'UPDATE project SET image_data = ? WHERE project_id = UUID_TO_BIN(?, TRUE);',
+        [imageData, projectId],
+        (err, result) => {
+          // result.affectedRows is the number of rows matched by the query.
+          // If no rows are matched, then we should raise an error - you cannot update
+          // a project which does not exist.
+          if (err) reject(err);
+          else if (result.affectedRows === 0) reject(new Error('Project does not exist.'));
+          else resolve(result);
+        },
+      );
+    })}
+  ,
 
   /**
    * Update the details of an existing project. If no optional parameters are
