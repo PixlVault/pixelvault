@@ -129,16 +129,16 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   
   // This just a placeholder until we have a proper UI for publishing.
   const publishProject = async() => {
-    post.create(projectId);
-    post.edit(projectId, {
+    await post.create(projectId);
+    await post.edit(projectId, {
       licence: post.Licence.CreativeCommons,
       cost: 30,
       tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
     });
     
-    comment.addComment(projectId, "Test comment 1");
-    comment.addComment(projectId, "Test comment 2");
-    comment.addComment(projectId, "Test comment 3");
+    await comment.addComment(projectId, "Test comment 1");
+    await comment.addComment(projectId, "Test comment 2");
+    await comment.addComment(projectId, "Test comment 3");
   }
 
   useEffect(() => {
