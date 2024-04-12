@@ -8,20 +8,21 @@ const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   useEffect(() => {
-    // search({ order_by: 'likes', ascending: false, post_id: 'bad50740-f33a-11ee-87e2-b3758f99a7d8' })
-    //   .then((result) => {console.log(result); setProjects(result)})
-    //   .catch((error) => console.error(error));
-    // createData('CC');
+    createData('LP').then(() => {
+      search({})
+        .then((result) => {console.log(result); setProjects(result)})
+        .catch((error) => console.error(error));
+    });
   }, []);
   return (
     <>
     {projects.length === 0 ? <> </> : <div>
       <ul>
         {projects.map((project) => (<li key={project.project_id}>{project.title}
-          {<ul>
+          {/* {<ul>
           {project.comments.map((comment) => (<li key={comment.comment_id}>
-            {comment.comment_id}{comment.content}</li>))}
-          </ul>}
+            {comment.content}{comment.likes}</li>))}
+          </ul>} */}
         </li>))}
       </ul>
     </div>}
@@ -40,3 +41,7 @@ const ExplorePage = () => {
 };
 
 export default ExplorePage;
+//  order_by: 'likes', ascending: false
+// {project.likes}
+// {project.title}
+// post_id: '71adbd60-f839-11ee-896c-3f74d452b3d7'
