@@ -231,7 +231,7 @@ describe('Comments can be unhidden', () => {
 });
 
 describe('Liked comments can be', () => {
-  test('fetched a for particular user', async () => {
+  test('fetched for a particular user', async () => {
     comments = []
 
     let res = await api.post('/api/comment')

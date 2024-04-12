@@ -722,7 +722,7 @@ describe('Posts can be hidden/unhidden', () => {
 });
 
 describe('Liked posts can be', () => {
-  test('fetched a for particular user', async () => {
+  test('fetched for a particular user', async () => {
     let res = await api.post('/api/post/likes')
       .send({ post_id: projects[0] })
       .set('Authorization', tokens.other);
