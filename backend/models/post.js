@@ -160,7 +160,7 @@ const Post = {
   /**
    * Retrieve all posts that have been liked by the specified user.
    * @param {string} username The username of the user who liked the posts. 
-   * @returns The posts that were liked by the user.
+   * @returns The posts that have been liked by the specified user.
    */
   getLikedBy: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {

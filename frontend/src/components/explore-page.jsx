@@ -1,6 +1,4 @@
 import { useEffect, useState } from 'react';
-import { search } from '../api/post';
-import createData from '../createData';
 import Listing from './listing.jsx';
 import Popup from './popup.jsx';
 
@@ -21,8 +19,6 @@ const ExplorePage = ({ user }) => {
       }
 
       setLoadedPosts(posts);
-
-      console.log(posts);
     }
 
     fetchData().catch(console.error);
@@ -33,20 +29,16 @@ const ExplorePage = ({ user }) => {
     setPopupOpen(true)
   }
 
-  const closePopup = () => {
-
-  }
-
   return (
     <>
       <div>
-        <div>Explore Page.</div>
+        <div>Explore Page (Placeholder).</div>
         {
           loadedPosts != null ?
-            <div>
+            <div className="flex">
               {
                 loadedPosts.map(p =>
-                  <div>
+                  <div className="px-4" key={p.post_id}>
                     <img className="w-64 h-64 hover:cursor-pointer" src={`${postImageBase}${p.post_id}.png`} onClick={() => openPopup(p.post_id)} />
                   </div>
                 )
@@ -59,8 +51,6 @@ const ExplorePage = ({ user }) => {
                   </Popup>
                   : ""
               }
-
-
             </div>
             :
             ""

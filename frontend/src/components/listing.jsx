@@ -98,6 +98,7 @@ const Listing = ({ user, postId }) => {
             {
               loadedPost.comments.map(c =>
                 <Comment
+                  key={c.comment_id}
                   commentId={c.comment_id}
                   author={c.author}
                   content={c.content}
