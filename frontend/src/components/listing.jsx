@@ -7,10 +7,10 @@ import ListingInfo from './listing-info.jsx';
 import * as postApi from './../api/post.js';
 import * as commentApi from './../api/comment.js';
 
-const Listing = ({ user, postId }) => {
+const Listing = ({ postId }) => {
   const [loadedPost, setLoadedPost] = useState(null);
   const [likedThisPost, setLikedThisPost] = useState(false);
-  const [likedComments, setLikedComments] = useState(false);
+  const [likedComments, setLikedComments] = useState([]);
   const [dataChanged, setDataChanged] = useState(false);
   const newCommentRef = useRef(null);
 
@@ -23,22 +23,25 @@ const Listing = ({ user, postId }) => {
         return;
       }
 
-      const likedPosts = await postApi.likedBy(user);
-      if (likedPosts === null || likedPosts === undefined) {
-        console.error("Failed to retrieve liked posts.");
-        return;
+      if (localStorage.getItem('user') !== null) {
+        const likedPosts = await postApi.likedBy();
+        if (likedPosts === null || likedPosts === undefined) {
+          console.error("Failed to retrieve liked posts.");
+          return;
+        }
+        setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
+
+        const likedComments = await commentApi.likedBy();
+        console.log(likeComments);
+        if (likedComments === null || likedComments === undefined) {
+          console.error("Failed to retrieve liked comments.");
+          return;
+        }
+        setLikedComments(likedComments);
       }
 
-      const likedComments = await commentApi.likedBy(user);
-      if (likedComments === null || likedComments === undefined) {
-        console.error("Failed to retrieve liked comments.");
-        return;
-      }
-
-      setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
-      setLikedComments(likedComments);
       setLoadedPost(post);
-    }
+    };
 
     fetchData().catch(console.error);
     setDataChanged(false);

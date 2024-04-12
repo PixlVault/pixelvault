@@ -34,11 +34,12 @@ export const deleteComment = async (commentId) => {
 };
 
 /**
- * Get the comments that have been liked by the specified user.
- * @param {*} username The username of the user that liked the comments.
- * @returns The comments that have been liked by the specified user.
+ * Get the comments that have been liked by the logged-in user.
+ * @returns The comments that have been liked by the logged-in user.
  */
-export const likedBy = async (username) => {
-    const response = makeRequest(`/comment/${username}/liked`, 'get');
-    return response;
-}
+export const likedBy = async () => {
+  const username = localStorage.getItem('user');
+  if (username === null) return new Error('Cannot retrieve liked comments without signing in.');
+  const response = makeRequest(`/comment/${username}/liked`, 'get');
+  return response;
+};
