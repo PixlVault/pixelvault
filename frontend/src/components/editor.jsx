@@ -7,6 +7,8 @@ import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
 import * as project from '../api/project';
+import * as post from '../api/post';
+import * as comment from '../api/comment';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -124,6 +126,20 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       .then((project) => setCurrentProject(project))
       .catch((error) => console.error(error));
   }, [projectId]);
+  
+  // This just a placeholder until we have a proper UI for publishing.
+  const publishProject = async() => {
+    post.create(projectId);
+    post.edit(projectId, {
+      licence: post.Licence.CreativeCommons,
+      cost: 30,
+      tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
+    });
+    
+    comment.addComment(projectId, "Test comment 1");
+    comment.addComment(projectId, "Test comment 2");
+    comment.addComment(projectId, "Test comment 3");
+  }
 
   useEffect(() => {
     socket.io.opts.query = { ...socket.io.opts.query, pid: projectId };
@@ -186,6 +202,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       canvasReady={canvasReady}
     />
     <button onClick={() => exportImage(canvasRef)}>Export</button>
+    <button onClick={publishProject}>Publish</button>
   </>;
 };
 

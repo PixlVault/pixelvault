@@ -56,6 +56,16 @@ router.post('/search', async (req, res) => {
   }
 });
 
+router.get('/:username/liked', async (req, res) => {
+  try {
+    const likedPosts = await Post.getLikedBy(req.params.username);
+    return res.status(200).json(likedPosts);
+  } catch (err) {
+    log.error(err);
+    return res.status(400).send();
+  } 
+});
+
 router.post('/', async (req, res) => {
   if (req.token === undefined) {
     return res.status(401).json({ error: 'Must be logged in' });

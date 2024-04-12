@@ -1,11 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import Listing from './listing.jsx';
 import Popup from './popup.jsx';
+import * as postApi from './../api/post.js';
+import { postImageBase } from '../api/post';
 
-
-const ExplorePage = () => {
+const ExplorePage = ({ user }) => {
   const [popupOpen, setPopupOpen] = useState(false);
+  const [loadedPosts, setLoadedPosts] = useState(null);
+  const [selectedPost, setSelectedPost] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const posts = await postApi.search({});
+      if (posts === null || posts === undefined) {
+        console.error("Failed to retrieve post data.");
+        return;
+      }
+
+      setLoadedPosts(posts);
+    }
+
+    fetchData().catch(console.error);
+  }, []);
+
+  const openPopup = (postId) => {
+    setSelectedPost(postId);
+    setPopupOpen(true)
+  };
+
   const imagesSet1 = [
     'https://i.postimg.cc/Y2vtVQX7/images.jpg',
     'https://i.postimg.cc/Y2vtVQX7/images.jpg',

@@ -172,6 +172,25 @@ const Post = {
   }),
 
   /**
+   * Retrieve all posts that have been liked by the specified user.
+   * @param {string} username The username of the user who liked the posts. 
+   * @returns The posts that have been liked by the specified user.
+   */
+  getLikedBy: (username) => new Promise((resolve, reject) => {
+    if (username === undefined) {
+      reject(new Error('Invalid username provided'));
+      return;
+    }
+
+    db.query('SELECT *, BIN_TO_UUID(post_id, TRUE) as post_id FROM post WHERE post_id IN (SELECT post_id FROM post_likes WHERE username = ?) AND is_hidden = 0;', [username], (err, result) => {
+      if (err) reject(err);
+      else {
+        resolve(result);
+      }
+    });
+  }),
+
+  /**
    * Publishes a project.
    * @param {*} args An object containing the values of the post.
    */

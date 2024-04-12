@@ -12,7 +12,7 @@ const api = supertest(app);
 // the authentication token returned from the API.
 const tokens = {};
 let projects = [];
-const comments = [];
+var comments = [];
 
 beforeAll(async () => {
   const [width, height] = [256, 256];
@@ -233,6 +233,42 @@ describe('Comments can be unhidden', () => {
     expect(res.body).toEqual({ error: 'Unauthorised: Non-admin users cannot hide or unhide a comment' });
   });
 });
+
+describe('Liked comments can be', () => {
+  test('fetched for a particular user', async () => {
+    comments = []
+
+    let res = await api.post('/api/comment')
+      .send({ post_id: projects[0], content: 'Liked comment1' })
+      .set('Authorization', tokens.friend);
+    expect(res.statusCode).toBe(201);
+    comments.push(res.body.comment_id);
+
+    res = await api.post('/api/comment/like')
+      .send({ comment_id: comments[0] })
+      .set('Authorization', tokens.friend);
+    expect(res.statusCode).toBe(201);
+
+    res = await api.post('/api/comment')
+      .send({ post_id: projects[1], content: 'Liked comment2' })
+      .set('Authorization', tokens.friend);
+    expect(res.statusCode).toBe(201);
+    comments.push(res.body.comment_id);
+
+    res = await api.post('/api/comment/like')
+      .send({ comment_id: comments[1] })
+      .set('Authorization', tokens.friend);
+    expect(res.statusCode).toBe(201);
+
+    res = await api.get('/api/comment/friend/liked')
+      .send();
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject([
+      { content: 'Liked comment1', author: 'friend' },
+      { content: 'Liked comment2', author: 'friend' },
+    ]);
+  });
+})
 
 afterAll(() => {
   db.end();

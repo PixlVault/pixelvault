@@ -1,6 +1,5 @@
 import { makeRequest, urlBase } from './core';
-
-export const postImageBase = `${urlBase}/user/img/`;
+export const postImageBase = `${urlBase}/post/img/`;
 
 /**
  * Search for posts according to some filtering criteria.
@@ -30,10 +29,20 @@ export const postImageBase = `${urlBase}/user/img/`;
 *   title: string
 * }} searchParams
 */
-export const search = (searchParams = undefined) => {
-  const response = makeRequest('/post/search', 'POST', searchParams);
+export const search = async (searchParams = undefined) => {
+  const response = await makeRequest('/post/search', 'POST', searchParams);
   return response;
 };
+
+/**
+ * Get the posts that have been liked by the specified user.
+ * @param {*} username The username of the user that liked the posts.
+ * @returns The posts that have been liked by the specified user.
+ */
+export const likedBy = async (username) => {
+  const response = makeRequest(`/post/${username}/liked`, 'get');
+  return response;
+}
 
 /**
 * Creates a new post.
@@ -67,6 +76,17 @@ export const like = async (postId) => {
   await makeRequest('/post/likes', 'post', { post_id: postId });
 };
 
+/**
+ * Unlikes a post.
+ * @param {*} postId The ID of the post to unlike.
+ */
 export const unlike = async (postId) => {
   await makeRequest('/post/likes', 'delete', { post_id: postId });
+}
+
+
+export const Licence = {
+  Commercial: 'Commercial',
+  Education: 'Education',
+  CreativeCommons: 'Creative Commons'
 };

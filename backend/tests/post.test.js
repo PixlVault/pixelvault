@@ -721,6 +721,36 @@ describe('Posts can be hidden/unhidden', () => {
   });
 });
 
+describe('Liked posts can be', () => {
+  test('fetched for a particular user', async () => {
+    let res = await api.post('/api/post/likes')
+      .send({ post_id: projects[0] })
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.post('/api/post/likes')
+      .send({ post_id: projects[1] })
+      .set('Authorization', tokens.other);
+    expect(res.statusCode).toBe(200);
+
+    res = await api.get('/api/post/other/liked')
+      .send();
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject([
+      {
+        post_id: projects[0],
+        licence: null,
+        cost: 1,
+      },
+      {
+        post_id: projects[1],
+        licence: 'Creative Commons',
+        cost: 7,
+      },
+    ]);
+  });
+})
+
 afterAll(() => {
   db.end();
 });

@@ -32,13 +32,13 @@ function App() {
     {
       path: '/explore',
       element: (
-        <>
-          <Header user={user} setUser={setUser}/>
-          <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
-            <ExplorePage/>
-          </div>
-          <Footer/>
-        </>
+      <>
+        <Header user={user} setUser={setUser}/>
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+          <ExplorePage user={user} />
+        </div>
+        <Footer/>
+      </>
       ),
     },
     {
