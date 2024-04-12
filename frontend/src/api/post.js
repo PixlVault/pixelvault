@@ -43,6 +43,22 @@ export const create = async (projectId) => {
   await makeRequest('/post', 'post', { post_id: projectId });
 };
 
+export const edit = async (postId, changes) => {
+  await makeRequest('/post', 'put', { post_id: postId, ...changes });
+}; // cost works fine, so presumably works
+
+export const remove = async (postId) => {
+  await makeRequest('/post', 'delete', { post_id: postId });
+};
+
+export const hide = async (postId) => {
+  await makeRequest('/post/hide', 'post', { post_id: postId});
+}; // hidden by whoever is logged in
+
+export const unhide = async (postId) => {
+  await makeRequest('/post/hide', 'delete', { post_id: postId});
+};
+
 /**
 * Likes a post.
 * @param {string} postId The ID of the post to like.
@@ -51,19 +67,6 @@ export const like = async (postId) => {
   await makeRequest('/post/likes', 'post', { post_id: postId });
 };
 
-/**
-* Adds a comment to a post.
-* @param {string} postId The ID of the post.
-* @param {string} content The textual content of the comment.
-*/
-export const addComment = async (postId, content) => {
-  await makeRequest('/comment', 'post', { post_id: postId, content });
-};
-
-/**
-* Add a like to a post's comment.
-* @param {number} commentId The (integer) ID of the comment to like.
-*/
-export const likeComment = async (commentId) => {
-  await makeRequest('/comment/likes', 'post', { comment_id: commentId });
+export const unlike = async (postId) => {
+  await makeRequest('/post/likes', 'delete', { post_id: postId });
 };
