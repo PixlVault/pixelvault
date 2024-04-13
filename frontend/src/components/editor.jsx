@@ -103,15 +103,25 @@ const OfflineCanvasContainer = ({ colour, setIsProjectBrowserOpen, user }) => {
         </Dropdown>
       </div>
 
-      <Canvas
-        colour={colour}
-        canvasRef={canvasRef}
-        contextRef={contextRef}
-        sendMessage={() => { }}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
-        canvasReady={true}
-      />
+      <div className="flex space-x-10">
+        <div className="flex flex-col bg-white w-10 space-y-5">
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Pencil Tool" src="/pencil.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Eraser Tool" src="/eraser.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Undo" src="/undo.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Redo" src="/redo.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Clear" src="/bin.png" />
+        </div>
+
+        <Canvas
+          colour={colour}
+          canvasRef={canvasRef}
+          contextRef={contextRef}
+          sendMessage={() => { }}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          canvasReady={true}
+        />
+      </div>
     </div>
   </>;
 };
@@ -239,15 +249,25 @@ const OnlineCanvasContainer = ({ colour, currentProject, setCurrentProject, setI
         <span className={'text-black'}>Loading...</span>
       </div> : <></>}
 
-      <Canvas
-        colour={colour}
-        canvasRef={canvasRef}
-        contextRef={contextRef}
-        sendMessage={(data) => { socket.emit('update', data); }}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
-        canvasReady={canvasReady}
-      />
+      <div className="flex space-x-10">
+        <div className="flex flex-col bg-white w-10 space-y-5">
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Pencil Tool" src="/pencil.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Eraser Tool" src="/eraser.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Undo" src="/undo.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Redo" src="/redo.png" />
+          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Clear" src="/bin.png" />
+        </div>
+
+        <Canvas
+          colour={colour}
+          canvasRef={canvasRef}
+          contextRef={contextRef}
+          sendMessage={(data) => { socket.emit('update', data); }}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          canvasReady={canvasReady}
+        />
+      </div>
     </div>
   </>;
 };
