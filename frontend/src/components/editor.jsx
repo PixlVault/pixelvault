@@ -35,7 +35,7 @@ const initialiseCanvas = (canvasRef, contextRef, initialData) => {
   // The canvasProportion determines the percentage of the viewport that the canvas
   // will always occupy. The canvas width is set to this percentage directly. The height
   // is set to the width multiplied by a factor that ensures the aspect ratio is maintained.
-  const canvasProportion = 33;
+  const canvasProportion = 40;
   const aspectRatio = CANVAS_HEIGHT / CANVAS_WIDTH;
   const width = canvasProportion;
   const height = width * aspectRatio;
