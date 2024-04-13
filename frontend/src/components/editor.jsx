@@ -6,6 +6,8 @@ import LZString from 'lz-string';
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
 import ColourPicker from './colourpicker';
+import Dropdown from './dropdown';
+
 import * as project from '../api/project';
 import * as post from '../api/post';
 import * as comment from '../api/comment';
@@ -78,7 +80,7 @@ const saveProject = async (contextRef, navigate) => {
   }
 };
 
-const OfflineCanvasContainer = ({ colour }) => {
+const OfflineCanvasContainer = ({ colour, setIsProjectBrowserOpen, user }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const navigate = useNavigate();
@@ -86,17 +88,31 @@ const OfflineCanvasContainer = ({ colour }) => {
   useEffect(() => initialiseCanvas(canvasRef, contextRef, null), []);
 
   return <>
-    <Canvas
-      colour={colour}
-      canvasRef={canvasRef}
-      contextRef={contextRef}
-      sendMessage={() => { }}
-      width={CANVAS_WIDTH}
-      height={CANVAS_HEIGHT}
-      canvasReady={true}
-    />
-    <button onClick={() => saveProject(contextRef, navigate)}>Save as Project</button>
-    <button onClick={() => exportImage(canvasRef)}>Export</button>
+    <div className="flex flex-col space-y-5">
+      <div className="flex">
+        <div className="grow">
+          <h2 className="text-xl font-bold">New project {user ? '' : '(log in to save)'}</h2>
+        </div>
+        <Dropdown title="File">
+          {user !== null ?
+            <div>
+              <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { setIsProjectBrowserOpen(true) }}>Open</div>
+              <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => saveProject(contextRef, navigate)}>Save as project</div>
+            </div> : <></>}
+          <div href="#" className="block px-4 py-2 text-sm hover:bg-gray-400" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
+        </Dropdown>
+      </div>
+
+      <Canvas
+        colour={colour}
+        canvasRef={canvasRef}
+        contextRef={contextRef}
+        sendMessage={() => { }}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        canvasReady={true}
+      />
+    </div>
   </>;
 };
 
@@ -112,7 +128,7 @@ const socket = io(import.meta.env.VITE_WSS_URL, {
   autoConnect: false,
 });
 
-const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
+const OnlineCanvasContainer = ({ colour, currentProject, setCurrentProject, setIsProjectBrowserOpen }) => {
   const { projectId } = useParams();
 
   const canvasRef = useRef(null);
@@ -127,16 +143,16 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       .then((project) => setCurrentProject(project))
       .catch((error) => console.error(error));
   }, [projectId]);
-  
+
   // This just a placeholder until we have a proper UI for publishing.
-  const publishProject = async() => {
+  const publishProject = async () => {
     await post.create(projectId);
     await post.edit(projectId, {
       licence: post.Licence.CreativeCommons,
       cost: 30,
       tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
     });
-    
+
     await comment.addComment(projectId, "Test comment 1");
     await comment.addComment(projectId, "Test comment 2");
     await comment.addComment(projectId, "Test comment 3");
@@ -204,21 +220,35 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
   }, [projectId]);
 
   return <>
-    { canvasReady && !connected ? <Alert message={'WARNING: Disconnected from server! Changes will not be saved.'} /> : null }
-    { !canvasReady ? <div className='bg-gray-400 flex items-center justify-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw] animate-pulse '>
-      <span className={'text-black'}>Loading...</span>
-    </div> : <></> }
-    <Canvas
-      colour={colour}
-      canvasRef={canvasRef}
-      contextRef={contextRef}
-      sendMessage={(data) => { socket.emit('update', data); }}
-      width={CANVAS_WIDTH}
-      height={CANVAS_HEIGHT}
-      canvasReady={canvasReady}
-    />
-    <button onClick={() => exportImage(canvasRef)}>Export</button>
-    <button onClick={publishProject}>Publish</button>
+    {canvasReady && !connected ? <Alert message={'WARNING: Disconnected from server! Changes will not be saved.'} /> : null}
+
+    <div className="flex flex-col space-y-5">
+      <div className="flex">
+        <div className="grow">
+          <h2 className="text-xl font-bold">{currentProject !== null ? `${currentProject.title}` : ''}</h2>
+        </div>
+        <Dropdown title="File" >
+          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { setIsProjectBrowserOpen(true) }}>Open</div>
+          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={publishProject}>Publish</div>
+          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
+          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => navigate('../edit/')}>Close Project</div>
+        </Dropdown>
+      </div>
+
+      {!canvasReady ? <div className='bg-gray-400 flex items-center justify-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw] animate-pulse '>
+        <span className={'text-black'}>Loading...</span>
+      </div> : <></>}
+
+      <Canvas
+        colour={colour}
+        canvasRef={canvasRef}
+        contextRef={contextRef}
+        sendMessage={(data) => { socket.emit('update', data); }}
+        width={CANVAS_WIDTH}
+        height={CANVAS_HEIGHT}
+        canvasReady={canvasReady}
+      />
+    </div>
   </>;
 };
 
@@ -234,18 +264,11 @@ const Editor = ({ user }) => {
   return <>
     {
       user !== null && projectId !== undefined
-        ? <div>
-          <div align="center">
-            <h3>{currentProject !== null ? `Currently Editing ${currentProject.title}` : ''}</h3>
-          </div>
-          <OnlineCanvasContainer colour={colour} setCurrentProject={setCurrentProject} />
-          <button onClick={() => navigate('../edit/')} >Close</button>
-        </div>
+        ? <>
+          <OnlineCanvasContainer colour={colour} currentProject={currentProject} setCurrentProject={setCurrentProject} setIsProjectBrowserOpen={setIsProjectBrowserOpen} />
+        </>
         : <>
-          <div align="center">
-            <h3>Untitled - Please Open a Project</h3>
-          </div>
-          <OfflineCanvasContainer colour={colour} />
+          <OfflineCanvasContainer colour={colour} setIsProjectBrowserOpen={setIsProjectBrowserOpen} user={user} />
         </>
     }
     {
@@ -261,11 +284,6 @@ const Editor = ({ user }) => {
         : null
     }
     <ColourPicker colour={colour} setColour={setColour} />
-    {
-      user !== null
-        ? <button onClick={() => { setIsProjectBrowserOpen(true)}} >Open</button> 
-        : <></>
-    }
   </>;
 };
 
