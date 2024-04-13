@@ -175,11 +175,11 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     });
 
     socket.on('joined', (user) => {
-      toast(`${user} has joined the session`);
+      toast(`${user} has joined the session`, { icon: '👋', position: 'bottom-right' });
     });
 
     socket.on('left', (user) => {
-      toast(`${user} has left the session`);
+      toast(`${user} has left the session`, { icon: '👋', position: 'bottom-right' });
     });
 
     socket.on('error', (message) => {

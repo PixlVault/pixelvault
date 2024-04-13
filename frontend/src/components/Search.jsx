@@ -8,25 +8,35 @@ import Popup from './popup';
 import Listing from './listing';
 
 const Tile = ({ post, clickHandler }) => (
-  <div className='mb-4 relative' onClick={clickHandler}>
-    <img className="h-auto max-w-full rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
+  <div className='mb-2 relative' onClick={clickHandler}>
+    <img className="h-auto min-w-full rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
     <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-3xl text-white font-semibold">
       <span className='ml-2 mb-1'>{post.title}</span>
     </div>
   </div>
 );
 
-const Results = ({ posts, onTileClick }) => (
-  <div className="m-4 columns-1 md:columns-3 gap-4">
-    {
-      posts.map((post) => <Tile
-        key={post.post_id}
-        post={post}
-        clickHandler={() => onTileClick(post.post_id)}
-      />)
-    }
-  </div>
-);
+const Results = ({ posts, onTileClick }) => {
+  const f = (post) => <Tile
+    key={post.post_id}
+    post={post}
+    clickHandler={() => onTileClick(post.post_id)}
+  />;
+
+  return (
+    <div className="m-4 grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div className='grid h-min w-full'>
+        { posts.filter((_, idx) => idx % 3 === 0).map(f)}
+      </div>
+      <div className='grid h-min w-full'>
+        { posts.filter((_, idx) => idx % 3 === 1).map(f) }
+      </div>
+      <div className='grid h-min w-full'>
+        { posts.filter((_, idx) => idx % 3 === 2).map(f) }
+      </div>
+    </div>
+  );
+};
 
 const Search = ({ user }) => {
   // We can pass in state from other components, which will land here:
