@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Api from '../api';
 
-const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) => {
+const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProjectBrowser }) => {
   const [projects, setProjects] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -28,6 +29,7 @@ const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) =>
   const remove = async (projectId) => {
     const proceed = confirm('Are you sure you want to delete this project?');
     if (proceed && projectId !== undefined) await Api.project.remove(projectId);
+    if (projectId === currentProject.project_id) navigate('../edit');
     setProjects(projects.filter((project) => project.project_id !== projectId));
   };
 
