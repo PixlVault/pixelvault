@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createBrowserRouter, RouterProvider, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
 import Editor from './components/editor.jsx';
 import Header from './components/header.jsx';
@@ -92,7 +93,10 @@ function App() {
   ]);
 
   return (
-    <RouterProvider router={router} />
+    <>
+      <RouterProvider router={router} />
+      <Toaster />
+    </>
   );
 }
 

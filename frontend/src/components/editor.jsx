@@ -11,6 +11,7 @@ import * as project from '../api/project';
 import * as post from '../api/post';
 import * as comment from '../api/comment';
 import Popup from './popup';
+import toast from 'react-hot-toast';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -174,28 +175,28 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     });
 
     socket.on('joined', (user) => {
-      console.log(`${user} has joined the session`);
+      toast(`${user} has joined the session`);
     });
 
     socket.on('left', (user) => {
-      console.log(`${user} has left the session`);
+      toast(`${user} has left the session`);
     });
 
     socket.on('error', (message) => {
       if (message === 'This project has been deleted.') {
-        alert(message);
+        toast.error(message);
         setCurrentProject(null);
         navigate('../edit/');
       }
 
       if (message === 'You have been removed from this project.') {
-        alert(message);
+        toast.error(message);
         setCurrentProject(null);
         navigate('../edit/');
       }
 
       if (message === 'Project has been published and can no longer be edited.') {
-        alert('This project has been published and can no longer be edited.');
+        toast.error('This project has been published and can no longer be edited.');
         setCurrentProject(null);
         navigate('../edit/');
       }
@@ -230,9 +231,9 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     };
   }, [projectId]);
 
-  return <>
-    {canvasReady && !connected ? <Alert message={'WARNING: Disconnected from server! Changes will not be saved.'} /> : null}
+  if (canvasReady && !connected) toast.error('Disconnected from server! Changes will not be saved.');
 
+  return <>
     <div className="flex flex-col space-y-5">
       <div className="flex">
         <div className="grow">

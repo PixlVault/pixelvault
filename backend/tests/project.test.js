@@ -82,7 +82,7 @@ describe('Projects can be created', () => {
       .send({ });
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'Invalid project title provided' });
+    expect(res.body).toEqual({ error: 'An error occurred when creating this project' });
   });
 
   test('Logged out users cannot create a project.', async () => {
@@ -129,7 +129,7 @@ describe('Project details cannot be retrieved', () => {
       .set('Authorization', userToken);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'Invalid Project ID provided' });
+    expect(res.body).toEqual({ error: 'Could not retrieve project details' });
   });
 
   test('by a non-collaborator user', async () => {
@@ -250,7 +250,7 @@ describe('Projects can be deleted', () => {
       .set('Authorization', userToken);
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toStrictEqual({ error: 'Invalid Project ID provided' });
+    expect(res.body).toStrictEqual({ error: 'An error occurred when deleting this project' });
   });
 });
 
