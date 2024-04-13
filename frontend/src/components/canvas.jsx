@@ -218,6 +218,19 @@ const Canvas = ({
     undoBuffer = {};
   };
 
+  const clear = () => {
+    var points = []
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        points.push({ x, y });
+      }
+    }
+
+    erasePixels(points);
+
+    endDrawing();
+  }
+
   const mouseLeftCanvas = () => setIsDrawing(false);
 
   const selectPencil = () => {
@@ -228,10 +241,10 @@ const Canvas = ({
     setSelectedTool(Tools.Eraser);
   }
 
-  const hexColour = rgba => '#' 
-    + rgba[0].toString(16) 
-    + rgba[1].toString(16) 
-    + rgba[2].toString(16) 
+  const hexColour = rgba => '#'
+    + rgba[0].toString(16)
+    + rgba[1].toString(16)
+    + rgba[2].toString(16)
     + rgba[3].toString(16);
 
   return (
@@ -249,7 +262,7 @@ const Canvas = ({
           <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
         }
 
-        <Dropdown titleElement={<div className="p-2" style={{backgroundColor: hexColour(colour)}}></div>}>
+        <Dropdown titleElement={<div className="p-2 hover:cursor-pointer" title="Colour Picker" style={{ backgroundColor: hexColour(colour) }}></div>}>
           <div className="flex justify-center">
             <SketchPicker
               color={{ r: colour[0], g: colour[1], b: colour[2], a: colour[3] / 255 }}
@@ -260,7 +273,7 @@ const Canvas = ({
 
         <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Undo" src="/undo.png" onClick={undo} />
         <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Redo" src="/redo.png" onClick={redo} />
-        <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Clear" src="/bin.png" />
+        <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Clear" src="/bin.png" onClick={clear} />
       </div>
       <canvas
         onMouseDown={startDrawing}
