@@ -82,7 +82,8 @@ const Project = {
       `SELECT project.*, BIN_TO_UUID(project_id, TRUE) as project_id, IF(published_on > 0, 1, 0) AS is_published
       FROM project LEFT JOIN post ON project_id = post_id
       WHERE created_by = ? 
-        OR project_id IN (SELECT project_id FROM project_invite WHERE username = ? AND accepted = 1);`,
+        OR project_id IN (SELECT project_id FROM project_invite WHERE username = ? AND accepted = 1)
+      ORDER BY title;`,
       [username, username],
       (err, result) => {
         if (err !== null) reject(err);
