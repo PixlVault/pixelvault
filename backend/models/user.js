@@ -248,7 +248,7 @@ const User = {
     }
 
     const emailRegex = /^\S+@\S+\.\S+$/;
-    if (typeof email !== 'string' || emailRegex.test(email)) {
+    if (typeof email !== 'string' || !emailRegex.test(email)) {
       reject(new Error('Invalid email provided'));
       return;
     }

@@ -10,6 +10,7 @@ import Dropdown from './dropdown';
 import * as project from '../api/project';
 import * as post from '../api/post';
 import * as comment from '../api/comment';
+import Popup from './popup';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -178,7 +179,12 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
 
     socket.on('error', (message) => {
       if (message === 'This project has been deleted.') {
-        alert('This project has been deleted.');
+        alert(message);
+        navigate('../edit/');
+      }
+
+      if (message === 'You have been removed from this project.') {
+        alert(message);
         navigate('../edit/');
       }
 
@@ -270,12 +276,14 @@ const Editor = ({ user }) => {
     {
       user !== null && isProjectBrowserOpen
         ? <>
-          <ProjectBrowser
-            username={user}
-            onClose={() => setIsProjectBrowserOpen(false)}
-            setCurrentProject={setCurrentProject}
-            closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
-          />
+        <Popup onClose={() => setIsProjectBrowserOpen(false)} title={'Your Projects'}>
+            <ProjectBrowser
+              username={user}
+              onClose={() => setIsProjectBrowserOpen(false)}
+              setCurrentProject={setCurrentProject}
+              closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
+            />
+          </Popup>
         </>
         : null
     }

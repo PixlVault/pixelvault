@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import Api from '../api';
@@ -19,13 +19,44 @@ const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) =>
     closeProjectBrowser();
   };
 
+  const setTitle = async (projectId) => {
+    const newTitle = prompt('Please enter a new title');
+    if (projectId !== undefined && newTitle !== null) await Api.project.update(projectId, newTitle);
+    setProjects(await Api.project.owned());
+  };
+
+  const remove = async (projectId) => {
+    if (projectId !== undefined) await Api.project.remove(projectId);
+  }
+
   return (
-    <div id="overlay" className = 'rounded bg-slate-100 backdrop-blur-sm z-10 inset-x-0 inset-y-0 fixed w-1/4 h-1/2 m-auto p-4'>
-      <div align="right">
-        <span id="close" className='cursor-pointer' onClick={closeProjectBrowser}>Close</span>
-      </div>
-      <h2 className = 'font-medium text-lg'>{username}'s Projects</h2>
-      {projects != null
+    <div id="overlay" className = 'm-auto p-4 pt-0'>
+      <table className='w-full text-sm text-left rtl:text-right'>
+        <thead className='text-gray-700 uppercase'>
+          <tr>
+            <th className='px-4'>Edit</th>
+            <th className='px-4'>Title</th>
+            <th className='px-4'>Last Modified</th>
+            <th className='px-4'>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+        {projects === null ? <></> : projects.map(x => <tr className='space-x-4 even:bg-gray-200 border-b hover:bg-white' key={x.project_id}>
+            <td className='px-4'><button onClick={() => setTitle(x.project_id)}>✏️</button></td>
+            <td className='px-4'>
+              <Link
+                className = "no-underline hover:underline"
+                onClick={() => setProject(x)}
+                to={`../edit/${x.project_id}`}>
+                  <p className="text-wrap break-words max-w-40">{x.title}</p>
+              </Link>
+            </td>
+            <td className='px-4'>{(new Date(x.last_modified)).toLocaleString()}</td>
+            <td className='px-4'><button onClick={() => remove(x.project_id)}>🗑️</button></td>
+          </tr>)}
+        </tbody>
+      </table>
+      {/* {projects != null
         ? <ul>
           {projects.map(x => <li key={x.project_id}>
             <Link
@@ -37,7 +68,7 @@ const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) =>
           </li>)}
         </ul>
         : <p></p>
-      }
+      } */}
     </div>
   );
 };

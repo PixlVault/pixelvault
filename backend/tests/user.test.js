@@ -38,7 +38,7 @@ describe('Users can be created', () => {
       .post('/api/user')
       .send({ password: 'password' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No username provided' });
+    expect(res.body).toEqual({ error: 'Invalid username provided' });
   });
 
   test('Missing passwords are rejected', async () => {
@@ -46,7 +46,7 @@ describe('Users can be created', () => {
       .post('/api/user')
       .send({ username: 'user' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No password provided' });
+    expect(res.body).toEqual({ error: 'Invalid password provided' });
   });
 
   test('Non-unique emails are rejected', async () => {
