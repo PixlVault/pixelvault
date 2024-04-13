@@ -6,6 +6,20 @@ const Project = require('../models/project');
 
 const router = express.Router();
 
+router.get('/canEdit', async (req, res) => {
+  if (req.token === undefined) {
+    return res.status(401).json({ error: 'Must be logged in' });
+  }
+
+  try {
+    const projects = await Project.userAccessible(req.token.username);
+    return res.status(200).json(projects === null ? [] : projects);
+  } catch (e) {
+    log.error(e);
+    return res.status(400).json({ error: 'Something went wrong' });
+  }
+});
+
 router.get('/:projectId', async (req, res) => {
   if (req.token === undefined) {
     return res.status(401).json({ error: 'Must be logged in' });

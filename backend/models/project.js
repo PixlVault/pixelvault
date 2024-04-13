@@ -68,6 +68,29 @@ const Project = {
   }),
 
   /**
+   * Retrieve a list of projects a user has access to.
+   * @param {string} username The username of the individual being queried.
+   * @returns An array of project IDs - the user has permission to edit these.
+   */
+  userAccessible: (username) => new Promise((resolve, reject) => {
+    if (typeof username !== 'string') {
+      reject(new Error('field `username` must be of type string'));
+      return;
+    }
+
+    db.query(
+      `SELECT *, BIN_TO_UUID(project_id, TRUE) as project_id FROM project WHERE 
+        created_by = ? 
+        OR project_id IN (SELECT project_id FROM project_invite WHERE username = ? AND accepted = 1);`,
+      [username, username],
+      (err, result) => {
+        if (err !== null) reject(err);
+        else resolve(result);
+      },
+    );
+  }),
+
+  /**
    * Insert a new project into the database.
    * @param {*} title The title of the project.
    * @param {*} author The username of the author.

@@ -34,12 +34,19 @@ export const owned = async () => {
   return response;
 };
 
+export const accessible = async () => {
+  const response = await makeRequest('/project/canEdit', 'GET');
+  return response;
+};
+
 /**
  * Fetches a project's details according to its project ID.
  * @param {string} projectId The ID of the project to retrieve.
  * @returns The project's details, or null if the request failed.
  */
-export const get = async (projectId) => {
-  const response = await makeRequest(`/project/${projectId}`, 'GET');
+export const get = async (projectId) => makeRequest(`/project/${projectId}`, 'GET');
+
+export const remove = async (projectId) => {
+  const response = await makeRequest(`/project/${projectId}`, 'DELETE');
   return response;
 };
