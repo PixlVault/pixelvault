@@ -5,7 +5,6 @@ import LZString from 'lz-string';
 
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
-import ColourPicker from './colourpicker';
 import Dropdown from './dropdown';
 
 import * as project from '../api/project';
@@ -104,7 +103,6 @@ const OfflineCanvasContainer = ({ colour, setIsProjectBrowserOpen, user }) => {
       </div>
 
       <Canvas
-        colour={colour}
         canvasRef={canvasRef}
         contextRef={contextRef}
         sendMessage={() => { }}
@@ -128,7 +126,7 @@ const socket = io(import.meta.env.VITE_WSS_URL, {
   autoConnect: false,
 });
 
-const OnlineCanvasContainer = ({ colour, currentProject, setCurrentProject, setIsProjectBrowserOpen }) => {
+const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProjectBrowserOpen }) => {
   const { projectId } = useParams();
 
   const canvasRef = useRef(null);
@@ -240,7 +238,6 @@ const OnlineCanvasContainer = ({ colour, currentProject, setCurrentProject, setI
       </div> : <></>}
 
       <Canvas
-        colour={colour}
         canvasRef={canvasRef}
         contextRef={contextRef}
         sendMessage={(data) => { socket.emit('update', data); }}
@@ -255,7 +252,6 @@ const OnlineCanvasContainer = ({ colour, currentProject, setCurrentProject, setI
 const Editor = ({ user }) => {
   const [isProjectBrowserOpen, setIsProjectBrowserOpen] = useState(false);
   const [currentProject, setCurrentProject] = useState(null);
-  const [colour, setColour] = useState([150, 160, 170, 255]);
   const { projectId } = useParams();
   const navigate = useNavigate();
 
@@ -265,10 +261,10 @@ const Editor = ({ user }) => {
     {
       user !== null && projectId !== undefined
         ? <>
-          <OnlineCanvasContainer colour={colour} currentProject={currentProject} setCurrentProject={setCurrentProject} setIsProjectBrowserOpen={setIsProjectBrowserOpen} />
+          <OnlineCanvasContainer currentProject={currentProject} setCurrentProject={setCurrentProject} setIsProjectBrowserOpen={setIsProjectBrowserOpen} />
         </>
         : <>
-          <OfflineCanvasContainer colour={colour} setIsProjectBrowserOpen={setIsProjectBrowserOpen} user={user} />
+          <OfflineCanvasContainer setIsProjectBrowserOpen={setIsProjectBrowserOpen} user={user} />
         </>
     }
     {
@@ -283,7 +279,6 @@ const Editor = ({ user }) => {
         </>
         : null
     }
-    <ColourPicker colour={colour} setColour={setColour} />
   </>;
 };
 

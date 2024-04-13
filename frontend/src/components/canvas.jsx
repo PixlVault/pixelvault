@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { SketchPicker } from 'react-color';
+
+import Dropdown from './dropdown';
 
 import pointsBetween from '../utils/line-points';
 
@@ -26,10 +29,11 @@ const Tools = {
 };
 
 const Canvas = ({
-  colour, sendMessage, canvasRef, contextRef, width, height, canvasReady,
+  sendMessage, canvasRef, contextRef, width, height, canvasReady,
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
+  const [colour, setColour] = useState([150, 160, 170, 255]);
   const [selectedTool, setSelectedTool] = useState(Tools.Pencil);
 
   const getWidthScaleFactor = () => canvasRef.current.offsetWidth / width;
@@ -224,6 +228,12 @@ const Canvas = ({
     setSelectedTool(Tools.Eraser);
   }
 
+  const hexColour = rgba => '#' 
+    + rgba[0].toString(16) 
+    + rgba[1].toString(16) 
+    + rgba[2].toString(16) 
+    + rgba[3].toString(16);
+
   return (
     <div className="flex space-x-10">
       <div className="flex flex-col bg-white w-10 space-y-5">
@@ -239,11 +249,19 @@ const Canvas = ({
           <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
         }
 
+        <Dropdown titleElement={<div className="p-2" style={{backgroundColor: hexColour(colour)}}></div>}>
+          <div className="flex justify-center">
+            <SketchPicker
+              color={{ r: colour[0], g: colour[1], b: colour[2], a: colour[3] / 255 }}
+              onChange={(c) => setColour([c.rgb.r, c.rgb.g, c.rgb.b, c.rgb.a * 255])}
+            />
+          </div>
+        </Dropdown>
+
         <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Undo" src="/undo.png" onClick={undo} />
         <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Redo" src="/redo.png" onClick={redo} />
         <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Clear" src="/bin.png" />
       </div>
-      
       <canvas
         onMouseDown={startDrawing}
         onMouseUp={endDrawing}
