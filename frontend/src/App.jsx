@@ -1,11 +1,14 @@
-import { useState } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { createBrowserRouter, RouterProvider, Routes, Route, Navigate } from 'react-router-dom';
 
 import Editor from './components/editor.jsx';
 import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
 import ExplorePage from './components/explore-page.jsx';
-import ProfilePage from './components/profile-page.jsx';
+import ProfilePage from './components/Profiles';
+import FeedbackForm from './components/FeedbackForm.jsx';
+import Report from './components/report.jsx';
+import Search from './components/Search.jsx'; // Import Search component
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem('user'));
@@ -18,14 +21,13 @@ function App() {
     {
       path: '/edit/:projectId?',
       element: (
-      <>
-        <Header user={user} setUser={setUser}/>
-        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
-          <Editor user={user} />
-        </div>
-
-        <Footer/>
-      </>),
+        <>
+          <Header user={user} setUser={setUser}/>
+          <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+            <Editor user={user} />
+          </div>
+          <Footer/>
+        </>),
     },
     {
       path: '/explore',
@@ -42,13 +44,49 @@ function App() {
     {
       path: '/profile/:username',
       element: (
+        <>
+          <Header user={user} setUser={setUser}/>
+          <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+            <ProfilePage/>
+          </div>
+          <Footer/>
+        </>
+      ),
+    },
+    {
+      path: '/feedback',
+      element: (
       <>
         <Header user={user} setUser={setUser}/>
         <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
-          <ProfilePage/>
+          <FeedbackForm />
         </div>
         <Footer/>
       </>
+      ),
+    },
+    {
+      path: '/report',
+      element: (
+      <>
+        <Header user={user} setUser={setUser}/>
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+          <Report />
+        </div>
+        <Footer/>
+      </>
+      ),
+    },
+    {
+      path: '/search',
+      element: (
+        <>
+          <Header user={user} setUser={setUser}/>
+        <div className="flex flex-col min-h-screen justify-center items-center bg-gray-100">
+          <Search user={user} />
+        </div>
+          <Footer/>
+        </>
       ),
     },
   ]);
