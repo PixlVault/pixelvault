@@ -50,7 +50,11 @@ const attachWebSocketService = (server) => {
   // Keep track of which sessions are open, using a project's ID as the session ID.
   const sessions = {};
 
-  const io = require('socket.io')(server, { cors: { origin: '*' }, path: '/ws/edit' });
+  const io = require('socket.io')(server, {
+    cors: { origin: '*' },
+    path: '/ws/edit',
+    maxHttpBufferSize: 5e6 });
+
   io.of('/ws/edit');
 
   io.use(async (socket, next) => {

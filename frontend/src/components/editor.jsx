@@ -140,7 +140,11 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
   useEffect(() => {
     project.get(projectId)
       .then((project) => setCurrentProject(project))
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        if (error.message !== 'Project does not exist') console.error(error);
+        setCurrentProject(null);
+        navigate('../edit');
+      });
   }, [projectId]);
 
   // This just a placeholder until we have a proper UI for publishing.
@@ -155,7 +159,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     await comment.addComment(projectId, "Test comment 1");
     await comment.addComment(projectId, "Test comment 2");
     await comment.addComment(projectId, "Test comment 3");
-  }
+  };
 
   useEffect(() => {
     socket.io.opts.query = { ...socket.io.opts.query, pid: projectId };
@@ -180,16 +184,19 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     socket.on('error', (message) => {
       if (message === 'This project has been deleted.') {
         alert(message);
+        setCurrentProject(null);
         navigate('../edit/');
       }
 
       if (message === 'You have been removed from this project.') {
         alert(message);
+        setCurrentProject(null);
         navigate('../edit/');
       }
 
       if (message === 'Project has been published and can no longer be edited.') {
         alert('This project has been published and can no longer be edited.');
+        setCurrentProject(null);
         navigate('../edit/');
       }
 
@@ -279,7 +286,7 @@ const Editor = ({ user }) => {
         <Popup onClose={() => setIsProjectBrowserOpen(false)} title={'Your Projects'}>
             <ProjectBrowser
               username={user}
-              onClose={() => setIsProjectBrowserOpen(false)}
+              currentProject={currentProject}
               setCurrentProject={setCurrentProject}
               closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
             />
