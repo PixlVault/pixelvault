@@ -169,14 +169,12 @@ const Project = {
   setImageData: async (projectId, imageData) => {
     if (!isValidUuid(projectId)) throw new Error('Invalid UUID provided');
 
-    console.log((await Project.isPublished(projectId)));
     const isPublished = (await Project.isPublished(projectId)).is_published;
-    console.log(projectId, isPublished);
     if (isPublished) throw new Error('Cannot alter a published project\'s image data.');
 
     return new Promise((resolve, reject) => {
       db.query(
-        'UPDATE project SET image_data = ? WHERE project_id = UUID_TO_BIN(?, TRUE);',
+        'UPDATE project SET image_data = ?, last_modified = CURRENT_TIMESTAMP WHERE project_id = UUID_TO_BIN(?, TRUE);',
         [imageData, projectId],
         (err, result) => {
           // result.affectedRows is the number of rows matched by the query.
@@ -215,7 +213,7 @@ const Project = {
     }
 
     const query = `UPDATE project 
-      SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')} 
+      SET ${extractedArgs.fields.map((field) => `${field} = ?`).join(', ')}, last_modified = CURRENT_TIMESTAMP
       WHERE project_id = UUID_TO_BIN(?, TRUE);`;
 
     db.query(query, [...extractedArgs.values, projectId], (err, result) => {

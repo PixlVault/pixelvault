@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import Api from '../api';
@@ -20,12 +20,23 @@ const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) =>
   };
 
   return (
-    <div id="overlay" className = 'rounded bg-slate-100 backdrop-blur-sm z-10 inset-x-0 inset-y-0 fixed w-1/4 h-1/2 m-auto p-4'>
-      <div align="right">
-        <span id="close" className='cursor-pointer' onClick={closeProjectBrowser}>Close</span>
-      </div>
+    <div id="overlay" className = 'm-auto p-4'>
       <h2 className = 'font-medium text-lg'>{username}'s Projects</h2>
-      {projects != null
+      <table>
+        <tbody>
+        {projects === null ? <></> : projects.map(x => <tr key={x.project_id}>
+            <td>
+              <Link
+                className = "no-underline hover:underline"
+                onClick={() => setProject(x)}
+                to={`../edit/${x.project_id}`}>
+                  {x.title} ({x.created_on})
+              </Link>
+            </td>
+          </tr>)}
+        </tbody>
+      </table>
+      {/* {projects != null
         ? <ul>
           {projects.map(x => <li key={x.project_id}>
             <Link
@@ -37,7 +48,7 @@ const ProjectBrowser = ({ username, setCurrentProject, closeProjectBrowser }) =>
           </li>)}
         </ul>
         : <p></p>
-      }
+      } */}
     </div>
   );
 };

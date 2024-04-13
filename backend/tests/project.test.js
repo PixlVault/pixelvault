@@ -82,7 +82,7 @@ describe('Projects can be created', () => {
       .send({ });
 
     expect(res.statusCode).toBe(400);
-    expect(res.body).toEqual({ error: 'No project title provided' });
+    expect(res.body).toEqual({ error: 'Invalid project title provided' });
   });
 
   test('Logged out users cannot create a project.', async () => {

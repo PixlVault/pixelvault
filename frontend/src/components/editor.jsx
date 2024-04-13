@@ -9,6 +9,7 @@ import ColourPicker from './colourpicker';
 import * as project from '../api/project';
 import * as post from '../api/post';
 import * as comment from '../api/comment';
+import Popup from './popup';
 
 const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
@@ -127,7 +128,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       .then((project) => setCurrentProject(project))
       .catch((error) => console.error(error));
   }, [projectId]);
-  
+
   // This just a placeholder until we have a proper UI for publishing.
   const publishProject = async() => {
     await post.create(projectId);
@@ -136,7 +137,7 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
       cost: 30,
       tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
     });
-    
+
     await comment.addComment(projectId, "Test comment 1");
     await comment.addComment(projectId, "Test comment 2");
     await comment.addComment(projectId, "Test comment 3");
@@ -164,7 +165,12 @@ const OnlineCanvasContainer = ({ colour, setCurrentProject }) => {
 
     socket.on('error', (message) => {
       if (message === 'This project has been deleted.') {
-        alert('This project has been deleted.');
+        alert(message);
+        navigate('../edit/');
+      }
+
+      if (message === 'You have been removed from this project.') {
+        alert(message);
         navigate('../edit/');
       }
 
@@ -251,12 +257,14 @@ const Editor = ({ user }) => {
     {
       user !== null && isProjectBrowserOpen
         ? <>
-          <ProjectBrowser
-            username={user}
-            onClose={() => setIsProjectBrowserOpen(false)}
-            setCurrentProject={setCurrentProject}
-            closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
-          />
+          <Popup onClose={() => setIsProjectBrowserOpen(false)}>
+            <ProjectBrowser
+              username={user}
+              onClose={() => setIsProjectBrowserOpen(false)}
+              setCurrentProject={setCurrentProject}
+              closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
+            />
+          </Popup>
         </>
         : null
     }

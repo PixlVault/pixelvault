@@ -50,6 +50,7 @@ CREATE TABLE project (
 
     title           VARCHAR(50) NOT NULL,
     created_on      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    last_modified   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by      VARCHAR(32) NOT NULL,
 
     image_data      BLOB,
