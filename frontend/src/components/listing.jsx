@@ -53,6 +53,8 @@ const Listing = ({ postId }) => {
     }
 
     await commentApi.addComment(postId, content);
+    
+    newCommentRef.current.value = "";
     setDataChanged(true);
   }
 

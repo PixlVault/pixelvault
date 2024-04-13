@@ -6,7 +6,7 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
   return (
     <div className="flex flex-col w-full justify-center items-center px-5">
       <div className="flex flex-row w-full items-stretch">
-        <div className="grow">
+        <div className="text-left grow">
           <h6 className="font-bold">{author}</h6>
         </div>
         <div className="flex flex-row space-x-5 justify-center items-center">
@@ -26,7 +26,7 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
       </div>
 
       <div className="flex w-full">
-        <p className="text-wrap break-words max-w-80">{content}</p>
+        <p className="text-wrap break-words max-w-80 text-left">{content}</p>
       </div>
     </div>
   );
