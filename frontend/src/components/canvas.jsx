@@ -154,8 +154,6 @@ const Canvas = ({
     const { offsetX: x, offsetY: y } = nativeEvent;
     prevMousePos = { x, y };
 
-    // Use mouse button to determine drawing or erasing - '2' == Right Mouse Button
-    // (LMB === 0 -- or 1, for Internet Explorer):
     if (selectedTool == Tools.Eraser) {
       setIsErasing(true);
       erasePixel(x, y);
