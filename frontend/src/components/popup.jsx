@@ -1,4 +1,5 @@
-import { useRef, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 
 const Popup = ({ children, onClose, title }) => {
   const overlayRef = useRef(null);
@@ -8,12 +9,15 @@ const Popup = ({ children, onClose, title }) => {
       if (overlayRef.current && !overlayRef.current.contains(event.target)) {
         onClose();
       }
-    }
+    };
 
     document.addEventListener('mouseup', handleClickOutside);
-  }, []);
+    return () => {
+      document.removeEventListener('mouseup', handleClickOutside);
+    };
+  }, [onClose]);
 
-  return (
+  return ReactDOM.createPortal(
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 fade-in backdrop-blur-sm">
       <div ref={overlayRef} className="flex flex-col items-stretch justify-center bg-gray-100 rounded-lg">
         <div className="flex">
@@ -25,7 +29,8 @@ const Popup = ({ children, onClose, title }) => {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.getElementById('popup-root') // Make sure you have a div with id 'popup-root' in your index.html
   );
 };
 

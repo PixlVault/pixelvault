@@ -90,6 +90,17 @@ function App() {
         </>
       ),
     },
+    {
+      path: '/search',
+      element: (
+        <>
+          <Header user={user} setUser={setUser}/>
+          <Search />
+          {/* Other components for displaying search results */}
+          <Footer/>
+        </>
+      ),
+    },
   ]);
 
   return (
