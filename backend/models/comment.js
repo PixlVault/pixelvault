@@ -59,7 +59,7 @@ const Comment = {
       return;
     }
 
-    if (typeof content !== 'string') {
+    if (typeof content !== 'string' || content.length === 0) {
       reject(new Error('Missing or invalid field: `content`'));
       return;
     }

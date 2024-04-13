@@ -74,12 +74,12 @@ const Project = {
    * @param {string} imageData The stringified version of a canvas state.
    */
   insert: (title, author, imageData) => new Promise((resolve, reject) => {
-    if (title === undefined) {
-      reject(new Error('No project title provided'));
+    if (typeof title !== 'string' || title.length === 0 || title.length > 50) {
+      reject(new Error('Invalid project title provided'));
       return;
     }
 
-    if (author === undefined) {
+    if (typeof author !== 'string') {
       reject(new Error('No project author provided'));
       return;
     }

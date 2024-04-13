@@ -236,16 +236,20 @@ const User = {
    * @param {string} email The user's email address.
    */
   insert: (username, password, email) => new Promise((resolve, reject) => {
-    if (username === undefined) {
-      reject(new Error('No username provided'));
+    const usernameRegex = /^\w{3,32}$/;
+    if (typeof username !== 'string' || !usernameRegex.test(username)) {
+      reject(new Error('Invalid username provided'));
       return;
     }
-    if (password === undefined) {
-      reject(new Error('No password provided'));
+
+    if (typeof password !== 'string' || password.length < 6) {
+      reject(new Error('Invalid password provided'));
       return;
     }
-    if (email === undefined) {
-      reject(new Error('No email provided'));
+
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (typeof email !== 'string' || emailRegex.test(email)) {
+      reject(new Error('Invalid email provided'));
       return;
     }
 

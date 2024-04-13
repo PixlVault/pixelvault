@@ -4,14 +4,29 @@ const LZString = require('lz-string');
 const log = require('../utils/logger');
 const Project = require('../models/project');
 
-const AUTOSAVE_INTERVAL_MS = 60000;
+const PULSE_INTERVAL_MS = 60000;
 
-const saveProject = async (projectId, imageData, io) => {
+/**
+ * Synchronise the project's state with the database's state.
+ * @param {Object} session Session metadata
+ * @param {string} projectId The ID of the project.
+ * @param {Object} io
+ */
+const syncProject = async (session, projectId, io) => {
   log.info(`Saving '${projectId}'...`);
+
+  session.collaborators = await Project.collaborators(projectId);
+  (await io.in(projectId).fetchSockets()).forEach((socket) => {
+    if (!session.collaborators.includes(socket.user)) {
+      socket.emit('error', 'You have been removed from this project.');
+      return socket.disconnect();
+    }
+  });
+
   try {
     await Project.setImageData(
       projectId,
-      LZString.compressToBase64(JSON.stringify(imageData)),
+      LZString.compressToBase64(JSON.stringify(session.canvas)),
     );
     log.info(`Successfully saved project '${projectId}'.`);
   } catch (error) {
@@ -27,22 +42,6 @@ const saveProject = async (projectId, imageData, io) => {
 
     log.warn('error saving project :', error);
   }
-};
-
-/**
- * Tests whether a username is allowed to join a room or not.
- * @param {string} username The username of the user.
- * @param {string} projectId The ID of the project they wish to join.
- * @returns {Promise<boolean>} true if they have permission, else false.
- */
-const canJoinSession = async (username, projectId) => {
-  try {
-    const collaborators = await Project.collaborators(projectId);
-    if (collaborators.includes(username)) return true;
-  } catch (e) {
-    log.error(e);
-  }
-  return false;
 };
 
 const attachWebSocketService = (server) => {
@@ -79,19 +78,24 @@ const attachWebSocketService = (server) => {
       return socket.disconnect();
     }
 
-    // Test if the user has permission to join a project.
     const projectId = socket.handshake.query.pid;
-
-    if (await canJoinSession(socket.user, projectId)) {
-      socket.join(projectId);
-    } else {
-      socket.emit('error', `User ${socket.user} does not have permission to edit ${projectId}`);
-      return socket.disconnect();
-    }
-
     if (sessions[projectId] === undefined) {
+      const collaborators = await Project.collaborators(projectId);
+      // If it has no collaborators, the project does not exist:
+      if (collaborators.length === 0) {
+        socket.emit('error', 'Project could not be found.');
+        return socket.disconnect();
+      }
+
+      // Test if the user has permission to join the project.
+      if (collaborators.includes(socket.user)) {
+        socket.join(projectId);
+      } else {
+        socket.emit('error', `User ${socket.user} does not have permission to edit ${projectId}`);
+        return socket.disconnect();
+      }
+
       const isPublished = (await Project.isPublished(projectId)).is_published === 1;
-      console.log(isPublished);
       if (isPublished) {
         socket.emit('error', 'Project has been published and can no longer be edited.');
         return socket.disconnect();
@@ -99,7 +103,7 @@ const attachWebSocketService = (server) => {
 
       // If the session hasn't already been initialised, do so;
       // Fetch image data from the database and store it in the session's data.
-      sessions[projectId] = { canvas: null, clients: [] };
+      sessions[projectId] = { collaborators, canvas: null, clients: [] };
       try {
         const rawData = await Project.getImageData(projectId);
         const data = JSON.parse(LZString.decompressFromBase64(rawData.toString()));
@@ -111,13 +115,18 @@ const attachWebSocketService = (server) => {
       }
       log.info(`Created new session ${projectId}`);
 
-      // Automatically save the canvas back to the database to avoid loss
-      // of work in the event of a crash.
-      sessions[projectId].autosave = setInterval(() => {
+      // Automatically synchronise the project with the database to avoid loss
+      // of work in the event of a crash, and to keep the collaborators list up to date.
+      sessions[projectId].pulse = setInterval(() => {
         if (sessions[projectId] !== undefined && sessions[projectId].canvas !== undefined) {
-          saveProject(projectId, sessions[projectId].canvas, io);
+          syncProject(sessions[projectId], projectId, io);
         }
-      }, AUTOSAVE_INTERVAL_MS);
+      }, PULSE_INTERVAL_MS);
+    } else if (sessions[projectId].collaborators.includes(socket.user)) {
+      socket.join(projectId);
+    } else {
+      socket.emit('error', `User ${socket.user} does not have permission to edit ${projectId}`);
+      return socket.disconnect();
     }
 
     sessions[projectId].clients.push(socket);
@@ -141,8 +150,8 @@ const attachWebSocketService = (server) => {
 
     socket.on('disconnect', async () => {
       socket.broadcast.to(projectId).emit('left', socket.user);
-      saveProject(projectId, sessions[projectId].canvas, io);
-      clearInterval(sessions[projectId].autosave);
+      syncProject(sessions[projectId], projectId, io);
+      clearInterval(sessions[projectId].pulse);
 
       // Remove the client from the session:
       const loc = sessions[projectId].clients.indexOf(socket);
