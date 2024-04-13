@@ -249,31 +249,27 @@ const Canvas = ({
 
   return (
     <div className="flex space-x-10">
-      <div className="flex flex-col bg-white w-10 space-y-5">
-        {selectedTool == Tools.Pencil ?
-          <img className="hover:cursor-pointer hover:bg-gray-400 p-2 bg-gray-400" title="Pencil Tool" src="/pencil.png" onClick={selectPencil} />
-          :
-          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Pencil Tool" src="/pencil.png" onClick={selectPencil} />
-        }
+      <div>
+        <div className="flex flex-col w-10 bg-white rounded-md divide-y">
+          <div>
+            <img className={`hover:cursor-pointer rounded-t-md hover:bg-gray-400 p-3 ${selectedTool == Tools.Pencil ? "bg-gray-400" : ""}`} title="Pencil Tool" src="/pencil.png" onClick={selectPencil} />
+            <img className={`hover:cursor-pointer hover:bg-gray-400 p-3 ${selectedTool == Tools.Eraser ? "bg-gray-400" : ""}`} title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
 
-        {selectedTool == Tools.Eraser ?
-          <img className="hover:cursor-pointer hover:bg-gray-400 p-2 bg-gray-400" title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
-          :
-          <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
-        }
-
-        <Dropdown titleElement={<div className="p-2 hover:cursor-pointer" title="Colour Picker" style={{ backgroundColor: hexColour(colour) }}></div>}>
-          <div className="flex justify-center">
-            <SketchPicker
-              color={{ r: colour[0], g: colour[1], b: colour[2], a: colour[3] / 255 }}
-              onChange={(c) => setColour([c.rgb.r, c.rgb.g, c.rgb.b, c.rgb.a * 255])}
-            />
+            <Dropdown titleElement={<div className="p-2 hover:cursor-pointer"><div className="w-5 h-5 p-3 m-auto" title="Colour Picker" style={{ backgroundColor: hexColour(colour) }}></div></div>}>
+              <div className="flex justify-center">
+                <SketchPicker
+                  color={{ r: colour[0], g: colour[1], b: colour[2], a: colour[3] / 255 }}
+                  onChange={(c) => setColour([c.rgb.r, c.rgb.g, c.rgb.b, c.rgb.a * 255])}
+                />
+              </div>
+            </Dropdown>
           </div>
-        </Dropdown>
-
-        <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Undo" src="/undo.png" onClick={undo} />
-        <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Redo" src="/redo.png" onClick={redo} />
-        <img className="hover:cursor-pointer hover:bg-gray-400 p-2" title="Clear" src="/bin.png" onClick={clear} />
+          <div>
+            <img className="hover:cursor-pointer hover:bg-gray-400 p-3" title="Undo" src="/undo.png" onClick={undo} />
+            <img className="hover:cursor-pointer hover:bg-gray-400 p-3" title="Redo" src="/redo.png" onClick={redo} />
+            <img className="hover:cursor-pointer rounded-b-md hover:bg-gray-400 p-3" title="Clear" src="/bin.png" onClick={clear} />
+          </div>
+        </div>
       </div>
       <canvas
         onMouseDown={startDrawing}
