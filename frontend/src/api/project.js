@@ -19,8 +19,8 @@ export const create = async (title, canvasState) => {
  */
 export const update = async (projectId, title) => {
   if (title === undefined) throw new Error('`title` must be defined');
-  if (typeof title === 'string') throw new Error('`title` must be a string');
-  await makeRequest(`$/project/${projectId}`, 'PUT', { projectData: { title } });
+  if (typeof title !== 'string') throw new Error('`title` must be a string');
+  await makeRequest(`/project/${projectId}`, 'PUT', { title });
 };
 
 /**

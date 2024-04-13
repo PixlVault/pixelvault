@@ -27,8 +27,7 @@ router.get('/:projectId', async (req, res) => {
     return res.status(200).json(project);
   } catch (error) {
     log.error(error);
-    // TODO: May not be wise to send verbatim error back?
-    return res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: 'Could not retrieve project details' });
   }
 });
 
@@ -107,7 +106,7 @@ router.delete('/:projectId', async (req, res) => {
     return res.status(204).send();
   } catch (error) {
     log.error(error);
-    return res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: 'An error occurred when deleting this project' });
   }
 });
 
@@ -123,7 +122,7 @@ router.post('/', async (req, res) => {
     return res.status(201).json({ projectId: result.project_id });
   } catch (error) {
     log.error(error);
-    return res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: 'An error occurred when creating this project' });
   }
 });
 

@@ -257,7 +257,7 @@ const Editor = ({ user }) => {
     {
       user !== null && isProjectBrowserOpen
         ? <>
-          <Popup onClose={() => setIsProjectBrowserOpen(false)}>
+        <Popup onClose={() => setIsProjectBrowserOpen(false)} title={'Your Projects'}>
             <ProjectBrowser
               username={user}
               onClose={() => setIsProjectBrowserOpen(false)}
