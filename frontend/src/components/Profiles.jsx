@@ -1,39 +1,37 @@
-import { useState } from "react";
-import Footer from "./footer";
-import { Link } from 'react-router-dom';
-import { Navigate, useNavigate } from 'react-router-dom';
-
+import React, { useState } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 
 const expandListings = (event) => {
-    
-}
+
+};
 
 const mailto = (event) => {
-    
-}
+
+};
 
 const tutorial = (event) => {
-    
-}
+
+};
 
 const terms = (event) => {
-    
-}
 
-function Profiles() {
-    const navigate = useNavigate();
-    const [isFollowing, setFollow] = useState(false);
+};
 
-    const followuser = (event) => {
-        console.log("followed");
-        setFollow(true)
-    }
+const Profiles = () => {
+  const navigate = useNavigate();
+  const [isFollowing, setFollow] = useState(false);
 
-    const unfollowuser = (event) => {
-        console.log("followed");
-        setFollow(false)
-    }
-    return (
+  const followuser = (event) => {
+    console.log('followed');
+    setFollow(true);
+  };
+
+  const unfollowuser = (event) => {
+    console.log('followed');
+    setFollow(false);
+  };
+
+  return (
     <div>
     <h1 className="text-black mb-10 text-center text-4xl">JakeSmall</h1>
     <div className="bg-silver px-5 mx-auto">
@@ -53,7 +51,7 @@ function Profiles() {
             ) : (
             <div className="flex"><button className="text-white bg-grey w-auto h-auto mb-40" onClick={unfollowuser}>Unfollow...</button></div>
             )}
-            <div className="flex"><button className="text-white w-auto h-auto mb-40" style={{backgroundColor: 'red'}} onClick = {() => navigate('/report')}>Report</button></div>
+            <div className="flex"><button className="text-white w-auto h-auto mb-40" style={{ backgroundColor: 'red' }} onClick = {() => navigate('/report')}>Report</button></div>
         </div>
     </div>
 
@@ -62,7 +60,7 @@ function Profiles() {
     <div className="w-40 bg-silver px-5 mx-auto">
         <div>
             <h4 className="text-xl"><u>User Listings</u></h4>
-            <div className="seeAll"><button className="text-white bg-grey w-auto h-auto ml-80" onClick = {() => navigate('/search/...')}>See all...</button></div>
+            <div className="seeAll"><button className="text-white bg-grey w-auto h-auto ml-80" onClick = {() => navigate('/search')}>See all...</button></div>
         </div>
         <div className="flex h-auto w-auto mt-20">
             <a href="google.com">
@@ -81,7 +79,6 @@ function Profiles() {
 
     <hr className="endlisting"></hr>
 
-    
     <div className="w-40 bg-silver px-5 mx-auto">
         <h5 className="text-black top-85 text-center text-xl"><u>Popular Posts</u></h5>
         <div className="flex mt-20">
@@ -113,13 +110,11 @@ function Profiles() {
                     </picture>
                 </a>
             </div>
-        
+
     </div>
 
-   
     </div>
-    )
-}
+  );
+};
+
 export default Profiles;
-
-

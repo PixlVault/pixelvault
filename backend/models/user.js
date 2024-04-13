@@ -14,7 +14,10 @@ const User = {
       return;
     }
 
-    db.query('SELECT username, biography, experience, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
+    db.query(`SELECT username, biography, experience, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers
+      FROM user WHERE username = ?;`,
+    [username, username],
+    (err, result) => {
       if (err) reject(err);
       else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
     });

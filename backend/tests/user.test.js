@@ -227,6 +227,7 @@ describe('Users can be retrieved by their username', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({
       username: 'user',
+      followers: 0,
       biography: null,
       experience: 0,
       twitter: null,
