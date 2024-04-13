@@ -10,17 +10,38 @@ export const defaultImageUrl = `${urlBase}/img/user-default.png`;
  * @returns The token returned by the API, or null (on failure).
  */
 export const login = async (username, password) => {
-  const response = await makeRequest('/login', 'post', { username, password }, false);
+  const response = await makeRequest('/login', 'POST', { username, password }, false);
   return response.token;
 };
 
-export const followUser = async (follower, followee) => {
-  await makeRequest(`/user/${follower}/following`, 'post', { followee });
-};
+export const follow = async (follower, followee) => (
+  makeRequest(`/user/${follower}/following`, 'POST', { followee })
+);
 
-export const deleteUser = async (username) => {
+export const unfollow = async (follower, followee) => (
+  makeRequest(`/user/${follower}/following`, 'DELETE', { followee })
+);
+
+export const remove = async (username) => {
   await makeRequest('/user', 'delete', { username });
 }; // TEST
+
+/**
+ * Retrieve the details of a user.
+ * @param {string} username The user to look up.
+ * @returns The details of the user, if successful, else an error.
+ */
+export const get = async (username) => {
+  if (typeof username !== 'string') return new Error('username must be a string.');
+  return makeRequest(`/user/${username}`, 'GET');
+};
+
+/**
+ * Retrieve the details of a user.
+ * @param {string} username The user to look up.
+ * @returns The details of the user, if successful, else an error.
+ */
+export const following = async (username) => makeRequest(`/user/${username}/following`, 'GET', undefined, false);
 
 /**
  * Creates a new user account.

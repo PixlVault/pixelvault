@@ -162,8 +162,9 @@ router.post('/:username/following', async (req, res) => {
   }
 
   const { followee } = req.body;
+
   try {
-    await User.follow(req.params.username, followee);
+    await User.follow(req.token.username, followee);
     return res.status(201).send();
   } catch (error) {
     log.error(error);
@@ -180,8 +181,10 @@ router.delete('/:username/following', async (req, res) => {
     return res.status(401).json({ error: 'Cannot alter another user\'s followed accounts' });
   }
 
+  const { followee } = req.body;
+
   try {
-    await User.unfollow(req.token.username, req.params.username);
+    await User.unfollow(req.token.username, followee);
     return res.status(201).send();
   } catch (error) {
     log.error(error);
