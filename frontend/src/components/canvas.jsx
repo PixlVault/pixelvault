@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { SketchPicker } from 'react-color';
+
+import Dropdown from './dropdown';
 
 import pointsBetween from '../utils/line-points';
 
@@ -19,49 +22,57 @@ const areAdjacent = (x0, y0, x1, y1) => {
   return dx <= 1 && dy <= 1;
 };
 
+// Javascript doesn't have enums so this let's us do something like that.
+const Tools = {
+  Pencil: "Pencil",
+  Eraser: "Eraser"
+};
+
 const Canvas = ({
-  colour, sendMessage, canvasRef, contextRef, width, height, canvasReady,
+  sendMessage, canvasRef, contextRef, width, height, canvasReady,
 }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing, setIsErasing] = useState(false);
+  const [colour, setColour] = useState([150, 160, 170, 255]);
+  const [selectedTool, setSelectedTool] = useState(Tools.Pencil);
 
   const getWidthScaleFactor = () => canvasRef.current.offsetWidth / width;
   const getHeightScaleFactor = () => canvasRef.current.offsetHeight / height;
 
+  const undo = (() => {
+    if (undoHistory.length === 0) return;
+    const change = undoHistory.pop();
+
+    sendMessage(JSON.stringify(change));
+    const pixelData = contextRef.current.getImageData(0, 0, width, height);
+
+    const redoBuffer = {};
+    Object.keys(change).forEach((i) => {
+      redoBuffer[i] = pixelData.data[i];
+      pixelData.data[i] = change[i];
+    });
+    redoHistory.push(redoBuffer);
+
+    contextRef.current.putImageData(pixelData, 0, 0);
+  });
+
+  const redo = (() => {
+    if (redoHistory.length === 0) return;
+    const change = redoHistory.pop();
+
+    sendMessage(JSON.stringify(change));
+    const pixelData = contextRef.current.getImageData(0, 0, width, height);
+    const tmpUndoBuffer = {};
+    Object.keys(change).forEach((i) => {
+      tmpUndoBuffer[i] = pixelData.data[i];
+      pixelData.data[i] = change[i];
+    });
+    undoHistory.push(tmpUndoBuffer);
+
+    contextRef.current.putImageData(pixelData, 0, 0);
+  });
+
   useEffect(() => {
-    const undo = (() => {
-      if (undoHistory.length === 0) return;
-      const change = undoHistory.pop();
-
-      sendMessage(JSON.stringify(change));
-      const pixelData = contextRef.current.getImageData(0, 0, width, height);
-
-      const redoBuffer = {};
-      Object.keys(change).forEach((i) => {
-        redoBuffer[i] = pixelData.data[i];
-        pixelData.data[i] = change[i];
-      });
-      redoHistory.push(redoBuffer);
-
-      contextRef.current.putImageData(pixelData, 0, 0);
-    });
-
-    const redo = (() => {
-      if (redoHistory.length === 0) return;
-      const change = redoHistory.pop();
-
-      sendMessage(JSON.stringify(change));
-      const pixelData = contextRef.current.getImageData(0, 0, width, height);
-      const tmpUndoBuffer = {};
-      Object.keys(change).forEach((i) => {
-        tmpUndoBuffer[i] = pixelData.data[i];
-        pixelData.data[i] = change[i];
-      });
-      undoHistory.push(tmpUndoBuffer);
-
-      contextRef.current.putImageData(pixelData, 0, 0);
-    });
-
     const handleKeyDown = (e) => {
       if ((e.keyCode === 89 && e.ctrlKey) || (e.keyCode === 90 && e.ctrlKey && e.shiftKey)) redo();
       else if (e.keyCode === 90 && e.ctrlKey) undo();
@@ -147,9 +158,7 @@ const Canvas = ({
     const { offsetX: x, offsetY: y } = nativeEvent;
     prevMousePos = { x, y };
 
-    // Use mouse button to determine drawing or erasing - '2' == Right Mouse Button
-    // (LMB === 0 -- or 1, for Internet Explorer):
-    if (nativeEvent.button === 2) {
+    if (selectedTool == Tools.Eraser) {
       setIsErasing(true);
       erasePixel(x, y);
     } else {
@@ -209,17 +218,68 @@ const Canvas = ({
     undoBuffer = {};
   };
 
+  const clear = () => {
+    var points = []
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        points.push({ x, y });
+      }
+    }
+
+    erasePixels(points);
+
+    endDrawing();
+  }
+
   const mouseLeftCanvas = () => setIsDrawing(false);
 
+  const selectPencil = () => {
+    setSelectedTool(Tools.Pencil);
+  }
+
+  const selectErasor = () => {
+    setSelectedTool(Tools.Eraser);
+  }
+
+  const hexColour = rgba => '#'
+    + rgba[0].toString(16)
+    + rgba[1].toString(16)
+    + rgba[2].toString(16)
+    + rgba[3].toString(16);
+
   return (
-    <canvas
-      onMouseDown={startDrawing}
-      onMouseUp={endDrawing}
-      onMouseMove={draw}
-      onMouseLeave={mouseLeftCanvas}
-      ref={canvasRef}
-      className={canvasReady ? '' : 'invisible'}
-    />
+    <div className="flex space-x-10">
+      <div>
+        <div className="flex flex-col w-10 bg-white rounded-md divide-y">
+          <div>
+            <img className={`hover:cursor-pointer rounded-t-md hover:bg-gray-400 p-3 ${selectedTool == Tools.Pencil ? "bg-gray-400" : ""}`} title="Pencil Tool" src="/pencil.png" onClick={selectPencil} />
+            <img className={`hover:cursor-pointer hover:bg-gray-400 p-3 ${selectedTool == Tools.Eraser ? "bg-gray-400" : ""}`} title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
+
+            <Dropdown titleElement={<div className="p-2 hover:cursor-pointer"><div className="w-5 h-5 p-3 m-auto" title="Colour Picker" style={{ backgroundColor: hexColour(colour) }}></div></div>}>
+              <div className="flex justify-center">
+                <SketchPicker
+                  color={{ r: colour[0], g: colour[1], b: colour[2], a: colour[3] / 255 }}
+                  onChange={(c) => setColour([c.rgb.r, c.rgb.g, c.rgb.b, c.rgb.a * 255])}
+                />
+              </div>
+            </Dropdown>
+          </div>
+          <div>
+            <img className="hover:cursor-pointer hover:bg-gray-400 p-3" title="Undo" src="/undo.png" onClick={undo} />
+            <img className="hover:cursor-pointer hover:bg-gray-400 p-3" title="Redo" src="/redo.png" onClick={redo} />
+            <img className="hover:cursor-pointer rounded-b-md hover:bg-gray-400 p-3" title="Clear" src="/bin.png" onClick={clear} />
+          </div>
+        </div>
+      </div>
+      <canvas
+        onMouseDown={startDrawing}
+        onMouseUp={endDrawing}
+        onMouseMove={draw}
+        onMouseLeave={mouseLeftCanvas}
+        ref={canvasRef}
+        className={canvasReady ? '' : 'invisible'}
+      />
+    </div>
   );
 };
 
