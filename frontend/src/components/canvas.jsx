@@ -158,15 +158,19 @@ const Canvas = ({
     }
   };
 
-  const drawLine = (x0, y0, x1, y1) => {
+  const scaledPointsBetween = (x0, y0, x1, y1) => {
     const scaledPoint0 = scale({ x: x0, y: y0 });
     const scaledPoint1 = scale({ x: x1, y: y1 });
-    const points = pointsBetween(scaledPoint0.x, scaledPoint0.y, scaledPoint1.x, scaledPoint1.y);
+    return pointsBetween(scaledPoint0.x, scaledPoint0.y, scaledPoint1.x, scaledPoint1.y);
+  }
+
+  const drawLine = (x0, y0, x1, y1) => {
+    const points = scaledPointsBetween(x0, y0, x1, y1);
     drawPixels(points);
   };
 
   const eraseLine = (x0, y0, x1, y1) => {
-    const points = pointsBetween(x0, y0, x1, y1);
+    const points = scaledPointsBetween(x0, y0, x1, y1);
     erasePixels(points);
   };
 
