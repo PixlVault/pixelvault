@@ -13,6 +13,8 @@ cd $ROOTDIR
 git pull origin $BRANCH
 git checkout $BRANCH
 
+service mysql restart
+
 export NVM_DIR=~/.nvm
 source ~/.nvm/nvm.sh
 

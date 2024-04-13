@@ -45,7 +45,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
                   <div className="flex w-full" key={row}>
                     {row.map(x =>
                       <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md" key={x}>
-                        <Link to="#">{x}</Link> {/* TODO: Link to an appropriate search. */}
+                        <Link to="#" title={x}>{x}</Link> {/* TODO: Link to an appropriate search. */}
                       </div>
                     )}
                   </div>
