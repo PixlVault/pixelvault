@@ -4,6 +4,9 @@ import { useState } from 'react';
 import LoginForm from './login-form.jsx';
 import Popup from './popup.jsx';
 import Inbox from './inbox.jsx';
+import Dropdown from './dropdown.jsx';
+
+import { userImageBase, defaultImageUrl } from '../api/account/';
 
 const Header = ({ user, setUser }) => {
   const logOut = () => {
@@ -21,13 +24,7 @@ const Header = ({ user, setUser }) => {
         <div>
           <Link to="/explore" className="text-2xl no-underline">PixelVault</Link>
         </div>
-        <div className='divide-x'>
-          {
-            user !== null
-            ? <Link onClick={() => setInboxOpen(true)} className="text-lg no-underline px-2">Inbox</Link>
-            : ""
-          }
-
+        <div className='flex divide-x justify-center items-center m-y-auto'>
           <Link to="/explore" className="text-lg no-underline px-2">Explore</Link>
           <Link to="/edit" className="text-lg no-underline px-2">Edit</Link>
           {
@@ -35,11 +32,38 @@ const Header = ({ user, setUser }) => {
               ? <Link to={`/profile/${user}`} className="text-lg no-underline px-2">My Profile</Link>
               : null
           }
+
           {
             user !== null
-              ? <span>Logged in as {user} <button onClick={logOut}>Log Out</button> </span>
-              : <button onClick={() => setLoginFormOpen(true)}>Log In</button>
+              ?
+              <div title="Inbox" className="px-2 hover:cursor-pointer" onClick={() => setInboxOpen(true)}>
+                <img className="w-5" src="/inbox.png" />
+              </div>
+              : ""
           }
+
+          <div className="px-2">
+            {
+              user !== null
+                ?
+                <div>
+                  <Dropdown titleElement={
+                    <img
+                      className='rounded-full w-[30px] min-w-[30px] hover:cursor-pointer'
+                      src={`${userImageBase}${user}.png`}
+                      onError={({ currentTarget }) => {
+                        currentTarget.onerror = null;
+                        currentTarget.src = defaultImageUrl;
+                      }}
+                    />
+                  }>
+                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={logOut}>Log out</div>
+                  </Dropdown>
+                </div>
+
+                : <button onClick={() => setLoginFormOpen(true)}>Log In</button>
+            }
+          </div>
         </div>
       </nav>
       {
@@ -57,7 +81,7 @@ const Header = ({ user, setUser }) => {
         inboxOpen
           ?
           <Popup onClose={() => setInboxOpen(false)} title="Inbox">
-            <Inbox/>
+            <Inbox />
           </Popup>
           : null
       }
