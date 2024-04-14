@@ -26,6 +26,8 @@ export const remove = async (username) => {
   await makeRequest('/user', 'delete', { username });
 }; // TEST
 
+export const update = async (username, updates) => makeRequest('/user', 'PUT', { username, ...updates });
+
 /**
  * Retrieve the details of a user.
  * @param {string} username The user to look up.

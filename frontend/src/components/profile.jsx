@@ -162,7 +162,7 @@ const Profile = () => {
       {
         optionsOpen && (loggedInUser === params.username)
           ? <Popup title='Options' onClose={() => setOptionsOpen(false)}>
-              <ProfileOptions />
+              <ProfileOptions profile={profile} />
             </Popup>
           : null
       }

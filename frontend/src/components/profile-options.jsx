@@ -3,12 +3,45 @@ import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
+import Api from '../api';
 
-const ProfileOptiions = () => {
+const BIOGRAPHY_LIMIT = 255;
+
+const ProfileOptiions = ({ profile }) => {
   const params = useParams();
 
   const [imageToggle, setImageToggle] = useState(Date.now());
   const refreshImage = () => setImageToggle(Date.now());
+
+  const [biography, setBiography] = useState(profile.biography);
+  const [newPassword, setNewPassword] = useState('');
+
+  const update = (updates, successMessage) => {
+    Api.account.update(profile.username, updates)
+      .then(() => toast.success(successMessage))
+      .catch((e) => {
+        toast.error('Failed to save details.');
+        console.error(e);
+      });
+  };
+
+  const saveBio = (e) => {
+    e.preventDefault();
+    if (biography.length > BIOGRAPHY_LIMIT) {
+      toast.error(`Biography must be under ${BIOGRAPHY_LIMIT + 1} characters.`);
+    } else {
+      update({ biography }, 'Successfully updated biography.');
+    }
+  };
+
+  const savePassword = (e) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+    } else {
+      update({ password: newPassword }, 'Successfully changed password.');
+    }
+  };
 
   const uploadImage = async (e) => {
     e.preventDefault();
@@ -17,8 +50,9 @@ const ProfileOptiions = () => {
 
     const formData = new FormData();
     formData.append('avatar', image);
-    const success = await uploadProfilePicture(formData, params.username);
+    const success = await uploadProfilePicture(formData, profile.username);
     if (!success) toast.error('Upload Failed, please try again');
+    else toast.success('Updated profile picture');
     refreshImage();
   };
 
@@ -34,7 +68,7 @@ const ProfileOptiions = () => {
           <div className='relative' onClick={() => fileInput.current.click()}>
             <img
               className='rounded w-[100px] min-w-[100px]'
-              src={`${userImageBase}${params.username}.png?r=${imageToggle}`}
+              src={`${userImageBase}${profile.username}.png?r=${imageToggle}`}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
                 currentTarget.src = defaultImageUrl;
@@ -52,8 +86,11 @@ const ProfileOptiions = () => {
               Biography
             </label>
             <div>
-              <textarea className='resize-none h-24 py-1 w-96' id='biography-entry'></textarea>
-              <button className='block ml-auto mt-2 max-h-8' type='submit'>Save</button>
+              <textarea value={biography} className='resize-none h-24 p-1 w-96' id='biography-entry' onChange={(e) => setBiography(e.target.value)}></textarea>
+              <div className='flex'>
+                <span className='mr-auto mt-2 max-h-8'>{biography.length}/255</span>
+                <button className='block ml-auto mt-2 max-h-8' type='submit' onClick={saveBio}>Save</button>
+              </div>
             </div>
           </form>
           <form>
@@ -61,8 +98,8 @@ const ProfileOptiions = () => {
               Set New Password
             </label>
             <div className='flex gap-2 items-center shrink-0 grow-0'>
-              <input id='password-entry' className='w-full py-1' type='password'></input>
-              <button className='max-h-8' type='submit'>Save</button>
+              <input id='password-entry' className='w-full py-1' type='password' onChange={(e) => setNewPassword(e.target.value)}></input>
+              <button className='max-h-8' type='submit' onClick={savePassword}>Save</button>
             </div>
           </form>
         </div>
