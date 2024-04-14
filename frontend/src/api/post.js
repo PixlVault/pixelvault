@@ -17,16 +17,20 @@ export const postImageBase = `${urlBase}/post/img/`;
  * - `maxCost` is the maximum cost (inclusive) cost to include in results.
  *   Defaults to `1000000000000`.
  * - `title` Filter to only posts with (partially) matching titles.
+ * - `limit`: The number of results to fetch. Defaults to 25.
+ * - `offset`: The offset for returned results. Defaults to 0.
  * @param {{
 *   author: string
 *   licence: string
-*   orderByField: string
+*   order_by: string
 *   ascending: boolean
-*   onlyShowFollowed: boolean
+*   only_show_followed: boolean
 *   tags: Array<string>
-*   minCost: number
-*   maxCost: number
+*   min_cost: number
+*   max_cost: number
 *   title: string
+*   limit: number
+*   offset: number
 * }} searchParams
 */
 export const search = async (searchParams = undefined) => {

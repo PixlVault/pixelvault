@@ -41,7 +41,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (params.username === undefined) return;
-    Api.post.search({ author: params.username, orderByField: 'likes', ascending: false, limit: 5})
+    Api.post.search({ author: params.username, order_by: 'likes', ascending: false, limit: 5})
       .then((posts) => setMostLiked(posts))
       .catch((error) => console.error(error));
 
@@ -76,19 +76,14 @@ const Profile = () => {
         : <button onClick={unfollow}>Unfollow</button>
     );
   };
-  
+
   const openPopup = (postId) => {
     setSelectedPost(postId);
     setPopupOpen(true);
   };
 
-  console.log(
-    mostLiked,
-    newest
-  );
-
   return (
-    <div className='mt-4 w-full md:w-1/3 mx-auto'>
+    <div className='mt-4 w-full md:w-1/2 mx-auto'>
       <div className='flex mx-auto'>
         <div>
           <img
@@ -123,28 +118,32 @@ const Profile = () => {
 
       <div className='flex flex-col justify-center my-4'>
         <h2 className="text-xl text-center">Most Liked</h2>
-        <div className='flex justify-center my-4'>
+        <div className='flex flex-col md:flex-row justify-center my-4'>
           {
-            mostLiked.map((post) => <div className='max-w-6/12 aspect-square' key={post.post_id}>
+            mostLiked.map((post) => <div className='m-2 max-w-6/12 aspect-square' key={post.post_id}>
               <Tile post={post} clickHandler={() => openPopup(post.post_id)} />
             </div>)
           }
         </div>
-        <button className='mx-auto' onClick={() => navigate('/search')}>See More</button>
+        <button className='mx-auto' onClick={() => navigate(
+          '/search', { state: { author: params.username, order_by: 'likes', ascending: false } }
+        )}>See More</button>
       </div>
 
       <hr></hr>
 
       <div className='flex flex-col justify-center my-4'>
         <h2 className="text-xl text-center">Most Recent</h2>
-        <div className='flex justify-center my-4'>
+        <div className='flex flex-col md:flex-row justify-center my-4'>
           {
-            newest.map((post) => <div className='max-w-6/12 aspect-square' key={post.post_id}>
+            newest.map((post) => <div className='m-2 max-w-6/12 aspect-square' key={post.post_id}>
               <Tile post={post} clickHandler={() => openPopup(post.post_id)} />
             </div>)
           }
         </div>
-        <button className='mx-auto' onClick={() => navigate('/search')}>See More</button>
+        <button className='mx-auto' onClick={() => navigate(
+          '/search', { state: { author: params.username } },
+        )}>See More</button>
       </div>
 
       {

@@ -42,9 +42,9 @@ const Search = ({ user }) => {
   /** TODO: Search parameters to support:
    * @param {string} author Only show results published by a specific author.
    * @param {string} licence Only show results with a certain licence.
-   * @param {string} orderByField If specified, orders results by this field.
+   * @param {string} order_by If specified, orders results by this field.
    * @param {boolean} ascending Boolean - should ordering be ascending or descending?
-   * @param {boolean} onlyShowFollowed Boolean - only show publications from followed users?
+   * @param {boolean} only_show_followed Boolean - only show publications from followed users?
    *                             Note that this requires the requestingUser field.
    * @param {string} tags An array of tags to filter against.
    * @param {number} minCost The minimum cost item that should be returned.
@@ -56,8 +56,7 @@ const Search = ({ user }) => {
   useEffect(() => {
     // TODO make this actually use the search string.
     console.log(query);
-    search({}).then((res) => {
-      console.log(res);
+    search(query).then((res) => {
       setResults(res);
     });
   }, [query]);
