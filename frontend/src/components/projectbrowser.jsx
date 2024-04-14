@@ -45,6 +45,7 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
             <th className='px-4'></th>
             <th className='px-4'>Title</th>
             <th className='px-4'>Last Modified</th>
+            <th className='px-4'>Author</th>
             <th className='px-4'>Published</th>
             <th className='px-4'></th>
           </tr>
@@ -68,6 +69,7 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
                 }
               </td>
               <td className='px-4'>{(new Date(x.last_modified)).toLocaleString()}</td>
+              <td className='px-4'>{x.created_by}</td>
               <td className='px-4 text-center'><input id = "termsCheck" type="checkbox" disabled name="terms" checked={x.is_published === 1} /></td>
               <td><button onClick={() => remove(x.project_id)} className='px-4 transition-all duration-200 bg-transparent hover:bg-red-600'>🗑️</button></td>
             </tr>)
