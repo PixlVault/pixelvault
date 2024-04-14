@@ -38,7 +38,18 @@ const Collaboration = {
     }
 
     db.query(
-      'SELECT *, accepted = 1 AS accepted, BIN_TO_UUID(project_id, TRUE) as project_id FROM project_invite WHERE username = ?;',
+      `SELECT 
+      username,
+      title,
+      last_modified,
+      accepted = 1 AS accepted,
+      BIN_TO_UUID(project_invite.project_id, TRUE) AS project_id
+  FROM
+      project_invite
+          JOIN
+      project ON project_invite.project_id = project.project_id
+  WHERE
+      username = ?;`,
       [username],
       (err, result) => {
         if (err !== null) reject(err);

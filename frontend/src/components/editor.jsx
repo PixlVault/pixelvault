@@ -6,6 +6,7 @@ import LZString from 'lz-string';
 import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
 import Dropdown from './dropdown';
+import Collab from './collab';
 
 import * as project from '../api/project';
 import * as post from '../api/post';
@@ -138,6 +139,8 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
   const [connected, setConnected] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
 
+  const [collabPopupOpen, setCollabPopupOpen] = useState(false);
+
   useEffect(() => {
     project.get(projectId)
       .then((project) => setCurrentProject(project))
@@ -161,6 +164,10 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     await comment.addComment(projectId, "Test comment 2");
     await comment.addComment(projectId, "Test comment 3");
   };
+
+  const collaborateClick = () => {
+    setCollabPopupOpen(true);
+  }
 
   useEffect(() => {
     socket.io.opts.query = { ...socket.io.opts.query, pid: projectId };
@@ -244,8 +251,17 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={publishProject}>Publish</div>
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => navigate('../edit/')}>Close Project</div>
+          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={collaborateClick}>Collaborators</div>
         </Dropdown>
       </div>
+
+      {
+        collabPopupOpen ?
+        <Popup onClose={() => setCollabPopupOpen(false)} title="Collaborators">
+          <Collab projectId={currentProject.project_id} />
+        </Popup>
+        : ""
+      }
 
       {!canvasReady ? <div className='bg-gray-400 flex items-center justify-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw] animate-pulse '>
         <span className={'text-black'}>Loading...</span>
@@ -284,7 +300,7 @@ const Editor = ({ user }) => {
     {
       user !== null && isProjectBrowserOpen
         ? <>
-        <Popup onClose={() => setIsProjectBrowserOpen(false)} title={'Your Projects'}>
+          <Popup onClose={() => setIsProjectBrowserOpen(false)} title={'Your Projects'}>
             <ProjectBrowser
               username={user}
               currentProject={currentProject}
