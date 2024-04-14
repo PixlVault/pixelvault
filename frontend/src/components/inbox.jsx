@@ -28,11 +28,11 @@ const Inbox = () => {
     setDataChanged(false);
   }, [dataChanged]);
 
-  const accept = async (projectId) => {
+  const accept = async (projectId, projectTitle) => {
     try {
       await collaboration.acceptInvitation(projectId);
 
-      toast.success(`Invitation to ${projectId} accepted.`);
+      toast.success(`Invitation to ${projectTitle} accepted.`);
     } catch(err) {
       toast.error(`${err}`);
     }
@@ -40,14 +40,14 @@ const Inbox = () => {
     setDataChanged(true);
   }
 
-  const decline = async (projectId) => {
+  const decline = async (projectId, projectTitle) => {
     try {
       const username = localStorage.getItem('user');
       await collaboration.withdrawInvitation(username, projectId);
 
       // This isn't an error but it makes sense to show a red icon on decline
       // and a green one on accept.
-      toast.error(`Invitation to ${projectId} declined.`);
+      toast.error(`Invitation to ${projectTitle} declined.`);
     } catch(err) {
       toast.error(`${err}`);
     }
@@ -67,8 +67,8 @@ const Inbox = () => {
                   <div className="text-xs">{(new Date(i.last_modified)).toLocaleString()}</div>
                 </div>
                 <div className="flex space-x-3">
-                  <div title="Accept" className="hover:cursor-pointer" onClick={() => accept(i.project_id)}>✔️</div>
-                  <div title="Decline" className="hover:cursor-pointer" onClick={() => decline(i.project_id)}>❌</div>
+                  <div title="Accept" className="hover:cursor-pointer" onClick={() => accept(i.project_id, i.title)}>✔️</div>
+                  <div title="Decline" className="hover:cursor-pointer" onClick={() => decline(i.project_id, i.title)}>❌</div>
                 </div>
               </div>
             )
