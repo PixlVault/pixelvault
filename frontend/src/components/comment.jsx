@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment, likedComments }) => {
   const likedThisComment = likedComments.map(c => c.comment_id).includes(commentId);
@@ -7,7 +8,7 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
     <div className="flex flex-col w-full justify-center items-center px-5">
       <div className="flex flex-row w-full items-stretch">
         <div className="text-left grow">
-          <h6 className="font-bold">{author}</h6>
+          <Link to={`/profile/${author}`} className="font-bold">{author}</Link>
         </div>
         <div className="flex flex-row space-x-5 justify-center items-center">
           <div className="flex flex-row space-x-1 justify-center items-center">

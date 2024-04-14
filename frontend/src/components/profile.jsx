@@ -126,7 +126,7 @@ const Profile = () => {
           }
         </div>
         <button className='mx-auto' onClick={() => navigate(
-          '/search', { state: { author: params.username } },
+          `/search?author=${params.username}`,
         )}>See More</button>
       </div>
 
@@ -142,7 +142,7 @@ const Profile = () => {
           }
         </div>
         <button className='mx-auto' onClick={() => navigate(
-          '/search', { state: { author: params.username, order_by: 'likes', ascending: false } }
+          `/search?author=${params.username}&order_by=likes&ascending=false`,
         )}>See More</button>
       </div>
 

@@ -30,11 +30,11 @@ const Results = ({ posts, onTileClick }) => {
   );
 };
 
+
 const Search = ({ user }) => {
   // We can pass in state from other components, which will land here:
-  const location = useLocation();
+  const [params, setParams] = useSearchParams();
 
-  const [query, setQuery] = useState(location?.state !== null ? location?.state : {});
   const [results, setResults] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
@@ -42,24 +42,38 @@ const Search = ({ user }) => {
   /** TODO: Search parameters to support:
    * @param {string} author Only show results published by a specific author.
    * @param {string} licence Only show results with a certain licence.
+   * @param {string} tags An array of tags to filter against.
    * @param {string} order_by If specified, orders results by this field.
    * @param {boolean} ascending Boolean - should ordering be ascending or descending?
    * @param {boolean} only_show_followed Boolean - only show publications from followed users?
    *                             Note that this requires the requestingUser field.
-   * @param {string} tags An array of tags to filter against.
-   * @param {number} minCost The minimum cost item that should be returned.
-   * @param {number} maxCost The maximum cost item that should be returned.
    * @param {number} limit The number of results to fetch. Defaults to 25.
    * @param {number} offset The offset for returned results. Defaults to 0.
    */
 
   useEffect(() => {
-    // TODO make this actually use the search string.
-    console.log(query);
-    search(query).then((res) => {
-      setResults(res);
-    });
-  }, [query]);
+    const parseParams = () => {
+      const queries = {};
+      // Filters/Search Parameters:
+      ['title', 'author', 'licence', 'order_by'].forEach((key) => {
+        if (params.get(key) !== null) queries[key] = params.get(key);
+      });
+      ['only_show_followed', 'ascending'].forEach((key) => {
+        if (params.get(key) !== null) queries[key] = params.get(key) === 'true';
+      });
+      if (params.get('tags') !== null) queries.tags = params.get('tags')?.split(',');
+
+      // Pagination:
+      ['limit', 'offset'].forEach((key) => {
+        if (params.get(key) !== null) queries[key] = Number.parseInt(params.get(key), 10);
+      });
+
+      return queries;
+    };
+
+    search(parseParams())
+      .then((res) => setResults(res));
+  }, [params]);
 
   const openPopup = (postId) => {
     setSelectedPost(postId);
@@ -67,7 +81,7 @@ const Search = ({ user }) => {
   };
 
   return (
-      <div>
+      <div className='w-full md:w-1/2 2xl:w-1/3'>
         <div className="sticky top-0 bg-white z-50">
             <form className="max-w-md mx-auto">
                 <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>

@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { postImageBase } from '../api/post';
 
 const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost }) => {
+  const navigate = useNavigate();
   if (tags != null) {
     var tagRows = [];
     const tagsPerRow = 3;
@@ -45,7 +46,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
                   <div className="flex w-full" key={row}>
                     {row.map(x =>
                       <div className="max-w-third min-w-xs truncate px-2 mx-auto bg-blue-300 text-center rounded-md" key={x}>
-                        <Link to="#" title={x}>{x}</Link> {/* TODO: Link to an appropriate search. */}
+                        <Link to={`/search?tags=${[x]}`} title={x}>{x}</Link>
                       </div>
                     )}
                   </div>
