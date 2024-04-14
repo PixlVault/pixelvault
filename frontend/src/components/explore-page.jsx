@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { search } from '../api/post';
 import Listing from './listing.jsx';
 import Popup from './popup.jsx';
 import * as postApi from './../api/post.js';
 import { postImageBase } from '../api/post';
+import SearchBar from './searchBar.jsx';
 
 const ExplorePage = ({ user }) => {
-  const navigate = useNavigate(); // Add this line
   const [popupOpen, setPopupOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [loadedPosts, setLoadedPosts] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [searchParams, setSearchParams] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,13 +26,6 @@ const ExplorePage = ({ user }) => {
 
     fetchData().catch(console.error);
   }, []);
-  
-  const handleSearchSubmit = (event) => {
-    event.preventDefault();
-    // Perform search logic here
-    // For now, just navigate to the search page
-    navigate('/search');
-  };
   
   const sampleProjectsSet1 = [
     { id: 1, imageUrl: 'https://i.postimg.cc/MHff2gYG/8-bit-graphics-pixels-scene-with-person-walking-dog-park.jpg', title: 'Title 1' },
@@ -53,20 +46,7 @@ const ExplorePage = ({ user }) => {
   return (
     <div style={{ position: 'relative' }}> {/* Add this line */}
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
-      
-      <form onSubmit={handleSearchSubmit} className="max-w-md mx-auto mb-4 border-b border-gray-200 pb-4 flex items-center justify-between" style={{ position: 'relative' }}> {/* Add this line */}
-        <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-              <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-            </svg>
-          </div>
-          <input type="search" id="default-search" className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Mockups, Logos..." required />
-          <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-blue-800">Search</button>
-        </div>
-        <button type="button" className="py-1 px-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 ml-4">Filter</button>
-      </form>
+      <SearchBar searchParams={searchParams} setSearchParams={setSearchParams}/>
 
       <div className="flex justify-center overflow-x-auto border-b border-gray-200 pb-4" style={{ position: 'relative' }}> {/* Add this line */}
         {sampleProjectsSet1.map((project, index) => (

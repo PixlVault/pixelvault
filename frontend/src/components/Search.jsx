@@ -40,7 +40,8 @@ const Search = ({ user }) => {
   const [popupOpen, setPopupOpen] = useState(false);
 
   /** TODO: Search parameters to support:
-   * @param {string} author Only show results published by a specific author.
+   * @param {string} author Only show results published by a specific author. done
+   * @param {string} title Only show results with specified titles. done
    * @param {string} licence Only show results with a certain licence.
    * @param {string} tags An array of tags to filter against.
    * @param {string} order_by If specified, orders results by this field.
