@@ -51,7 +51,7 @@ const Collab = ({ projectId }) => {
 
   return (
     <div className="flex flex-col w-full px-8 pt-6 pb-4 mb-4 space-x-5 space-y-10">
-      <div className="max-h-[250px] overflow-auto divide-y-2">
+      <div className="max-h-[250px] overflow-auto divide-y">
         {
           acceptedInvites != null && acceptedInvites.length > 0
             ? acceptedInvites.map(i =>

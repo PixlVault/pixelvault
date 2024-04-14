@@ -57,7 +57,7 @@ const Inbox = () => {
 
   return (
     <div className="flex flex-col w-full px-8 pt-6 pb-4 mb-4 space-y-2">
-      <div className="max-h-[250px] overflow-auto divide-y-2">
+      <div className="max-h-[250px] overflow-auto divide-y">
         {
           invites != null && invites.length > 0
             ? invites.map(i =>
