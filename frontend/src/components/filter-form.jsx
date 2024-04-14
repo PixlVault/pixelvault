@@ -1,8 +1,18 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+
 import Dropdown from './dropdown.jsx';
+import ChipSet from './chipset.jsx';
 
 const FilterForm = ({ filters, setFilters, setFilterFormOpen }) => {
-  const x = 0;
+  const [ascending, setAscending] = useState('Ascending');
+  const ascendingValues = { Ascending: true, Descending: false };
+
+  const [orderBy, setOrderBy] = useState('Most Recent');
+  const orderByValues = { 'Most Recent': 'published_on', Likes: 'likes', Title: 'title' };
+
+  const [licence, setLicence] = useState(null);
+  const licenceValues = { All: undefined, Commerical: 'commercial', Educational: 'educational', 'Creative Commons': 'creative_commons' };
+
   return (
     <div className='m-6 justify-center'>
     <form>
@@ -20,26 +30,17 @@ const FilterForm = ({ filters, setFilters, setFilterFormOpen }) => {
       value = {filters?.author}
       onChange={(e) => setFilters({ ...filters, author: e.target.value })}
     />
-    <div className='p-2'>
-      <Dropdown title= 'License'>
-      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { delete filters.licence; }}>None</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, licence: 'commerical' })}>Commerical</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, licence: 'educational' })}>Educational</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, licence: 'creative_commons' })}>Creative Commons</div>
-        </Dropdown>
+    <div>
+      Licence
+      <ChipSet values={Object.keys(licenceValues)} selected={licence} setSelected={(v) => { setLicence(v); setFilters({...filters, licence: licenceValues[v]}); } } />
     </div>
-    <div className='p-2'>
-      <Dropdown title= 'Order By'>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, order_by: 'likes' })}>Likes</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, order_by: 'published_on' })}>Recent</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, order_by: 'title' })}>Titles</div>
-        </Dropdown>
+    <div>
+      Order By
+      <ChipSet values={Object.keys(orderByValues)} selected={orderBy} setSelected={(v) => { setOrderBy(v); setFilters({...filters, order_by: orderByValues[v]}); } } />
     </div>
-    <div className='p-2'>
-      <Dropdown title= 'Order'>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, ascending: true })}>Ascending</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setFilters({ ...filters, ascending: false })}>Descending</div>
-        </Dropdown>
+    <div>
+      Order
+      <ChipSet values={Object.keys(ascendingValues)} selected={ascending} setSelected={(v) => { setAscending(v); setFilters({...filters, ascending: ascendingValues[v]}) } } />
     </div>
     </div>
   );
