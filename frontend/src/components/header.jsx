@@ -27,17 +27,12 @@ const Header = ({ user, setUser }) => {
         <div className='flex divide-x justify-center items-center m-y-auto'>
           <Link to="/explore" className="text-lg no-underline px-2">Explore</Link>
           <Link to="/edit" className="text-lg no-underline px-2">Edit</Link>
-          {
-            user !== null
-              ? <Link to={`/profile/${user}`} className="text-lg no-underline px-2">My Profile</Link>
-              : null
-          }
 
           {
             user !== null
               ?
               <div title="Inbox" className="px-2 hover:cursor-pointer" onClick={() => setInboxOpen(true)}>
-                <img className="w-5" src="/inbox.png" />
+                <img className="w-[20px] h-[20px]" src="/inbox.png" />
               </div>
               : ""
           }
@@ -49,7 +44,7 @@ const Header = ({ user, setUser }) => {
                 <div>
                   <Dropdown titleElement={
                     <img
-                      className='rounded-full w-[30px] min-w-[30px] hover:cursor-pointer'
+                      className='rounded-full w-[30px] h-[30px] hover:cursor-pointer align-middle '
                       src={`${userImageBase}${user}.png`}
                       onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
@@ -57,7 +52,12 @@ const Header = ({ user, setUser }) => {
                       }}
                     />
                   }>
-                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={logOut}>Log out</div>
+                    <div className="divide-y">
+                      <Link to={`/profile/${user}`}>
+                        <div title="asdasd" className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1">My Profile</div>
+                      </Link>
+                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={logOut}>Log out</div>
+                    </div>
                   </Dropdown>
                 </div>
 
