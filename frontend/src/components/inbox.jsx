@@ -16,8 +16,8 @@ const Inbox = () => {
       }
 
       try {
-        const response = await collaboration.getInvitationsToUser(user);
-        setInvites(response.filter(i => i.accepted === false));  
+        const response = await collaboration.getInvitationsToUser();
+        setInvites(response.filter(i => i.accepted === false));
       } catch(err) {
         toast.error(`${err}`);
       }

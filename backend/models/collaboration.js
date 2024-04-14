@@ -41,7 +41,7 @@ const Collaboration = {
       `SELECT 
       username,
       title,
-      last_modified,
+      project_invite.last_modified,
       accepted = 1 AS accepted,
       BIN_TO_UUID(project_invite.project_id, TRUE) AS project_id
   FROM
