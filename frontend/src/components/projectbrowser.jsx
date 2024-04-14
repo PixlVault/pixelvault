@@ -50,24 +50,28 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
           </tr>
         </thead>
         <tbody>
-        {projects === null ? <></> : projects.map(x => <tr className='rounded space-x-4 even:bg-gray-50 border-b hover:bg-indigo-100 transition-colors duration-200' key={x.project_id}>
-            <td><button className='px-4 transition-all duration-200 bg-transparent' onClick={() => setTitle(x.project_id)}>✏️</button></td>
-            <td className='px-4'>
-              {
-                x.is_published === 0
-                  ? <Link
-                      className = "no-underline hover:underline"
-                      onClick={() => setProject(x)}
-                      to={`../edit/${x.project_id}`}>
-                        <p className="text-wrap break-words max-w-40">{x.title}</p>
-                    </Link>
-                  : <p className="text-wrap break-words max-w-40">{x.title}</p>
-              }
-            </td>
-            <td className='px-4'>{(new Date(x.last_modified)).toLocaleString()}</td>
-            <td className='px-4 text-center'><input id = "termsCheck" type="checkbox" disabled name="terms" checked={x.is_published === 1} /></td>
-            <td><button onClick={() => remove(x.project_id)} className='px-4 transition-all duration-200 bg-transparent hover:bg-red-600'>🗑️</button></td>
-          </tr>)}
+        {
+        projects === null
+          ? <></> 
+          : projects.map(x => <tr className='rounded space-x-4 even:bg-gray-50 border-b hover:bg-indigo-100 transition-colors duration-200' key={x.project_id}>
+              <td><button className='px-4 transition-all duration-200 bg-transparent' onClick={() => setTitle(x.project_id)}>✏️</button></td>
+              <td className='px-4'>
+                {
+                  x.is_published === 0
+                    ? <Link
+                        className = "no-underline hover:underline"
+                        onClick={() => setProject(x)}
+                        to={`../edit/${x.project_id}`}>
+                          <p className="text-wrap break-words max-w-40">{x.title}</p>
+                      </Link>
+                    : <p className="text-wrap break-words max-w-40">{x.title}</p>
+                }
+              </td>
+              <td className='px-4'>{(new Date(x.last_modified)).toLocaleString()}</td>
+              <td className='px-4 text-center'><input id = "termsCheck" type="checkbox" disabled name="terms" checked={x.is_published === 1} /></td>
+              <td><button onClick={() => remove(x.project_id)} className='px-4 transition-all duration-200 bg-transparent hover:bg-red-600'>🗑️</button></td>
+            </tr>)
+        }
         </tbody>
       </table>
     </div>

@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
 
-const ProfilePage = () => {
+const ProfileOptiions = () => {
   const params = useParams();
 
   const [imageToggle, setImageToggle] = useState(Date.now());
@@ -42,4 +42,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default ProfileOptiions;
