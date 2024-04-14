@@ -81,7 +81,6 @@ const Post = {
     if (orderByField !== undefined) {
       if (['title', 'cost', 'published_on', 'likes'].includes(orderByField)) {
         query = `${query} ORDER BY ${orderByField} ${ascending ? 'ASC' : 'DESC'}`;
-        console.log('Ordering by', orderByField, ' -> ', query);
       } else {
         reject(new Error(`Invalid sort field: \`${orderByField}\``));
       }

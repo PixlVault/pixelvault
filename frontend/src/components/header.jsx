@@ -14,7 +14,7 @@ const Header = ({ user, setUser }) => {
   const [loginFormOpen, setLoginFormOpen] = useState(false);
 
   return (
-    <div className="sticky top-0">
+    <div className="z-20 sticky top-0">
       <nav className="flex flex-col text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
         <div>
           <Link to="/explore" className="text-2xl no-underline">PixelVault</Link>

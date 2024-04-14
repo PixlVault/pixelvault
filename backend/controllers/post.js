@@ -121,7 +121,6 @@ router.delete('/', async (req, res) => {
       return res.status(401).json({ error: 'Cannot delete a non-owned project' });
     }
 
-    // console.log('entering', postId);
     await Post.delete(postId);
     return res.status(204).send();
   } catch (error) {

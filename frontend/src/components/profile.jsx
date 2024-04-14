@@ -83,13 +83,13 @@ const Profile = () => {
   };
 
   return (
-    <div className='mt-4 w-full md:w-1/2 mx-auto'>
-      <div className='flex mx-auto'>
+    <div className='mt-4 w-full md:w-1/2 2xl:w-1/3 mx-auto'>
+      <div className='flex mx-auto mb-4'>
         <div>
           <img
             /* TODO: Only specific sizes work here and it's not clear as to why;
                establish a better definite size. */
-            className='w-[100px] min-w-[100px] mr-4'
+            className='rounded w-[100px] min-w-[100px] mr-4'
             src={`${userImageBase}${params.username}.png`}
             onError={({ currentTarget }) => {
               currentTarget.onerror = null;
@@ -117,22 +117,6 @@ const Profile = () => {
       <hr></hr>
 
       <div className='flex flex-col justify-center my-4'>
-        <h2 className="text-xl text-center">Most Liked</h2>
-        <div className='flex flex-col md:flex-row justify-center my-4'>
-          {
-            mostLiked.map((post) => <div className='m-2 max-w-6/12 aspect-square' key={post.post_id}>
-              <Tile post={post} clickHandler={() => openPopup(post.post_id)} />
-            </div>)
-          }
-        </div>
-        <button className='mx-auto' onClick={() => navigate(
-          '/search', { state: { author: params.username, order_by: 'likes', ascending: false } }
-        )}>See More</button>
-      </div>
-
-      <hr></hr>
-
-      <div className='flex flex-col justify-center my-4'>
         <h2 className="text-xl text-center">Most Recent</h2>
         <div className='flex flex-col md:flex-row justify-center my-4'>
           {
@@ -143,6 +127,22 @@ const Profile = () => {
         </div>
         <button className='mx-auto' onClick={() => navigate(
           '/search', { state: { author: params.username } },
+        )}>See More</button>
+      </div>
+
+      <hr></hr>
+
+      <div className='flex flex-col justify-center my-4'>
+        <h2 className="text-xl text-center">Most Liked</h2>
+        <div className='flex flex-col md:flex-row justify-center my-4'>
+          {
+            mostLiked.map((post) => <div className='m-2 max-w-6/12 aspect-square' key={post.post_id}>
+              <Tile post={post} clickHandler={() => openPopup(post.post_id)} />
+            </div>)
+          }
+        </div>
+        <button className='mx-auto' onClick={() => navigate(
+          '/search', { state: { author: params.username, order_by: 'likes', ascending: false } }
         )}>See More</button>
       </div>
 
