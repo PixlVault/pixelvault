@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import LoginForm from './login-form.jsx';
 import Popup from './popup.jsx';
+import Inbox from './inbox.jsx';
 
 const Header = ({ user, setUser }) => {
   const logOut = () => {
@@ -12,6 +13,7 @@ const Header = ({ user, setUser }) => {
   };
 
   const [loginFormOpen, setLoginFormOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
 
   return (
     <div className="z-20 sticky top-0">
@@ -20,6 +22,12 @@ const Header = ({ user, setUser }) => {
           <Link to="/explore" className="text-2xl no-underline">PixelVault</Link>
         </div>
         <div className='divide-x'>
+          {
+            user !== null
+            ? <Link onClick={() => setInboxOpen(true)} className="text-lg no-underline px-2">Inbox</Link>
+            : ""
+          }
+
           <Link to="/explore" className="text-lg no-underline px-2">Explore</Link>
           <Link to="/edit" className="text-lg no-underline px-2">Edit</Link>
           {
@@ -42,6 +50,14 @@ const Header = ({ user, setUser }) => {
               setUser(user);
               setLoginFormOpen(false)
             }} />
+          </Popup>
+          : null
+      }
+      {
+        inboxOpen
+          ?
+          <Popup onClose={() => setInboxOpen(false)} title="Inbox">
+            <Inbox/>
           </Popup>
           : null
       }
