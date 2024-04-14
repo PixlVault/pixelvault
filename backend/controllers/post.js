@@ -64,7 +64,7 @@ router.get('/:username/liked', async (req, res) => {
   } catch (err) {
     log.error(err);
     return res.status(400).send();
-  } 
+  }
 });
 
 router.post('/', async (req, res) => {

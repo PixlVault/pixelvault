@@ -7,6 +7,7 @@ import { userImageBase, defaultImageUrl } from '../api/account/';
 import Tile from './tile';
 import Popup from './popup';
 import Listing from './listing';
+import ProfileOptions from './profile-options';
 
 const Profile = () => {
   const loggedInUser = localStorage.getItem('user');
@@ -14,7 +15,8 @@ const Profile = () => {
   const params = useParams();
 
   const [selectedPost, setSelectedPost] = useState(null);
-  const [popupOpen, setPopupOpen] = useState(false);
+  const [listingOpen, setListingOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
 
   const [profile, setProfile] = useState({});
   const [isFollowing, setIsFollowing] = useState(false);
@@ -69,7 +71,10 @@ const Profile = () => {
   };
 
   const FollowButton = () => {
-    if (params.username === loggedInUser) return null;
+    if (params.username === loggedInUser) {
+      return <button onClick={() => setOptionsOpen(true)}>Options</button>;
+    }
+
     return (
       !isFollowing
         ? <button onClick={follow}>Follow</button>
@@ -79,7 +84,7 @@ const Profile = () => {
 
   const openPopup = (postId) => {
     setSelectedPost(postId);
-    setPopupOpen(true);
+    setListingOpen(true);
   };
 
   return (
@@ -147,13 +152,20 @@ const Profile = () => {
       </div>
 
       {
-        popupOpen
-          ? <Popup onClose={() => setPopupOpen(false)}>
+        listingOpen
+          ? <Popup onClose={() => setListingOpen(false)}>
               <Listing postId={selectedPost} />
             </Popup>
           : null
       }
 
+      {
+        optionsOpen && (loggedInUser === params.username)
+          ? <Popup onClose={() => setOptionsOpen(false)}>
+              <ProfileOptions />
+            </Popup>
+          : null
+      }
     </div>
   );
 };

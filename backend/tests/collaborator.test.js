@@ -127,11 +127,10 @@ describe('Invitation interactions - users can', () => {
 
   test('accept an invitation', async () => {
     let res = await api
-      .get('/api/collaboration')
-      .send({ username: 'recipient' })
+      .get('/api/collaboration/user')
       .set('Authorization', tokens.recipient);
 
-    expect(res.body.invites[0]).toMatchObject(
+    expect(res.body[0]).toMatchObject(
       { accepted: false, project_id: projects[0], username: 'recipient' },
     );
 
@@ -142,21 +141,19 @@ describe('Invitation interactions - users can', () => {
     expect(res.statusCode).toBe(200);
 
     res = await api
-      .get('/api/collaboration')
-      .send({ username: 'recipient' })
+      .get('/api/collaboration/user')
       .set('Authorization', tokens.recipient);
 
-    expect(res.body.invites[0]).toMatchObject(
+    expect(res.body[0]).toMatchObject(
       { accepted: true, project_id: projects[0], username: 'recipient' },
     );
   });
 
   test('decline an invitation', async () => {
     let res = await api
-      .get('/api/collaboration')
-      .send({ username: 'recipient' })
+      .get('/api/collaboration/user')
       .set('Authorization', tokens.recipient);
-    expect(res.body.invites).toHaveLength(3);
+    expect(res.body).toHaveLength(3);
 
     res = await api
       .delete('/api/collaboration')
@@ -165,18 +162,16 @@ describe('Invitation interactions - users can', () => {
     expect(res.statusCode).toBe(204);
 
     res = await api
-      .get('/api/collaboration')
-      .send({ username: 'recipient' })
+      .get('/api/collaboration/user')
       .set('Authorization', tokens.recipient);
-    expect(res.body.invites).toHaveLength(2);
+    expect(res.body).toHaveLength(2);
   });
 
   test('have access revoked by the project owner', async () => {
     let res = await api
-      .get('/api/collaboration')
-      .send({ projectId: projects[0] })
+      .get(`/api/collaboration/project/${projects[0]}`)
       .set('Authorization', tokens.creator);
-    expect(res.body.invites).toHaveLength(2);
+    expect(res.body).toHaveLength(2);
 
     res = await api
       .delete('/api/collaboration')
@@ -186,34 +181,31 @@ describe('Invitation interactions - users can', () => {
     expect(res.statusCode).toBe(204);
 
     res = await api
-      .get('/api/collaboration')
-      .send({ projectId: projects[0] })
+      .get(`/api/collaboration/project/${projects[0]}`)
       .set('Authorization', tokens.creator);
-    expect(res.body.invites).toHaveLength(1);
+    expect(res.body).toHaveLength(1);
   });
 });
 
 describe('Invitations can be retrieved', () => {
   test('for a given project', async () => {
     const res = await api
-      .get('/api/collaboration')
-      .send({ projectId: projects[0] })
+      .get(`/api/collaboration/project/${projects[0]}`)
       .set('Authorization', tokens.creator);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.invites).toMatchObject([
+    expect(res.body).toMatchObject([
       { accepted: true, project_id: projects[0], username: 'recipient' },
     ]);
   });
 
   test('for a given user', async () => {
     const res = await api
-      .get('/api/collaboration')
-      .send({ username: 'recipient' })
+      .get('/api/collaboration/user')
       .set('Authorization', tokens.recipient);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.invites).toMatchObject([
+    expect(res.body).toMatchObject([
       { accepted: true, project_id: projects[0], username: 'recipient' },
       { accepted: false, project_id: projects[1], username: 'recipient' },
     ]);
@@ -221,43 +213,13 @@ describe('Invitations can be retrieved', () => {
 });
 
 describe('Invitations cannot be retrieved', () => {
-  test('for a user, by others', async () => {
-    const res = await api
-      .get('/api/collaboration')
-      .send({ username: 'creator' })
-      .set('Authorization', tokens.recipient);
-
-    expect(res.statusCode).toBe(401);
-    expect(res.body).toStrictEqual({ error: 'Cannot retrieve another user\'s invitations' });
-  });
-
   test('by non-owners of a given project', async () => {
     const res = await api
-      .get('/api/collaboration')
-      .send({ projectId: projects[0] })
+      .get(`/api/collaboration/project/${projects[0]}`)
       .set('Authorization', tokens.recipient);
 
     expect(res.statusCode).toBe(401);
     expect(res.body).toStrictEqual({ error: 'Cannot retrieve invitations for non-owned project' });
-  });
-
-  test('without specifying either a username or projectId', async () => {
-    const res = await api
-      .get('/api/collaboration')
-      .set('Authorization', tokens.recipient);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toStrictEqual({ error: 'Missing field: Must provide either a `username` or `projectId` field' });
-  });
-
-  test('when specifying both a username and projectId', async () => {
-    const res = await api
-      .get('/api/collaboration')
-      .send({ projectId: projects[0], username: 'recipient' })
-      .set('Authorization', tokens.recipient);
-
-    expect(res.statusCode).toBe(400);
-    expect(res.body).toStrictEqual({ error: 'Ambiguous request: Must provide only one of a `username` or `projectId`' });
   });
 });
 
