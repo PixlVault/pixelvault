@@ -25,7 +25,7 @@ const Popup = ({ children, onClose, title }) => {
           <span className='font-semibold text-lg ml-4'>{title}</span></div>
           <button onClick={() => onClose()} className="bg-transparent text-black hover:bg-transparent">X</button>
         </div>
-        <div className="w-full h-full max-w-lg max-h-lg min-w-lg min-h-lg">
+        <div className="w-full h-full min-w-lg min-h-lg">
           {children}
         </div>
       </div>

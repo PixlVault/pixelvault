@@ -29,8 +29,8 @@ const Header = ({ user, setUser }) => {
           }
           {
             user !== null
-              ? <span>Logged in as {user} <button onClick={logOut}>Log Out</button> </span>
-              : <button onClick={() => setLoginFormOpen(true)}>Log In</button>
+              ? <span>Logged in as {user} <button className='py-2' onClick={logOut}>Log Out</button> </span>
+              : <button className='py-2' onClick={() => setLoginFormOpen(true)}>Log In</button>
           }
         </div>
       </nav>
