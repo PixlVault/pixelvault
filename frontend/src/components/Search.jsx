@@ -107,7 +107,7 @@ const Search = ({ user }) => {
     <div>
       <div className='flex justify-between'>
         <button onClick={prevPage}>Prev</button>
-        { page }
+        Page { page }
         <button onClick={nextPage}>Next</button>
       </div>
       <Results posts={results} onTileClick={(postId) => openPopup(postId)} />

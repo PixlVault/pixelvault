@@ -18,16 +18,16 @@ const CANVAS_WIDTH = 256;
 const CANVAS_HEIGHT = 256;
 const backgroundColor = '#FFFFFF';
 
-const initialiseCanvas = (canvasRef, contextRef, initialData) => {
+const initialiseCanvas = (canvasRef, contextRef, initialData, canvasWidth, canvasHeight) => {
   const setCanvasData = (data) => {
-    const imageData = contextRef.current.createImageData(CANVAS_WIDTH, CANVAS_HEIGHT);
+    const imageData = contextRef.current.createImageData(canvasWidth, canvasHeight);
     Object.keys(data).forEach((i) => { imageData.data[i] = data[i]; });
     contextRef.current.putImageData(imageData, 0, 0);
   };
 
   const canvas = canvasRef.current;
-  canvas.width = CANVAS_WIDTH;
-  canvas.height = CANVAS_HEIGHT;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
   canvas.style.background = backgroundColor;
 
   // Stop right-click menu from appearing when interacting with the canvas:
@@ -38,7 +38,7 @@ const initialiseCanvas = (canvasRef, contextRef, initialData) => {
   // will always occupy. The canvas width is set to this percentage directly. The height
   // is set to the width multiplied by a factor that ensures the aspect ratio is maintained.
   const canvasProportion = 40;
-  const aspectRatio = CANVAS_HEIGHT / CANVAS_WIDTH;
+  const aspectRatio = canvasHeight / canvasWidth;
   const width = canvasProportion;
   const height = width * aspectRatio;
   canvas.style.width = width + 'vw';
@@ -65,14 +65,14 @@ const exportImage = async (canvasRef) => {
   link.click();
 };
 
-const saveProject = async (contextRef, navigate) => {
+const saveProject = async (contextRef, navigate, width, height) => {
   const title = prompt('Please enter a project title');
   if (title !== undefined && title !== '') {
     try {
       const obj = {
-        data: Array.from(contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT).data),
-        width: CANVAS_WIDTH,
-        height: CANVAS_HEIGHT,
+        data: Array.from(contextRef.current.getImageData(0, 0, width, height).data),
+        width,
+        height,
       };
 
       const compressedData = LZString.compressToBase64(JSON.stringify(obj));
@@ -81,39 +81,95 @@ const saveProject = async (contextRef, navigate) => {
     } catch (err) { console.error(err); }
   }
 };
+const ProjectSetup = ({ width, setWidth, height, setHeight, setDimsConfirmed, user }) => {
+  const confirm = () => {
+    const aspect = width / height;
+    console.log(aspect);
+    if (height >= 8 && height <= 256 && width >= 8 && width <= 256) {
+      setDimsConfirmed(true);
+    }
+  };
 
-const OfflineCanvasContainer = ({ colour, setIsProjectBrowserOpen, user }) => {
+  const [browserOpen, setBrowserOpen] = useState(false);
+
+  return (<div className='m-4'>
+    <div>
+      <span className='font-semibold text-xl'>Start a New Project</span>
+      <form className='flex flex-row gap-4 justify-center items-end'>
+        <div>
+          <label className='block text-gray-700 uppercase text-sm font-bold'>Width (max 256px)</label>
+          <input type='number' value={width} min={8} max={256} onChange={(e) => setWidth(Number.parseInt(e.target.value, 10))} />
+        </div>
+        <div>
+          <label className='block text-gray-700 uppercase text-sm font-bold'>Height (max 256px)</label>
+          <input type='number' value={height} min={8} max={256} onChange={(e) => setHeight(Number.parseInt(e.target.value, 10))} />
+        </div>
+        <button className='h-8' type='submit' onClick={confirm}>Open</button>
+      </form>
+    </div>
+    <div>
+      <span className='font-semibold text-xl'>Or, </span>
+      <span className='underline hover:cursor-pointer font-semibold text-xl' onClick={() => setBrowserOpen(true)}>
+        open an existing one
+      </span>
+      { browserOpen
+        ? <Popup onClose={() => setBrowserOpen(false)} title={'Your Projects'}>
+            <ProjectBrowser
+              username={user}
+              closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
+            />
+          </Popup>
+        : null }
+    </div>
+  </div>);
+};
+
+const OfflineCanvasContainer = ({ setIsProjectBrowserOpen, user }) => {
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const navigate = useNavigate();
 
-  useEffect(() => initialiseCanvas(canvasRef, contextRef, null), []);
+  const [dimsConfirmed, setDimsConfirmed] = useState(false);
+  const [width, setWidth] = useState(256);
+  const [height, setHeight] = useState(256);
+
+  useEffect(() => {
+    if (dimsConfirmed) {
+      initialiseCanvas(canvasRef, contextRef, null, width, height);
+    }
+  }, [dimsConfirmed]);
 
   return <>
-    <div className="flex flex-col space-y-5">
-      <div className="flex">
-        <div className="grow">
-          <h2 className="text-xl font-bold">New project {user ? '' : '(log in to save)'}</h2>
-        </div>
-        <Dropdown title="File">
-          {user !== null ?
-            <div>
-              <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { setIsProjectBrowserOpen(true) }}>Open</div>
-              <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => saveProject(contextRef, navigate)}>Save as project</div>
-            </div> : <></>}
-          <div href="#" className="block px-4 py-2 text-sm hover:bg-gray-400" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
-        </Dropdown>
-      </div>
+    {
+      !dimsConfirmed
+        ? <Popup title='Project Setup' onClose={() => {}}>
+          <ProjectSetup width={width} setWidth={setWidth} height={height} setHeight={setHeight} setDimsConfirmed={setDimsConfirmed} user={user} />
+          </Popup>
+        : <div className="flex flex-col space-y-5">
+          <div className="flex">
+            <div className="grow">
+              <h2 className="text-xl font-bold">New project {user ? '' : '(log in to save)'}</h2>
+            </div>
+            <Dropdown title="File">
+              {user !== null ?
+                <div>
+                  <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { setIsProjectBrowserOpen(true) }}>Open</div>
+                  <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => saveProject(contextRef, navigate, width, height)}>Save as project</div>
+                </div> : <></>}
+              <div href="#" className="block px-4 py-2 text-sm hover:bg-gray-400" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
+            </Dropdown>
+          </div>
 
-      <Canvas
-        canvasRef={canvasRef}
-        contextRef={contextRef}
-        sendMessage={() => { }}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
-        canvasReady={true}
-      />
-    </div>
+          <Canvas
+            canvasRef={canvasRef}
+            contextRef={contextRef}
+            sendMessage={() => { }}
+            width={width}
+            height={height}
+            canvasReady={true}
+          />
+        </div>
+  }
   </>;
 };
 
@@ -132,6 +188,8 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
 
   const [connected, setConnected] = useState(false);
   const [canvasReady, setCanvasReady] = useState(false);
+  const [width, setWidth] = useState(256);
+  const [height, setHeight] = useState(256);
 
   const [collabPopupOpen, setCollabPopupOpen] = useState(false);
 
@@ -173,7 +231,9 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
 
     socket.on('load', (data) => {
       const decompressed = JSON.parse(LZString.decompressFromBase64(data));
-      initialiseCanvas(canvasRef, contextRef, decompressed.data);
+      setWidth(decompressed.width);
+      setHeight(decompressed.height);
+      initialiseCanvas(canvasRef, contextRef, decompressed.data, decompressed.width, decompressed.height);
       setCanvasReady(true);
     });
 
@@ -208,7 +268,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
     });
 
     socket.on('update', (data) => {
-      const imageData = contextRef.current.getImageData(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      const imageData = contextRef.current.getImageData(0, 0, width, height);
       const parsed = JSON.parse(data);
       Object.keys(parsed).forEach((pixel) => {
         imageData.data[pixel] = parsed[pixel];
@@ -256,7 +316,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
         <Popup onClose={() => setCollabPopupOpen(false)} title="Collaborators">
           <Collab projectId={currentProject.project_id} />
         </Popup>
-        : ""
+          : ""
       }
 
       {!canvasReady ? <div className='bg-gray-400 flex items-center justify-center text-lg w-1/3 min-w-[33vw] h-1/3 min-h-[33vw] animate-pulse '>
@@ -267,8 +327,8 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
         canvasRef={canvasRef}
         contextRef={contextRef}
         sendMessage={(data) => { socket.emit('update', data); }}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
+        width={width}
+        height={height}
         canvasReady={canvasReady}
       />
     </div>

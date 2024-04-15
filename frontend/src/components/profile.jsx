@@ -114,7 +114,7 @@ const Profile = () => {
             </div>
           </div>
           <div>
-            <p>{profile.biography === null ? 'This user has provided no biography.' : profile.biography}</p>
+            <p className='text-wrap break-words'>{profile.biography === null ? 'This user has provided no biography.' : profile.biography}</p>
           </div>
         </div>
       </div>
