@@ -38,7 +38,12 @@ const LoginForm = ({ setUser }) => {
 
     try {
       if (!dob) throw new Error('Must enter your date of birth');
-      const age = calculateAge(Date.parse(dob));
+      const date = Date.parse(dob);
+      if ((new Date(date)).getUTCFullYear() < 1900) {
+        throw new Error('Must enter a valid year.');
+      }
+
+      const age = calculateAge(date);
       if (age < 16) throw new Error('Must be at least 16 years of age to create an account.');
       await Api.account.create(username, password, email);
       login(e);
