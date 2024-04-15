@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Link, useNavigate } from 'react-router-dom';
 import { search } from '../api/post';
 import Listing from './listing.jsx';
 import Popup from './popup.jsx';
-import * as postApi from './../api/post.js';
 import { postImageBase } from '../api/post';
 import SearchBar from './searchBar.jsx';
 
@@ -12,7 +11,7 @@ const ExplorePage = () => {
   const [mostLikedProjects, setMostLikedProjects] = useState([]);
   const [licensedProjects, setLicensedProjects] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMostLikedProjects = async () => {
@@ -50,17 +49,17 @@ const ExplorePage = () => {
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="container">
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
-      <div className="flex justify-center overflow-x-auto border-b border-gray-200 pb-4" style={{ position: 'relative' }}>
+      <div className="flex flex-wrap justify-center gap-4 md:gap-8 pb-4">
         {mostLikedProjects.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} sm:w-1/5 md:w-1/6 lg:w-1/7 xl:w-1/8 flex flex-col justify-center items-center`}>
+          <div key={project.post_id} className="relative w-40 md:w-32 flex flex-col justify-center items-center">
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className="w-full h-auto max-h-40 object-cover cursor-pointer hover:opacity-75 border border-gray-300"
+              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
@@ -71,18 +70,17 @@ const ExplorePage = () => {
           <svg className="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
           </svg>
-          {/* Replace div with Link */}
           <Link to="#" onClick={handleSeeMoreMostLiked} className="text-sm text-gray-600 cursor-pointer">See more</Link>
         </div>
       </div>
 
-      <div className="flex justify-center overflow-x-auto pb-4" style={{ position: 'relative' }}>
+      <div className="flex flex-wrap justify-center gap-4 md:gap-8 pb-4">
         {licensedProjects.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} sm:w-1/5 md:w-1/6 lg:w-1/7 xl:w-1/8 flex flex-col justify-center items-center`}>
+          <div key={project.post_id} className="relative w-40 md:w-32 flex flex-col justify-center items-center">
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Licensed</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className="w-full h-auto max-h-40 object-cover cursor-pointer hover:opacity-75 border border-gray-300"
+              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
