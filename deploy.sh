@@ -2,7 +2,7 @@
 
 set -e
 
-ROOTDIR=/home/ubuntu/dev/pixelvault
+ROOTDIR=/root/dev/pixelvault
 FRONTEND_DIR=$ROOTDIR/frontend
 BACKEND_DIR=$ROOTDIR/backend
 BRANCH=main
