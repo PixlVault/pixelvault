@@ -11,7 +11,6 @@ const ExplorePage = ({ user }) => {
   const [projects, setProjects] = useState([]);
   const [loadedPosts, setLoadedPosts] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
-  const [searchParams, setSearchParams] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,7 +25,7 @@ const ExplorePage = ({ user }) => {
 
     fetchData().catch(console.error);
   }, []);
-  
+
   const sampleProjectsSet1 = [
     { id: 1, imageUrl: 'https://i.postimg.cc/MHff2gYG/8-bit-graphics-pixels-scene-with-person-walking-dog-park.jpg', title: 'Title 1' },
     { id: 2, imageUrl: 'https://i.postimg.cc/c4J5YhLL/7392521.jpg', title: 'Title 2' },
@@ -46,7 +45,7 @@ const ExplorePage = ({ user }) => {
   return (
     <div style={{ position: 'relative' }}> {/* Add this line */}
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
-      <SearchBar searchParams={searchParams} setSearchParams={setSearchParams}/>
+      <SearchBar />
 
       <div className="flex justify-center overflow-x-auto border-b border-gray-200 pb-4" style={{ position: 'relative' }}> {/* Add this line */}
         {sampleProjectsSet1.map((project, index) => (
