@@ -43,6 +43,10 @@ const LoginForm = ({ setUser }) => {
         throw new Error('Must enter a valid year.');
       }
 
+      if (date > Date.now()) {
+        throw new Error('Date of Birth cannot be in the future.');
+      }
+
       const age = calculateAge(date);
       if (age < 16) throw new Error('Must be at least 16 years of age to create an account.');
       await Api.account.create(username, password, email);
