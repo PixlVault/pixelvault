@@ -35,7 +35,7 @@ export const postImageBase = `${urlBase}/post/img/`;
 */
 export const search = async (searchParams = undefined) => {
   // Token is only required if limiting results to those from followed accounts.
-  const includeAuth = searchParams.onlyShowFollowed === true;
+  const includeAuth = searchParams.only_show_followed === true;
   const response = await makeRequest('/post/search', 'POST', searchParams, includeAuth);
   return response;
 };
