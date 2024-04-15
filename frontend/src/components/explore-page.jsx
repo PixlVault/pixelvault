@@ -49,17 +49,17 @@ const ExplorePage = () => {
   };
 
   return (
-    <div className="container">
+    <div className="mx-auto max-w-screen-lg px-4">
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
-      <div className="flex flex-wrap justify-center gap-4 md:gap-8 pb-4">
+      <div className="flex justify-center flex-wrap gap-4 pb-4">
         {mostLikedProjects.map((project, index) => (
-          <div key={project.post_id} className="relative w-40 md:w-32 flex flex-col justify-center items-center">
+          <div key={project.post_id} className="relative w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-1 flex flex-col justify-center items-center">
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
+              className="w-full object-cover aspect-w-1 aspect-h-1 cursor-pointer hover:opacity-75 border border-gray-300"
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
@@ -74,13 +74,13 @@ const ExplorePage = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-4 md:gap-8 pb-4">
+      <div className="flex justify-center flex-wrap gap-4 pb-4">
         {licensedProjects.map((project, index) => (
-          <div key={project.post_id} className="relative w-40 md:w-32 flex flex-col justify-center items-center">
+          <div key={project.post_id} className="relative w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-1 flex flex-col justify-center items-center">
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Licensed</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
+              className="w-full object-cover aspect-w-1 aspect-h-1 cursor-pointer hover:opacity-75 border border-gray-300"
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
