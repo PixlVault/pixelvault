@@ -61,16 +61,11 @@ const attachWebSocketService = (server) => {
     // Try verifying the user's identity:
     try {
       const auth = socket.handshake.auth.token;
-      jwt.verify(auth, process.env.JWT_SECRET, (err, decoded) => {
-        if (err !== null) {
-          socket.emit('error', 'Could not authenticate user');
-          return socket.disconnect();
-        }
-        socket.user = decoded.username;
-      });
+      const decoded = jwt.verify(auth, process.env.JWT_SECRET);
+      socket.user = decoded.username;
     } catch (e) {
       log.error(e);
-      socket.emit('error', 'Something went wrong!');
+      socket.emit('error', 'Could not authenticate user');
       return socket.disconnect();
     }
     next();

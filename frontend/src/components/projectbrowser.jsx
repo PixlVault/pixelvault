@@ -23,8 +23,10 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
 
   const setTitle = async (projectId) => {
     const newTitle = prompt('Please enter a new title');
-    if (projectId !== undefined && newTitle !== null) await Api.project.update(projectId, newTitle);
-    setProjects(await Api.project.owned());
+    if (projectId !== undefined && newTitle !== null) {
+      await Api.project.update(projectId, newTitle);
+      setProjects((await Api.project.accessible()));
+    }
   };
 
   const remove = async (projectId) => {

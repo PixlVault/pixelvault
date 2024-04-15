@@ -1,19 +1,16 @@
-import { useParams } from 'react-router-dom';
 import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
-import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
 import Api from '../api';
+import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
 
 const BIOGRAPHY_LIMIT = 255;
 
 const ProfileOptiions = ({ profile }) => {
-  const params = useParams();
-
   const [imageToggle, setImageToggle] = useState(Date.now());
   const refreshImage = () => setImageToggle(Date.now());
 
-  const [biography, setBiography] = useState(profile.biography);
+  const [biography, setBiography] = useState(profile.biography === null ? '' : profile.biography);
   const [newPassword, setNewPassword] = useState('');
 
   const update = (updates, successMessage) => {

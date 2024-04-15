@@ -30,7 +30,6 @@ const LoginForm = ({ setUser }) => {
     } catch (e) {
       setAlertMessage('Incorrect Username or Password');
       setTimeout(() => setAlertMessage(''), 2000);
-      console.error(e);
     }
   };
 

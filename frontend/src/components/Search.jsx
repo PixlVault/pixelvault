@@ -31,10 +31,10 @@ const Results = ({ posts, onTileClick }) => {
   );
 };
 
-
 const Search = ({ user }) => {
   // We can pass in state from other components, which will land here:
   const [params, setParams] = useSearchParams();
+  const [page, setPage] = useState(1);
 
   const [results, setResults] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
@@ -77,15 +77,41 @@ const Search = ({ user }) => {
       .then((res) => setResults(res));
   }, [params]);
 
+  const nextPage = () => {
+    const newPage = page + 1;
+    const limit = params.get('limit') === null ? 25 : Number.parseInt(params.get('limit'), 10);
+    let newParams = params;
+    newParams.set('offset', ((newPage - 1) * limit).toString());
+    setPage(newPage);
+    setParams(params);
+  };
+
+  const prevPage = () => {
+    if (page === 1) return;
+    const newPage = page - 1;
+    const limit = params.get('limit') === null ? 25 : Number.parseInt(params.get('limit'), 10);
+    let newParams = params;
+    newParams.set('offset', ((newPage - 1) * limit).toString());
+    setPage(newPage);
+    setParams(newParams);
+  };
+
   const openPopup = (postId) => {
     setSelectedPost(postId);
     setPopupOpen(true);
   };
 
   return (
-    <>
-      <SearchBar />
+    <div className='mt-4 w-1/3'>
+    <SearchBar />
+    <div>
+      <div className='flex justify-between'>
+        <button onClick={prevPage}>Prev</button>
+        { page }
+        <button onClick={nextPage}>Next</button>
+      </div>
       <Results posts={results} onTileClick={(postId) => openPopup(postId)} />
+    </div>
       {
         popupOpen
           ? <Popup onClose={() => setPopupOpen(false)}>
@@ -93,7 +119,7 @@ const Search = ({ user }) => {
             </Popup>
           : null
       }
-    </>
+    </div>
   );
 };
 

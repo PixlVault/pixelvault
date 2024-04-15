@@ -117,12 +117,6 @@ const OfflineCanvasContainer = ({ colour, setIsProjectBrowserOpen, user }) => {
   </>;
 };
 
-const Alert = ({ message }) => {
-  return <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative'>
-    <span>{message}</span>
-  </div>;
-};
-
 const socket = io(import.meta.env.VITE_WSS_URL, {
   path: '/ws/edit',
   auth: { token: localStorage.getItem('auth') },
@@ -153,12 +147,14 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
 
   // This just a placeholder until we have a proper UI for publishing.
   const publishProject = async () => {
-    await post.create(projectId);
-    await post.edit(projectId, {
-      licence: post.Licence.CreativeCommons,
-      cost: 30,
-      tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
-    });
+    try {
+      await post.create(projectId);
+      await post.edit(projectId, {
+        licence: post.Licence.CreativeCommons,
+        cost: 30,
+        tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
+      });
+    } catch (e) { toast.error(e.message); }
 
     await comment.addComment(projectId, "Test comment 1");
     await comment.addComment(projectId, "Test comment 2");
@@ -167,7 +163,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
 
   const collaborateClick = () => {
     setCollabPopupOpen(true);
-  }
+  };
 
   useEffect(() => {
     socket.io.opts.query = { ...socket.io.opts.query, pid: projectId };

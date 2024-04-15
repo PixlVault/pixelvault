@@ -6,7 +6,7 @@ import * as postApi from './../api/post.js';
 import { postImageBase } from '../api/post';
 import SearchBar from './searchBar.jsx';
 
-const ExplorePage = ({ user }) => {
+const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [loadedPosts, setLoadedPosts] = useState(null);
