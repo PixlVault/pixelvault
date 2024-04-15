@@ -19,15 +19,18 @@ const LoginForm = ({ setUser }) => {
 
   const login = async (e) => {
     e.preventDefault();
-    const token = await Api.account.login(username, password);
 
-    if (token !== null) {
-      localStorage.setItem('user', username);
-      localStorage.setItem('auth', token);
-      setUser(username);
-    } else {
-      setAlertMessage('Could not log in!');
+    try {
+      const token = await Api.account.login(username, password);
+      if (token !== null) {
+        localStorage.setItem('user', username);
+        localStorage.setItem('auth', token);
+        setUser(username);
+      }
+    } catch (e) {
+      setAlertMessage('Incorrect Username or Password');
       setTimeout(() => setAlertMessage(''), 2000);
+      console.error(e);
     }
   };
 
@@ -59,12 +62,12 @@ const LoginForm = ({ setUser }) => {
           <label htmlFor='dob'>Date of Birth</label>
           <input className={inputClass} type='date' name='dob' onChange={(e) => setDob(e.target.value)}></input>
           <button className='mb-4' type="submit" onClick={createAccount}>Register</button>
-          <span className='text-red-600  mb-4'>{ alertMessage } &nbsp;</span>
+          <span className='text-center text-red-600 mb-4 text-wrap break-words max-w-56'>{ alertMessage } &nbsp;</span>
           <span className='cursor-pointer text-violet-500 underline' onClick={() => setCreatingAccount(false)}>Already have an account? Log in!</span>
         </>
         : <>
           <button className='mb-4' type="submit" onClick={login}>Log In</button>
-          <span className='text-red-600 mb-4'>{ alertMessage } &nbsp;</span>
+          <span className='text-center text-red-600 mb-4 text-wrap break-words max-w-56'>{ alertMessage } &nbsp;</span>
           <span className='mb-2 cursor-pointer text-violet-500 underline' onClick={() => setCreatingAccount(true)}>Don&apos;t have an account? Sign up!</span>
         </>
       }
