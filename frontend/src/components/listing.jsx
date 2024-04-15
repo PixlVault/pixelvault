@@ -16,39 +16,44 @@ const Listing = ({ postId }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const posts = await postApi.search({ post_id: postId });
-      const post = posts[0]
-      if (post === null || post === undefined) {
-        console.error("Failed to retrieve post data.");
-        return;
-      }
+      try {
+        const posts = await postApi.search({ post_id: postId });
+        const post = posts[0];
 
-      if (localStorage.getItem('user') !== null) {
-        const likedPosts = await postApi.likedBy();
-        if (likedPosts === null || likedPosts === undefined) {
-          console.error("Failed to retrieve liked posts.");
+        if (!post) {
+          console.error("Failed to retrieve post data.");
           return;
         }
-        setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
 
-        const likedComments = await commentApi.likedBy();
-        if (likedComments === null || likedComments === undefined) {
-          console.error("Failed to retrieve liked comments.");
-          return;
+        if (localStorage.getItem('user') !== null) {
+          const likedPosts = await postApi.likedBy();
+          if (!likedPosts) {
+            console.error("Failed to retrieve liked posts.");
+            return;
+          }
+          setLikedThisPost(likedPosts.map(p => p.post_id).includes(postId));
+
+          const likedComments = await commentApi.likedBy();
+          if (!likedComments) {
+            console.error("Failed to retrieve liked comments.");
+            return;
+          }
+          setLikedComments(likedComments);
         }
-        setLikedComments(likedComments);
-      }
 
-      setLoadedPost(post);
+        setLoadedPost(post);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
 
-    fetchData().catch(console.error);
+    fetchData();
     setDataChanged(false);
-  }, [dataChanged]);
+  }, [postId, dataChanged]);
 
   const submitComment = async () => {
     const content = newCommentRef.current.value;
-    if (content.length == 0) {
+    if (content.length === 0) {
       return;
     }
 
@@ -99,19 +104,17 @@ const Listing = ({ postId }) => {
           </div>
 
           <div className="max-h-80 overflow-auto divide-y">
-            {
-              loadedPost.comments.map(c =>
-                <Comment
-                  key={c.comment_id}
-                  commentId={c.comment_id}
-                  author={c.author}
-                  content={c.content}
-                  likes={c.likes}
-                  likeComment={likeComment}
-                  unlikeComment={unlikeComment}
-                  likedComments={likedComments} />
-              )
-            }
+            {loadedPost.comments && loadedPost.comments.map(c =>
+              <Comment
+                key={c.comment_id}
+                commentId={c.comment_id}
+                author={c.author}
+                content={c.content}
+                likes={c.likes}
+                likeComment={likeComment}
+                unlikeComment={unlikeComment}
+                likedComments={likedComments} />
+            )}
           </div>
 
           <div className="flex justify-center">

@@ -8,53 +8,53 @@ import SearchBar from './searchBar.jsx';
 
 const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
-  const [projects, setProjects] = useState([]);
-  const [loadedPosts, setLoadedPosts] = useState(null);
+  const [mostLikedProjects, setMostLikedProjects] = useState([]);
+  const [licensedProjects, setLicensedProjects] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const posts = await postApi.search({});
-      if (posts === null || posts === undefined) {
-        console.error("Failed to retrieve post data.");
+    const fetchMostLikedProjects = async () => {
+      const posts = await search({ order_by: 'likes', limit: 5 });
+      if (!posts) {
+        console.error("Failed to retrieve most liked post data.");
         return;
       }
+      // Reverse the order to display most liked first
+      const reversedPosts = posts.reverse();
+      setMostLikedProjects(reversedPosts);
+    };
 
-      setLoadedPosts(posts);
-    }
+    const fetchLicensedProjects = async () => {
+      const posts = await search({ license: true, limit: 5 });
+      if (!posts) {
+        console.error("Failed to retrieve licensed post data.");
+        return;
+      }
+      setLicensedProjects(posts);
+    };
 
-    fetchData().catch(console.error);
+    fetchMostLikedProjects().catch(console.error);
+    fetchLicensedProjects().catch(console.error);
   }, []);
 
-  const sampleProjectsSet1 = [
-    { id: 1, imageUrl: 'https://i.postimg.cc/MHff2gYG/8-bit-graphics-pixels-scene-with-person-walking-dog-park.jpg', title: 'Title 1' },
-    { id: 2, imageUrl: 'https://i.postimg.cc/c4J5YhLL/7392521.jpg', title: 'Title 2' },
-    { id: 3, imageUrl: 'https://i.postimg.cc/8kfxntVX/7481714.jpg', title: 'Title 3' },
-    { id: 4, imageUrl: 'https://i.postimg.cc/c4J5YhLL/7392521.jpg', title: 'Title 4' },
-    { id: 5, imageUrl: 'https://i.postimg.cc/FRQFZ4zy/20240317-202042-1.jpg', title: 'Title 5' },
-  ];
+  const openPopup = (postId) => {
+    setSelectedPost(postId);
+    setPopupOpen(true);
+  };
 
-  const sampleProjectsSet2 = [
-    { id: 6, imageUrl: 'https://i.postimg.cc/c4J5YhLL/7392521.jpg', title: 'Title 6' },
-    { id: 7, imageUrl: 'https://i.postimg.cc/c4J5YhLL/7392521.jpg', title: 'Title 7' },
-    { id: 8, imageUrl: 'https://i.postimg.cc/8kfxntVX/7481714.jpg', title: 'Title 8' },
-    { id: 9, imageUrl: 'https://i.postimg.cc/Y2vtVQX7/images.jpg', title: 'Title 9' },
-    { id: 10, imageUrl: 'https://i.postimg.cc/Y2vtVQX7/images.jpg', title: 'Title 10' },
-  ];
-  
   return (
-    <div style={{ position: 'relative' }}> {/* Add this line */}
+    <div style={{ position: 'relative' }}>
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
-      <div className="flex justify-center overflow-x-auto border-b border-gray-200 pb-4" style={{ position: 'relative' }}> {/* Add this line */}
-        {sampleProjectsSet1.map((project, index) => (
-          <div key={project.id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center`}>
-            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Featured</div>}
+      <div className="flex justify-center overflow-x-auto border-b border-gray-200 pb-4" style={{ position: 'relative' }}>
+        {mostLikedProjects.map((project, index) => (
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center`}>
+            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
-              src={project.imageUrl}
-              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'}`}
-              onClick={() => setPopupOpen(true)}
+              src={`${postImageBase}${project.post_id}.png`}
+              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
+              onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
             <div className="text-xs text-gray-600">{project.title}</div>
@@ -68,15 +68,15 @@ const ExplorePage = () => {
         </div>
       </div>
 
-      <div className="flex justify-center overflow-x-auto pb-4" style={{ position: 'relative' }}> {/* Add this line */}
-        {sampleProjectsSet2.map((project, index) => (
-          <div key={project.id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center`}>
-            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Featured</div>}
+      <div className="flex justify-center overflow-x-auto pb-4" style={{ position: 'relative' }}>
+        {licensedProjects.map((project, index) => (
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center`}>
+            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Licensed</div>}
             <img
-              src={project.imageUrl}
-              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'}`}
-              onClick={() => setPopupOpen(true)}
-              alt={`Image ${index + 6}`}
+              src={`${postImageBase}${project.post_id}.png`}
+              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
+              onClick={() => openPopup(project.post_id)}
+              alt={`Image ${index + 1}`}
             />
             <div className="text-xs text-gray-600">{project.title}</div>
           </div>
@@ -91,7 +91,7 @@ const ExplorePage = () => {
 
       {popupOpen && (
         <Popup onClose={() => setPopupOpen(false)}>
-          <Listing />
+          <Listing postId={selectedPost} />
         </Popup>
       )}
     </div>
