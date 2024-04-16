@@ -82,9 +82,15 @@ const saveProject = async (contextRef, navigate, width, height) => {
   }
 };
 const ProjectSetup = ({ width, setWidth, height, setHeight, setDimsConfirmed, user }) => {
-  const confirm = () => {
+  const confirm = (e) => {
+    e.preventDefault();
+
     const aspect = width / height;
-    console.log(aspect);
+    if (aspect > 5 || aspect < 0.2) {
+      toast.error('Aspect Ratio must be between 0.2 and 5.0');
+      return;
+    }
+
     if (height >= 8 && height <= 256 && width >= 8 && width <= 256) {
       setDimsConfirmed(true);
     }
@@ -94,8 +100,8 @@ const ProjectSetup = ({ width, setWidth, height, setHeight, setDimsConfirmed, us
 
   return (<div className='m-4'>
     <div>
-      <span className='font-semibold text-xl'>Start a New Project</span>
-      <form className='flex flex-row gap-4 justify-center items-end'>
+      <span className='font-semibold text-xl'>Start a new project:</span>
+      <form className='flex flex-row gap-4 justify-center items-end mb-4'>
         <div>
           <label className='block text-gray-700 uppercase text-sm font-bold'>Width (max 256px)</label>
           <input type='number' value={width} min={8} max={256} onChange={(e) => setWidth(Number.parseInt(e.target.value, 10))} />
@@ -110,7 +116,7 @@ const ProjectSetup = ({ width, setWidth, height, setHeight, setDimsConfirmed, us
     <div>
       <span className='font-semibold text-xl'>Or, </span>
       <span className='underline hover:cursor-pointer font-semibold text-xl' onClick={() => setBrowserOpen(true)}>
-        open an existing one
+        open an existing one.
       </span>
       { browserOpen
         ? <Popup onClose={() => setBrowserOpen(false)} title={'Your Projects'}>
@@ -142,7 +148,7 @@ const OfflineCanvasContainer = ({ setIsProjectBrowserOpen, user }) => {
   return <>
     {
       !dimsConfirmed
-        ? <Popup title='Project Setup' onClose={() => {}}>
+        ? <Popup title='Edit Project' onClose={() => {}} hiddenClose={true}>
           <ProjectSetup width={width} setWidth={setWidth} height={height} setHeight={setHeight} setDimsConfirmed={setDimsConfirmed} user={user} />
           </Popup>
         : <div className="flex flex-col space-y-5">
