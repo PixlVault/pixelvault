@@ -21,10 +21,11 @@ const LoginForm = ({ setUser }) => {
     e.preventDefault();
 
     try {
-      const token = await Api.account.login(username, password);
-      if (token !== null) {
+      const response = await Api.account.login(username, password);
+      if (response.token !== null) {
         localStorage.setItem('user', username);
-        localStorage.setItem('auth', token);
+        localStorage.setItem('auth', response.token);
+        localStorage.setItem('admin', response.is_admin === 1);
         setUser(username);
       }
     } catch (e) {

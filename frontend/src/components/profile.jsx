@@ -1,45 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Link, Navigate, useNavigate, useParams,
-} from 'react-router-dom';
+import { useNavigate, useParams, } from 'react-router-dom';
 import Api from '../api';
 import { userImageBase, defaultImageUrl } from '../api/account/';
 import Tile from './tile';
 import Popup from './popup';
 import Listing from './listing';
 import ProfileOptions from './profile-options';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
-  const loggedInUser = localStorage.getItem('user');
-  const navigate = useNavigate();
   const params = useParams();
+
+  const loggedInUser = localStorage.getItem('user');
+  const userIsAdmin = localStorage.getItem('admin');
+
+  const navigate = useNavigate();
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [listingOpen, setListingOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   const [profile, setProfile] = useState({});
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  const [mostLiked, setMostLiked] = useState([]);
-  const [newest, setNewest] = useState([]);
-
   useEffect(() => {
     Api.account.get(params.username)
       .then((user) => setProfile(user))
       .catch((e) => console.error(e));
-  }, [params.username]);
+  }, [navigate, params.username]);
+  const [isBanned, setIsBanned] = useState(profile?.is_banned === 1);
 
+  const [isFollowing, setIsFollowing] = useState(false);
   useEffect(() => {
     if (loggedInUser !== null) {
       Api.account.following(loggedInUser)
         .then((followList) => {
-          console.log(followList, followList.includes(params.username));
           setIsFollowing(followList.includes(params.username));
         })
         .catch((e) => console.error(e));
     }
   }, [loggedInUser, params.username]);
+
+  const [mostLiked, setMostLiked] = useState([]);
+  const [newest, setNewest] = useState([]);
 
   useEffect(() => {
     if (params.username === undefined) return;
@@ -87,6 +88,44 @@ const Profile = () => {
     setListingOpen(true);
   };
 
+  const ban = async () => {
+    if (profile.username === undefined) {
+      toast.error('Could not ban user; invalid username provided.');
+      return;
+    }
+
+    const proceed = confirm(`Are you sure you want to ban '${profile.username}'?`);
+    if (proceed) {
+      try {
+        await Api.account.ban(profile.username);
+        toast.success(`User ${profile.username} successfully banned.`);
+        setIsBanned(true);
+      } catch (error) {
+        console.error(error);
+        toast.error('Error: Could not ban user');
+      }
+    }
+  };
+
+  const unban = async () => {
+    if (profile.username === undefined) {
+      toast.error('Could not unban user; invalid username provided.');
+      return;
+    }
+
+    const proceed = confirm(`Are you sure you want to unban '${profile.username}'?`);
+    if (proceed) {
+      try {
+        await Api.account.unban(profile.username);
+        toast.success(`User ${profile.username} successfully unbanned.`);
+        setIsBanned(false);
+      } catch (error) {
+        console.error(error);
+        toast.error('Error: Could not unban user');
+      }
+    }
+  };
+
   return (
 
     <div className='mt-4 w-full md:w-1/2 2xl:w-1/3 mx-auto'>
@@ -111,7 +150,14 @@ const Profile = () => {
             </div>
             <div className=' ml-auto max-h-10 justify-end'>
               <FollowButton />
-              <button className="bg-red-500" onClick={() => navigate('/report')}>Report</button>
+              {
+                // eslint-disable-next-line no-nested-ternary
+                userIsAdmin
+                  ? (isBanned
+                    ? <button className="bg-red-500" onClick={unban}>Unban</button>
+                    : <button className="bg-red-500" onClick={ban}>Ban</button>)
+                  : <button className="bg-red-500" onClick={() => navigate('/report')}>Report</button>
+              }
             </div>
           </div>
           <div>

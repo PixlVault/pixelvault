@@ -94,7 +94,7 @@ const Post = {
     });
   }),
 
-  getById: (postId) => new Promise((resolve, reject) => {
+  getById: (postId, showHiddenComments) => new Promise((resolve, reject) => {
     if (postId === undefined) {
       reject(new Error('Missing field: `post_id`'));
       return;
@@ -104,6 +104,8 @@ const Post = {
       reject(new Error('Invalid UUID provided'));
       return;
     }
+
+    console.log('show hidden', showHiddenComments);
 
     db.query(
       `SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, project.created_by AS author,
@@ -135,6 +137,7 @@ const Post = {
           author,
           content,
           timestamp,
+          is_hidden = 1 AS is_hidden,
           IFNULL((SELECT likes
                   FROM   (SELECT DISTINCT *
                           FROM   (SELECT comment_likes.comment_id,
@@ -150,7 +153,9 @@ const Post = {
                          t3
                   WHERE  comment.comment_id = t3.comment_id), 0) AS likes
    FROM   comment
-   WHERE  post_id = UUID_TO_BIN(?, true) AND comment.is_hidden = 0`, [postId, postId], (error, comments) => {
+   WHERE  post_id = UUID_TO_BIN(?, true) ${showHiddenComments ? '' : 'AND comment.is_hidden = 0'}`,
+          [postId, postId],
+          (error, comments) => {
             if (error !== null) {
               reject(error);
               return;

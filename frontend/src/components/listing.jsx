@@ -6,12 +6,14 @@ import ListingInfo from './listing-info.jsx';
 
 import * as postApi from './../api/post.js';
 import * as commentApi from './../api/comment.js';
+import toast from 'react-hot-toast';
 
 const Listing = ({ postId }) => {
   const [loadedPost, setLoadedPost] = useState(null);
   const [likedThisPost, setLikedThisPost] = useState(false);
   const [likedComments, setLikedComments] = useState([]);
   const [dataChanged, setDataChanged] = useState(false);
+
   const newCommentRef = useRef(null);
 
   useEffect(() => {
@@ -19,6 +21,7 @@ const Listing = ({ postId }) => {
       try {
         const posts = await postApi.search({ post_id: postId });
         const post = posts[0];
+        console.log(post);
 
         if (!post) {
           console.error("Failed to retrieve post data.");
@@ -93,6 +96,49 @@ const Listing = ({ postId }) => {
     setDataChanged(true);
   }
 
+  const toggleVisible = async () => {
+    if (!(loadedPost?.is_hidden === 0 || loadedPost?.is_hidden === 1)) {
+      toast.error('Error: Could not hide post.');
+      return;
+    }
+
+    try {
+      if (loadedPost.is_hidden === 0) {
+        await postApi.hide(loadedPost.post_id);
+        toast.success('Post has been hidden.');
+      } else {
+        await postApi.unhide(loadedPost.post_id);
+        toast.success('Post has been made visible.');
+      }
+      setDataChanged(true);
+    } catch (error) {
+      console.error(error);
+      toast.error('Error: Could not hide post.');
+    }
+  }
+
+  const toggleCommentVisible = async (commentId) => {
+    const comment = loadedPost.comments.find((c) => c.comment_id === commentId);
+    if (comment === undefined) {
+      toast.error('Error: Could not hide post.');
+      return;
+    }
+
+    try {
+      if (comment.is_hidden === 1) {
+        await commentApi.unhideComment(commentId);
+        toast.success('Successfully made comment visible.');
+      } else {
+        await commentApi.hideComment(commentId);
+        toast.success('Successfully hid comment.');
+      }
+      setDataChanged(true);
+    } catch (e) {
+      console.error(e);
+      toast.error('Error: Could not hide post.');
+    }
+  };
+
   return (
     <div>
       {loadedPost !== null ?
@@ -108,7 +154,10 @@ const Listing = ({ postId }) => {
             unlikePost={unlikePost}
             likedThisPost={likedThisPost}
             setTags={setTags}
-            setLicence={setLicence} />
+            setLicence={setLicence}
+            isVisible={loadedPost.is_hidden === 0}
+            toggleVisible={toggleVisible}
+          />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
@@ -125,7 +174,11 @@ const Listing = ({ postId }) => {
                 likes={c.likes}
                 likeComment={likeComment}
                 unlikeComment={unlikeComment}
-                likedComments={likedComments} />
+                likedComments={likedComments}
+                visible={c.is_hidden === 0}
+                toggleVisible={() => toggleCommentVisible(c.comment_id)}
+                isAdmin={localStorage.getItem('admin') === 'true'}
+              />
             )}
           </div>
 
