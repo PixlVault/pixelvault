@@ -15,9 +15,9 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
             <div>
               {
                 likedThisComment ?
-                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle" src="pixelartheart.png" onClick={() => unlikeComment(commentId)} />
+                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle" src="/pixelartheart.png" onClick={() => unlikeComment(commentId)} />
                   :
-                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle" src="pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
+                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle" src="/pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
               }
             </div>
             <div>{likes}</div>
