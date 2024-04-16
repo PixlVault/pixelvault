@@ -8,18 +8,18 @@ const { writePostImage } = require('../utils/image');
 
 const Post = {
   /** Search for posts according to some criteria.
-   * @param {string} author Only show results published by a specific author.
-   * @param {string} licence Only show results with a certain licence.
+   * @param {string | undefined} author Only show results published by a specific author.
+   * @param {string | undefined} licence Only show results with a certain licence.
    * @param {string} orderByField If specified, orders results by this field.
+   *                              accepts one of ['title', 'published_on', 'likes'].
    * @param {boolean} ascending Boolean - should ordering be ascending or descending?
    * @param {boolean} onlyShowFollowed Boolean - only show publications from followed users?
    *                             Note that this requires the requestingUser field.
    * @param {string} requestingUser
-   * @param {string} tags An array of tags to filter against.
-   * @param {number} minCost The minimum cost item that should be returned.
-   * @param {number} maxCost The maximum cost item that should be returned.
+   * @param {Array<string> | undefined} tags An array of tags to filter against.
    * @param {number} limit The number of results to fetch. Defaults to 25.
    * @param {number} offset The offset for returned results. Defaults to 0.
+   * @param {boolean} showHidden The offset for returned results. Defaults to 0.
    */
   search: (
     requestingUser,
@@ -29,17 +29,11 @@ const Post = {
     ascending = true,
     onlyShowFollowed = false,
     tags = undefined,
-    minCost = 0,
-    maxCost = 1000000000000,
     title = undefined,
     limit = 25,
     offset = 0,
+    showHidden = false,
   ) => new Promise((resolve, reject) => {
-    if (typeof minCost !== 'number' || typeof maxCost !== 'number') {
-      reject(new Error('`cost` range must consist of numeric values'));
-      return;
-    }
-
     const params = [];
     let query = `SELECT *,
         BIN_TO_UUID(post_id, TRUE) AS post_id, 
@@ -49,7 +43,7 @@ const Post = {
         (SELECT COUNT(*) FROM post_likes WHERE post_likes.post_id =  post.post_id) AS likes
       FROM post
       LEFT JOIN project ON project.project_id = post.post_id
-      WHERE is_hidden = 0 AND`;
+      WHERE `;
 
     if (tags !== undefined) {
       query = `${query} post.post_id IN (SELECT post_id FROM post_tags WHERE tag IN (?)) AND `;
@@ -74,12 +68,10 @@ const Post = {
       params.push(licence);
     }
 
-    query = ` ${query} cost BETWEEN ? AND ?`;
-    params.push(minCost);
-    params.push(maxCost);
+    query = ` ${query} is_hidden = 0 ${showHidden === true ? 'OR is_hidden = 1 ' : ''}`;
 
     if (orderByField !== undefined) {
-      if (['title', 'cost', 'published_on', 'likes'].includes(orderByField)) {
+      if (['title', 'published_on', 'likes'].includes(orderByField)) {
         query = `${query} ORDER BY ${orderByField} ${ascending ? 'ASC' : 'DESC'}`;
       } else {
         reject(new Error(`Invalid sort field: \`${orderByField}\``));
