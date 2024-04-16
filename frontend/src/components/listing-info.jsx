@@ -57,7 +57,7 @@ const ListingInfo = ({
   return (
     <div className="w-full h-full grid grid-flow-row-dense grid-cols-2 grid-rows-1">
       <div className="flex justify-center items-center">
-        <img className="w-48 h-48 border  border-gray-300" src={`${postImageBase}${postId}.png`} />
+        <img className="pixelated w-48 h-48 border  border-gray-300" src={`${postImageBase}${postId}.png`} />
       </div>
       <div>
         <div className="h-full grid grid-flow-row-dense grid-cols-2 grid-rows-3">

@@ -69,7 +69,7 @@ const ExplorePage = () => {
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className={`w-full h-auto aspect-square object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
+              className={`pixelated w-full h-auto aspect-square object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
@@ -91,7 +91,7 @@ const ExplorePage = () => {
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Recent</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className={`w-full h-auto aspect-square object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
+              className={`pixelated w-full h-auto aspect-square object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />

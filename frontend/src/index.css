@@ -18,3 +18,9 @@ button {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
+
+@layer utilities {
+    .pixelated {
+      image-rendering: pixelated;
+    }
+  }
