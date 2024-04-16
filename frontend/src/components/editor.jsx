@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import LZString from 'lz-string';
 
@@ -100,7 +100,7 @@ const ProjectSetup = ({ width, setWidth, height, setHeight, setDimsConfirmed, us
 
   return (<div className='m-4'>
     <div>
-      <span className='font-semibold text-xl'>Start a new project:</span>
+      <span className='font-semibold text-lg'>Start a new project:</span>
       <form className='flex flex-row gap-4 justify-center items-end mb-4'>
         <div>
           <label className='block text-gray-700 uppercase text-sm font-bold'>Width (max 256px)</label>
@@ -110,23 +110,23 @@ const ProjectSetup = ({ width, setWidth, height, setHeight, setDimsConfirmed, us
           <label className='block text-gray-700 uppercase text-sm font-bold'>Height (max 256px)</label>
           <input type='number' value={height} min={8} max={256} onChange={(e) => setHeight(Number.parseInt(e.target.value, 10))} />
         </div>
-        <button className='h-8' type='submit' onClick={confirm}>Open</button>
+        <button type='submit' onClick={confirm}>Open</button>
       </form>
     </div>
-    <div>
-      <span className='font-semibold text-xl'>Or, </span>
-      <span className='underline hover:cursor-pointer font-semibold text-xl' onClick={() => setBrowserOpen(true)}>
-        open an existing one.
+    <div className='flex justify-between'>
+      <span className='underline hover:cursor-pointer font-semibold text-lg' onClick={() => setBrowserOpen(true)}>
+        Or open an existing one.
       </span>
-      { browserOpen
-        ? <Popup onClose={() => setBrowserOpen(false)} title={'Your Projects'}>
-            <ProjectBrowser
-              username={user}
-              closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
-            />
-          </Popup>
-        : null }
+      <Link className='font-semibold underline' to='/explore'>Exit</Link>
     </div>
+    { browserOpen
+      ? <Popup onClose={() => setBrowserOpen(false)} title={'Your Projects'}>
+          <ProjectBrowser
+            username={user}
+            closeProjectBrowser={() => setIsProjectBrowserOpen(false)}
+          />
+        </Popup>
+      : null }
   </div>);
 };
 
@@ -148,7 +148,7 @@ const OfflineCanvasContainer = ({ setIsProjectBrowserOpen, user }) => {
   return <>
     {
       !dimsConfirmed
-        ? <Popup title='Edit Project' onClose={() => {}} hiddenClose={true}>
+        ? <Popup onClose={() => {}} hiddenClose={true}>
           <ProjectSetup width={width} setWidth={setWidth} height={height} setHeight={setHeight} setDimsConfirmed={setDimsConfirmed} user={user} />
           </Popup>
         : <div className="flex flex-col space-y-5">
@@ -161,6 +161,7 @@ const OfflineCanvasContainer = ({ setIsProjectBrowserOpen, user }) => {
                 <div>
                   <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { setIsProjectBrowserOpen(true) }}>Open</div>
                   <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => saveProject(contextRef, navigate, width, height)}>Save as project</div>
+                  <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setDimsConfirmed(false)}>Close Project</div>
                 </div> : <></>}
               <div href="#" className="block px-4 py-2 text-sm hover:bg-gray-400" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
             </Dropdown>
