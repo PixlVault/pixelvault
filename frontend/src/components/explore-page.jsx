@@ -1,3 +1,4 @@
+// Import truncate class from Tailwind CSS
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { search } from '../api/post';
@@ -16,13 +17,12 @@ const ExplorePage = () => {
   useEffect(() => {
     const fetchMostLikedProjects = async () => {
       try {
-        const posts = await search({ order_by: 'likes', limit: 5 });
+        const posts = await search({ order_by: 'likes', ascending: false, limit: 5 });
         if (!posts) {
           console.error("Failed to retrieve most liked post data.");
           return;
         }
-        const reversedPosts = posts.reverse();
-        setMostLikedProjects(reversedPosts);
+        setMostLikedProjects(posts);
       } catch (error) {
         console.error("Error fetching most liked projects:", error);
       }
@@ -30,13 +30,12 @@ const ExplorePage = () => {
 
     const fetchRecentPosts = async () => {
       try {
-        const posts = await search({ limit: 5 });
+        const posts = await search({ order_by: 'published_on', ascending: false, limit: 5 });
         if (!posts) {
           console.error("Failed to retrieve recent post data.");
           return;
         }
-        const reversedPosts = posts.reverse();
-        setRecentPosts(reversedPosts);
+        setRecentPosts(posts);
       } catch (error) {
         console.error("Error fetching recent posts:", error);
       }
@@ -52,7 +51,7 @@ const ExplorePage = () => {
   };
 
   const handleSeeMoreRecent = () => {
-    navigate('/search?order_by=published_on&ascending=false'); // Navigate to search page with order_by set to 'published_on'
+    navigate('/search?order_by=published_on&ascending=false');
   };
 
   const handleSeeMoreMostLiked = () => {
@@ -60,15 +59,13 @@ const ExplorePage = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 w-6/12"> {/* Padding based on screen size */}
+    <div className="px-4 sm:px-6 lg:px-8">
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
-      <div className="flex flex-col md:flex-row justify-center overflow-x-auto border-b border-gray-200 pb-4">
-        {/* Use flex-col for small screens and flex-row for medium and larger screens */}
+      <div className="flex flex-col sm:flex-row justify-center items-center overflow-x-auto pb-4">
         {mostLikedProjects.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-3/12' : 'w-2/12'} flex flex-col justify-center items-center`}>
-            {/* Use 1/5 width for medium and larger screens */}
+          <div key={project.post_id} className={`relative p-1 sm:p-2 ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center mb-4 sm:mb-0`}>
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
@@ -76,7 +73,8 @@ const ExplorePage = () => {
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
-            <div className="text-xs text-gray-600">{project.title}</div>
+            {/* Apply truncate class and set max width */}
+            <div className="text-xs text-gray-600 truncate max-w-[8rem]">{project.title}</div>
           </div>
         ))}
         <div className="flex flex-col items-center justify-center ml-4">
@@ -87,11 +85,9 @@ const ExplorePage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center overflow-x-auto pb-4">
-        {/* Use flex-col for small screens and flex-row for medium and larger screens */}
+      <div className="flex flex-col sm:flex-row justify-center items-center overflow-x-auto pb-4">
         {recentPosts.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-3/12' : 'w-2/12'} flex flex-col justify-center items-center`}>
-            {/* Use 1/5 width for medium and larger screens */}
+          <div key={project.post_id} className={`relative p-1 sm:p-2 ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center mb-4 sm:mb-0`}>
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Recent</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
@@ -99,7 +95,8 @@ const ExplorePage = () => {
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
-            <div className="text-xs text-gray-600">{project.title}</div>
+            {/* Apply truncate class and set max width */}
+            <div className="text-xs text-gray-600 truncate max-w-[8rem]">{project.title}</div>
           </div>
         ))}
         <div className="flex flex-col items-center justify-center ml-4">
