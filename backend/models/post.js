@@ -258,8 +258,9 @@ const Post = {
       return;
     }
 
-    const deleteQuery = `DELETE FROM post_tags
-      WHERE post_id = UUID_TO_BIN(?, TRUE) AND tag NOT IN (${tags.map(() => '?').join(', ')});`;
+    var deleteQuery = `DELETE FROM post_tags
+      WHERE post_id = UUID_TO_BIN(?, TRUE)`;
+    deleteQuery += tags.length > 0 ? ` AND tag NOT IN (${tags.map(() => '?').join(', ')});` : ';';
 
     db.query(deleteQuery, [postId, ...tags], (err) => {
       if (err) {

@@ -8,6 +8,8 @@ import Dropdown from './dropdown';
 import { postImageBase } from '../api/post';
 import * as post from '../api/post';
 
+import textToTags from '../utils/tags';
+
 const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost, setTags, setLicence }) => {
   const [editingTags, setEditingTags] = useState(false);
   const tagsTextAreaRef = useRef(null);
@@ -25,15 +27,11 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
   }
 
   const confirmTags = async () => {
-    var val = tagsTextAreaRef.current.value;
-    val = val
-      .replace("  ", "")
-      .split(" ")
-      .filter(v => v.startsWith('#'))
-      .map(v => v.substring(1));
+    var tags = textToTags(tagsTextAreaRef.current.value);
+    console.log(tags);
 
     try {
-      await setTags(val);
+      await setTags(tags);
       toast.success("Tags changed");
     } catch (err) {
       toast.error(`${err}`);

@@ -7,6 +7,7 @@ import Canvas from './canvas';
 import ProjectBrowser from './projectbrowser';
 import Dropdown from './dropdown';
 import Collab from './collab';
+import NewListing from './new-listing';
 
 import * as project from '../api/project';
 import * as post from '../api/post';
@@ -134,6 +135,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
   const [canvasReady, setCanvasReady] = useState(false);
 
   const [collabPopupOpen, setCollabPopupOpen] = useState(false);
+  const [newPostPopupOpen, setNewPostPopupOpen] = useState(false);
 
   useEffect(() => {
     project.get(projectId)
@@ -145,21 +147,19 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
       });
   }, [projectId]);
 
-  // This just a placeholder until we have a proper UI for publishing.
-  const publishProject = async () => {
+  const publish = async (licence, tags) => {
     try {
       await post.create(projectId);
-      await post.edit(projectId, {
-        licence: post.Licence.CreativeCommons,
-        cost: 30,
-        tags: ['tag1', 'looooooongtag2', 'tag3', 'tag4', 'looooooongtag5', 'tag6', 'tag7']
-      });
-    } catch (e) { toast.error(e.message); }
+      await post.edit(projectId, { licence, tags });
 
-    await comment.addComment(projectId, "Test comment 1");
-    await comment.addComment(projectId, "Test comment 2");
-    await comment.addComment(projectId, "Test comment 3");
-  };
+      toast.success(`Published ${currentProject.title}`);
+      setNewPostPopupOpen(false);
+
+      navigate('../edit/');
+    } catch(err) {
+      toast.error(`${err}`);
+    }
+  }
 
   const collaborateClick = () => {
     setCollabPopupOpen(true);
@@ -244,7 +244,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
         </div>
         <Dropdown title="File" >
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => { setIsProjectBrowserOpen(true) }}>Open</div>
-          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={publishProject}>Publish</div>
+          <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => setNewPostPopupOpen(true)}>Publish</div>
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => exportImage(canvasRef)}>Export</div>
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => navigate('../edit/')}>Close Project</div>
           <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={collaborateClick}>Collaborators</div>
@@ -255,6 +255,14 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
         collabPopupOpen ?
         <Popup onClose={() => setCollabPopupOpen(false)} title="Collaborators">
           <Collab projectId={currentProject.project_id} />
+        </Popup>
+        : ""
+      }
+
+      {
+        newPostPopupOpen ?
+        <Popup onClose={() => setNewPostPopupOpen(false)} title={`Publish ${currentProject.title}`}>
+          <NewListing publish={publish}/>
         </Popup>
         : ""
       }
