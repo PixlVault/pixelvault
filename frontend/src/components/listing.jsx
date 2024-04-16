@@ -83,10 +83,20 @@ const Listing = ({ postId }) => {
     setDataChanged(true);
   }
 
+  const setTags = async (newTags) => {
+    await postApi.edit(postId, {tags: newTags});
+    setDataChanged(true);
+  }
+
+  const setLicence = async (newLicence) => {
+    await postApi.edit(postId, {licence: newLicence});
+    setDataChanged(true);
+  }
+
   return (
     <div>
       {loadedPost !== null ?
-        <div className="flex flex-col">
+        <div className="flex flex-col max-w-xl px-3">
           <ListingInfo
             postId={postId}
             title={loadedPost.title}
@@ -96,14 +106,16 @@ const Listing = ({ postId }) => {
             tags={loadedPost.tags}
             likePost={likePost}
             unlikePost={unlikePost}
-            likedThisPost={likedThisPost} />
+            likedThisPost={likedThisPost}
+            setTags={setTags}
+            setLicence={setLicence} />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
             <button className="max-w-third mx-auto" onClick={submitComment}>Comment</button>
           </div>
 
-          <div className="max-h-80 overflow-auto divide-y">
+          <div className="max-h-60 overflow-auto divide-y">
             {loadedPost.comments && loadedPost.comments.map(c =>
               <Comment
                 key={c.comment_id}
