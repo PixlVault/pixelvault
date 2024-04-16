@@ -64,7 +64,7 @@ const ExplorePage = () => {
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
-      <div className="flex flex-col md:flex-row overflow-x-auto border-b border-gray-200 pb-4">
+      <div className="flex flex-col md:flex-row justify-center overflow-x-auto border-b border-gray-200 pb-4">
         {/* Use flex-col for small screens and flex-row for medium and larger screens */}
         {mostLikedProjects.map((project, index) => (
           <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-3/12' : 'w-2/12'} flex flex-col justify-center items-center`}>
