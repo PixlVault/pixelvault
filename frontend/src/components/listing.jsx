@@ -83,6 +83,16 @@ const Listing = ({ postId }) => {
     setDataChanged(true);
   }
 
+  const setTags = async (newTags) => {
+    await postApi.edit(postId, {tags: newTags});
+    setDataChanged(true);
+  }
+
+  const setLicence = async (newLicence) => {
+    await postApi.edit(postId, {licence: newLicence});
+    setDataChanged(true);
+  }
+
   return (
     <div>
       {loadedPost !== null ?
@@ -96,7 +106,9 @@ const Listing = ({ postId }) => {
             tags={loadedPost.tags}
             likePost={likePost}
             unlikePost={unlikePost}
-            likedThisPost={likedThisPost} />
+            likedThisPost={likedThisPost}
+            setTags={setTags}
+            setLicence={setLicence} />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
