@@ -9,33 +9,41 @@ import SearchBar from './searchBar.jsx';
 const ExplorePage = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [mostLikedProjects, setMostLikedProjects] = useState([]);
-  const [licensedProjects, setLicensedProjects] = useState([]);
+  const [recentPosts, setRecentPosts] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMostLikedProjects = async () => {
-      const posts = await search({ order_by: 'likes', limit: 5 });
-      if (!posts) {
-        console.error("Failed to retrieve most liked post data.");
-        return;
+      try {
+        const posts = await search({ order_by: 'likes', limit: 5 });
+        if (!posts) {
+          console.error("Failed to retrieve most liked post data.");
+          return;
+        }
+        const reversedPosts = posts.reverse();
+        setMostLikedProjects(reversedPosts);
+      } catch (error) {
+        console.error("Error fetching most liked projects:", error);
       }
-      // Reverse the order to display most liked first
-      const reversedPosts = posts.reverse();
-      setMostLikedProjects(reversedPosts);
     };
 
-    const fetchLicensedProjects = async () => {
-      const posts = await search({ license: true, limit: 5 });
-      if (!posts) {
-        console.error("Failed to retrieve licensed post data.");
-        return;
+    const fetchRecentPosts = async () => {
+      try {
+        const posts = await search({ limit: 5 });
+        if (!posts) {
+          console.error("Failed to retrieve recent post data.");
+          return;
+        }
+        const reversedPosts = posts.reverse();
+        setRecentPosts(reversedPosts);
+      } catch (error) {
+        console.error("Error fetching recent posts:", error);
       }
-      setLicensedProjects(posts);
     };
 
-    fetchMostLikedProjects().catch(console.error);
-    fetchLicensedProjects().catch(console.error);
+    fetchMostLikedProjects();
+    fetchRecentPosts();
   }, []);
 
   const openPopup = (postId) => {
@@ -43,23 +51,28 @@ const ExplorePage = () => {
     setPopupOpen(true);
   };
 
+  const handleSeeMoreRecent = () => {
+    navigate('/search?order_by=published_on&ascending=false'); // Navigate to search page with order_by set to 'published_on'
+  };
+
   const handleSeeMoreMostLiked = () => {
-    // Navigate to the search page with most liked filter
-    navigate('/search?order_by=likes');
+    navigate('/search?order_by=likes&ascending=false');
   };
 
   return (
-    <div className="mx-auto max-w-screen-lg px-4">
+    <div className="px-4 sm:px-6 lg:px-8"> {/* Padding based on screen size */}
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
-      <div className="flex justify-center flex-wrap gap-4 pb-4">
+      <div className="flex flex-col md:flex-row overflow-x-auto border-b border-gray-200 pb-4">
+        {/* Use flex-col for small screens and flex-row for medium and larger screens */}
         {mostLikedProjects.map((project, index) => (
-          <div key={project.post_id} className="relative w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-1 flex flex-col justify-center items-center">
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center md:w-1/5`}>
+            {/* Use 1/5 width for medium and larger screens */}
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className="w-full object-cover aspect-w-1 aspect-h-1 cursor-pointer hover:opacity-75 border border-gray-300"
+              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
@@ -70,17 +83,19 @@ const ExplorePage = () => {
           <svg className="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
           </svg>
-          <Link to="#" onClick={handleSeeMoreMostLiked} className="text-sm text-gray-600 cursor-pointer">See more</Link>
+          <Link to="/search?order_by=likes&ascending=false" className="text-sm text-gray-600 cursor-pointer">See more</Link>
         </div>
       </div>
 
-      <div className="flex justify-center flex-wrap gap-4 pb-4">
-        {licensedProjects.map((project, index) => (
-          <div key={project.post_id} className="relative w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-1 flex flex-col justify-center items-center">
-            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Licensed</div>}
+      <div className="flex flex-col md:flex-row justify-center overflow-x-auto pb-4">
+        {/* Use flex-col for small screens and flex-row for medium and larger screens */}
+        {recentPosts.map((project, index) => (
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center md:w-1/5`}>
+            {/* Use 1/5 width for medium and larger screens */}
+            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Recent</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className="w-full object-cover aspect-w-1 aspect-h-1 cursor-pointer hover:opacity-75 border border-gray-300"
+              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
@@ -91,7 +106,7 @@ const ExplorePage = () => {
           <svg className="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
           </svg>
-          <div className="text-sm text-gray-600">See more</div>
+          <Link to="/search?order_by=published_on&ascending=false" className="text-sm text-gray-600 cursor-pointer">See more</Link>
         </div>
       </div>
 
