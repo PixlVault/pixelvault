@@ -91,7 +91,7 @@ const setBanned = async (req, res) => {
 
   try {
     if (req.method === 'POST') {
-      await User.ban(req.body.username);
+      await User.ban(req.body.username, req.token.username);
       return res.status(201).send();
     }
     if (req.method === 'DELETE') {

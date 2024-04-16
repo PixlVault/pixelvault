@@ -39,11 +39,28 @@ const User = {
     });
   }),
 
-  ban: (username) => new Promise((resolve, reject) => {
+  /**
+   * Bans a user - includes hiding all of their posts and comments.
+   * @param {string} username The user to ban.
+   * @param {string} bannedBy The admin banning them.
+   */
+  ban: (username, bannedBy) => new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Invalid username provided'));
       return;
     }
+
+    db.query(
+      'UPDATE post SET is_hidden = 1, hidden_by = ? WHERE post_id IN (SELECT project_id FROM project WHERE created_by = ?)',
+      [bannedBy, username],
+      (err) => { if (err) reject(err); },
+    );
+
+    db.query(
+      'UPDATE comment SET is_hidden = 1, hidden_by = ? WHERE author = ?',
+      [bannedBy, username],
+      (err) => { if (err) reject(err); },
+    );
 
     db.query('UPDATE user SET is_banned = 1 WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
@@ -51,11 +68,27 @@ const User = {
     });
   }),
 
+  /**
+   * Unbans a user - includes unhiding all of their posts and comments.
+   * @param {string} username The user to unban.
+   */
   unban: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Invalid username provided'));
       return;
     }
+
+    db.query(
+      'UPDATE post SET is_hidden = 0, hidden_by = NULL WHERE post_id IN (SELECT project_id FROM project WHERE created_by = ?)',
+      [username],
+      (err) => { if (err) reject(err); },
+    );
+
+    db.query(
+      'UPDATE comment SET is_hidden = 0, hidden_by = NULL WHERE author = ?',
+      [username],
+      (err) => { if (err) reject(err); },
+    );
 
     db.query('UPDATE user SET is_banned = 0 WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
