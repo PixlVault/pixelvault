@@ -88,6 +88,7 @@ const Profile = () => {
   };
 
   return (
+
     <div className='mt-4 w-full md:w-1/2 2xl:w-1/3 mx-auto'>
       <div className='flex mx-auto mb-4'>
         <div>
@@ -116,15 +117,21 @@ const Profile = () => {
           <div>
             <p className='text-wrap break-words'>{profile.biography === null ? 'This user has provided no biography.' : profile.biography}</p>
           </div>
-
-          <div className='p-1 flex flex-row'>
-            <img
-              src='../tiktok.png'
-              className='rounded w-[30px] min-w-[30px] mr-4'
-            />
-            <a href= {`https://www.tiktok.com/@${profile.tiktok}`} >{profile.tiktok === null ? '' : `tiktok.com/@${profile.tiktok}`}</a>
-          </div>
-
+          {
+            profile.tiktok
+              ?
+                <div className='p-1 flex flex-row'>
+                  <img
+                    src='../tiktok.png'
+                    className='rounded w-[30px] min-w-[30px] mr-4'
+                  />
+                  <a href= {`https://www.tiktok.com/@${profile.tiktok}`} >{profile.tiktok === null ? '' : `tiktok.com/@${profile.tiktok}`}</a>
+                </div>
+              : null
+          }
+          {
+            profile.youtube
+              ?
           <div className='p-1 flex flex-row'>
             <img
               src='../youtube.png'
@@ -132,7 +139,11 @@ const Profile = () => {
             />
             <a href= {`https://www.youtube.com/@${profile.youtube}`} >{profile.youtube === null ? '' : `youtube.com/@${profile.youtube}`}</a>
           </div>
-
+              : null
+          }
+          {
+            profile.instagram
+              ?
           <div className='p-1 flex flex-row'>
             <img
               src='../instagram.png'
@@ -140,6 +151,11 @@ const Profile = () => {
             />
             <a href= {`https://www.instagram.com/${profile.instagram}`}>{profile.instagram === null ? '' : `instagram.com/${profile.instagram}`}</a>
           </div>
+              : null
+          }
+          {
+            profile.twitter
+              ?
           <div className='p-1 flex flex-row'>
             <img
               src='../twitter.png'
@@ -147,6 +163,8 @@ const Profile = () => {
             />
             <a href= {`https://www.x.com/${profile.twitter}`}>{profile.twitter === null ? '' : `x.com/${profile.twitter}`}</a>
           </div>
+              : null
+        }
         </div>
       </div>
 
