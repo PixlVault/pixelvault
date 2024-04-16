@@ -18,7 +18,6 @@ const ProfileOptions = ({ profile }) => {
   const [newYoutube, setNewYoutube] = useState('');
 
   const update = (updates, successMessage) => {
-    console.log('doing');
     Api.account.update(profile.username, updates)
       .then(() => toast.success(successMessage))
       .catch((e) => {
@@ -72,6 +71,19 @@ const ProfileOptions = ({ profile }) => {
     if (newTikTok && (newTikTok.length < 25)) {
       update({ tiktok: newTikTok }, 'Successfully set TikTok.');
     }
+  };
+  const removeHandles = () => {
+    Api.account.update(profile.username,
+      { 
+        twitter: null,
+        youtube: null,
+        tiktok: null,
+        instagram: null,
+      }).then(() => toast.success('Sucessully deleted socials.'))
+      .catch((e) => {
+        toast.error('Failed to save details.');
+        console.error(e);
+      });
   };
 
   const fileInput = useRef();
@@ -130,22 +142,25 @@ const ProfileOptions = ({ profile }) => {
             <label htmlFor='youtube' className='block font-semibold'>
               YouTube:
             </label>
-              <input id='youtube' className='w-full py-1' onChange={(e) => setNewYoutube(e.target.value)}></input>
+              <input value={newYoutube} id='youtube' className='w-full py-1' onChange={(e) => setNewYoutube(e.target.value)}></input>
             <label htmlFor='x' className='block font-semibold'>
               X:
             </label>
-              <input id='x' className='w-full py-1' onChange={(e) => setNewTwitter(e.target.value)}></input>
+              <input value={newTwitter} id='x' className='w-full py-1' onChange={(e) => setNewTwitter(e.target.value)}></input>
             <label htmlFor='instagram' className='block font-semibold'>
               Instagram:
             </label>
-              <input id='instagram' className='w-full py-1' onChange={(e) => setNewInstagram(e.target.value)}></input>
+              <input value={newInstagram} id='instagram' className='w-full py-1' onChange={(e) => setNewInstagram(e.target.value)}></input>
             <label htmlFor='tiktok' className='block font-semibold'>
               TikTok:
             </label>
-              <input id='tiktok' className='w-full py-1' onChange={(e) => setNewTikTok(e.target.value)}></input>
+              <input value={newTikTok} id='tiktok' className='w-full py-1' onChange={(e) => setNewTikTok(e.target.value)}></input>
           </form>
-          <button className='max-h-8' type='submit' onClick={saveHandles}>Save</button>
         </div>
+      </div>
+      <div className='inline-flex items-center justify-between w-full rounded p-2'>
+        <button type='submit' onClick={saveHandles}>Save</button>
+        <button type='submit' onClick={removeHandles}>Remove Socials</button>
       </div>
     </div>
   );
