@@ -48,7 +48,7 @@ const Profile = () => {
       .then((posts) => setMostLiked(posts))
       .catch((error) => console.error(error));
 
-    Api.post.search({ author: params.username, limit: 5})
+    Api.post.search({ author: params.username, limit: 5, ascending: false })
       .then((posts) => setNewest(posts))
       .catch((error) => console.error(error));
   }, [params]);
