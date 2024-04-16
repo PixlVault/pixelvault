@@ -8,7 +8,7 @@ import { useState, useRef, useEffect } from 'react';
  * 
  * If both are specified, titleElement will be used.
  */
-const Dropdown = ({ title, titleElement, children }) => {
+const Dropdown = ({ title, titleElement, children, width = 56 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const titleButtonRef = useRef(null);
@@ -50,7 +50,7 @@ const Dropdown = ({ title, titleElement, children }) => {
 
         <div className="inline-block relative text-left">
           {menuOpen ?
-            <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" ref={menuRef}>
+            <div className={`absolute right-0 z-10 mt-2 w-${width} origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`} ref={menuRef}>
               <div className="py-1" role="none">
                 {children}
               </div>
