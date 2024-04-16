@@ -18,7 +18,7 @@ router.post('/search', async (req, res) => {
   const isAdmin = req.token?.is_admin === 1;
   try {
     if (req.body.post_id !== undefined) {
-      const post = (await Post.getById(req.body.post_id))
+      const post = (await Post.getById(req.body.post_id, isAdmin))
         .map((p) => removeSensitiveData(p));
 
       if (post.length === 0) {
@@ -217,7 +217,7 @@ const setHidden = async (req, res) => {
       return res.status(401).json({ error: 'Cannot un/hide a non-owned post' });
     }
 
-    const post = (await Post.getById(postId))[0];
+    const post = (await Post.getById(postId, false))[0];
     if (post === undefined) {
       return res.status(404).json({ error: 'Cannot un/hide a post which does not exist' });
     }

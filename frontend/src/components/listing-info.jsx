@@ -10,10 +10,14 @@ import * as post from '../api/post';
 
 import textToTags from '../utils/tags';
 
-const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost, setTags, setLicence }) => {
+const ListingInfo = ({
+  postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost,
+  setTags, setLicence, isVisible, toggleVisible
+}) => {
   const [editingTags, setEditingTags] = useState(false);
   const tagsTextAreaRef = useRef(null);
   const isOwner = author == localStorage.getItem('user');
+  const isAdmin = localStorage.getItem('admin') === 'true';
 
   if (tags != null) {
     var tagRows = [];
@@ -91,7 +95,13 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
             </div>
           </div>
           <div className="flex flex-col justify-center items-center">
-            <button className="bg-red-600">Report</button>
+            {
+              isAdmin
+              ? <button className="bg-red-600" onClick={toggleVisible}>{isVisible ? 'Hide' : 'Unhide'}</button>
+              : <button className="bg-red-600">Report</button>
+            
+            }
+            
           </div>
           <div className="flex flex-col col-span-2 space-y-2 max-h-[70px] px-4">
             <div className="flex">
