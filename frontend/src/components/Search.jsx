@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { search } from '../api/post';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import Popup from './popup';
 import Listing from './listing';
 import Tile from './tile';
@@ -36,7 +36,6 @@ const Search = ({ user }) => {
   const [results, setResults] = useState([]);
   const [selectedPost, setSelectedPost] = useState(null);
   const [popupOpen, setPopupOpen] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const parseParams = () => {
