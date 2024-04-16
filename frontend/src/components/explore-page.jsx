@@ -87,8 +87,9 @@ const ExplorePage = () => {
 
       <div className="flex justify-center overflow-x-auto pb-4">
         {recentPosts.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center`}>
-            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Recent</div>}
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-3/12' : 'w-2/12'} flex flex-col justify-center items-center`}>
+            {/* Use 1/5 width for medium and larger screens */}
+            {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Recent</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
               className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
