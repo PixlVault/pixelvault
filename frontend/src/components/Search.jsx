@@ -61,18 +61,20 @@ const Search = ({ user }) => {
   const nextPage = () => {
     const newPage = page + 1;
     const limit = params.get('limit') === null ? 25 : Number.parseInt(params.get('limit'), 10);
-    const offset = (newPage - 1) * limit;
-    navigate(`?${params}&offset=${offset}`);
+    let newParams = params;
+    newParams.set('offset', ((newPage - 1) * limit).toString());
     setPage(newPage);
+    setParams(newParams);
   };
 
   const prevPage = () => {
     if (page === 1) return;
     const newPage = page - 1;
     const limit = params.get('limit') === null ? 25 : Number.parseInt(params.get('limit'), 10);
-    const offset = (newPage - 1) * limit;
-    navigate(`?${params}&offset=${offset}`);
+    let newParams = params;
+    newParams.set('offset', ((newPage - 1) * limit).toString());
     setPage(newPage);
+    setParams(newParams);
   };
 
   const openPopup = (postId) => {
@@ -84,12 +86,12 @@ const Search = ({ user }) => {
     <div className='mt-4 w-1/3'>
       <SearchBar />
       <div>
-        <Results posts={results} onTileClick={(postId) => openPopup(postId)} />
         <div className='flex justify-between'>
           <button onClick={prevPage}>Prev</button>
           { page }
           <button onClick={nextPage}>Next</button>
         </div>
+        <Results posts={results} onTileClick={(postId) => openPopup(postId)} />
       </div>
       {
         popupOpen
