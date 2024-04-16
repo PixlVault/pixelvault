@@ -12,8 +12,13 @@ const ProfileOptiions = ({ profile }) => {
 
   const [biography, setBiography] = useState(profile.biography === null ? '' : profile.biography);
   const [newPassword, setNewPassword] = useState('');
+  const [newTwitter, setNewTwitter] = useState('');
+  const [newInstagram, setNewInstagram] = useState('');
+  const [newTikTok, setNewTikTok] = useState('');
+  const [newYoutube, setNewYoutube] = useState('');
 
   const update = (updates, successMessage) => {
+    console.log('doing');
     Api.account.update(profile.username, updates)
       .then(() => toast.success(successMessage))
       .catch((e) => {
@@ -53,11 +58,27 @@ const ProfileOptiions = ({ profile }) => {
     refreshImage();
   };
 
+  const saveHandles = (e) => {
+    e.preventDefault();
+    if (newYoutube && (newYoutube.length < 31)) {
+      update({ youtube: newYoutube }, 'Successfully set Youtube.');
+    }
+    if (newTwitter && (newTwitter.length < 16)) {
+      update({ twitter: newTwitter }, 'Successfully set X.');
+    }
+    if (newInstagram && (newInstagram.length < 31)) {
+      update({ instagram: newInstagram }, 'Successfully set Instagram.');
+    }
+    if (newTikTok && (newTikTok.length < 25)) {
+      update({ tiktok: newTikTok }, 'Successfully set TikTok.');
+    }
+  };
+
   const fileInput = useRef();
 
   return (
-    <div>
-      <div className='mx-4 mb-4 flex gap-4'>
+    <div className='w-full'>
+      <div className='mx-4 mb-4 gap-4'>
         <div className='flex flex-col items-center'>
           <label htmlFor='file-upload' className='font-semibold'>
             Avatar
@@ -77,7 +98,8 @@ const ProfileOptiions = ({ profile }) => {
           </div>
           <input ref={fileInput} id='file-upload' type='file' className='hidden' onChange={uploadImage} name='avatar' />
         </div>
-        <div className='w-full'>
+
+        <div>
           <form>
             <label htmlFor='biography-entry' className='block font-semibold'>
               Biography
@@ -99,6 +121,30 @@ const ProfileOptiions = ({ profile }) => {
               <button className='max-h-8' type='submit' onClick={savePassword}>Save</button>
             </div>
           </form>
+          <div className="flex py-5 items-center">
+            <div className="flex-grow border-t border-gray-400"></div>
+            <span className="flex-shrink mx-4 text-gray-400">Social Media</span>
+            <div className="flex-grow border-t border-gray-400"></div>
+          </div>
+          <form className='grid gap-1 mb-2 md:grid-cols-1'>
+            <label htmlFor='youtube' className='block font-semibold'>
+              YouTube:
+            </label>
+              <input id='youtube' className='w-full py-1' onChange={(e) => setNewYoutube(e.target.value)}></input>
+            <label htmlFor='x' className='block font-semibold'>
+              X:
+            </label>
+              <input id='x' className='w-full py-1' onChange={(e) => setNewTwitter(e.target.value)}></input>
+            <label htmlFor='instagram' className='block font-semibold'>
+              Instagram:
+            </label>
+              <input id='instagram' className='w-full py-1' onChange={(e) => setNewInstagram(e.target.value)}></input>
+            <label htmlFor='tiktok' className='block font-semibold'>
+              TikTok:
+            </label>
+              <input id='tiktok' className='w-full py-1' onChange={(e) => setNewTikTok(e.target.value)}></input>
+          </form>
+          <button className='max-h-8' type='submit' onClick={saveHandles}>Save</button>
         </div>
       </div>
     </div>
@@ -106,3 +152,5 @@ const ProfileOptiions = ({ profile }) => {
 };
 
 export default ProfileOptiions;
+
+// <button className='max-h-8' type='submit' onClick={savePassword}>Save</button>
