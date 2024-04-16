@@ -6,7 +6,7 @@ import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/acc
 
 const BIOGRAPHY_LIMIT = 255;
 
-const ProfileOptiions = ({ profile }) => {
+const ProfileOptions = ({ profile }) => {
   const [imageToggle, setImageToggle] = useState(Date.now());
   const refreshImage = () => setImageToggle(Date.now());
 
@@ -151,6 +151,4 @@ const ProfileOptiions = ({ profile }) => {
   );
 };
 
-export default ProfileOptiions;
-
-// <button className='max-h-8' type='submit' onClick={savePassword}>Save</button>
+export default ProfileOptions;
