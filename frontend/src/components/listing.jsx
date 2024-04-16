@@ -96,7 +96,7 @@ const Listing = ({ postId }) => {
   return (
     <div>
       {loadedPost !== null ?
-        <div className="flex flex-col">
+        <div className="flex flex-col max-w-xl px-3">
           <ListingInfo
             postId={postId}
             title={loadedPost.title}
@@ -115,7 +115,7 @@ const Listing = ({ postId }) => {
             <button className="max-w-third mx-auto" onClick={submitComment}>Comment</button>
           </div>
 
-          <div className="max-h-80 overflow-auto divide-y">
+          <div className="max-h-60 overflow-auto divide-y">
             {loadedPost.comments && loadedPost.comments.map(c =>
               <Comment
                 key={c.comment_id}

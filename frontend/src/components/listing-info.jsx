@@ -51,15 +51,15 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
 
   return (
     <div className="w-full h-full grid grid-flow-row-dense grid-cols-2 grid-rows-1">
-      <div>
-        <img className="px-4 py-4" src={`${postImageBase}${postId}.png`} />
+      <div className="flex justify-center items-center">
+        <img className="w-48 h-48 border  border-gray-300" src={`${postImageBase}${postId}.png`} />
       </div>
       <div>
         <div className="h-full grid grid-flow-row-dense grid-cols-2 grid-rows-3">
           <div className="flex flex-col justify-center items-center">
             <div className="flex space-x-3">
               <div className="flex flex-col justify-center items-center">
-                <h2 className="text-xl font-bold">{title}</h2>
+                <h2 title={title} className="text-xl font-bold truncate max-w-40">{title}</h2>
                 <h4><Link to={`/profile/${author}`}>{author}</Link></h4>
               </div>
             </div>
@@ -103,7 +103,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
 
             {
               editingTags ?
-                <textarea placeholder="#tag1 #tag2 #tag3" ref={tagsTextAreaRef} defaultValue={tagsToString(tags)}></textarea>
+                <textarea className="max-h-12 rounded-md" placeholder="#tag1 #tag2 #tag3" ref={tagsTextAreaRef} defaultValue={tagsToString(tags)}></textarea>
                 :
                 <div className="overflow-y-auto space-y-2">
                   {
