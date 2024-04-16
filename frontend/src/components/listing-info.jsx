@@ -67,9 +67,9 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
           <div className="flex flex-col justify-center items-center">
             {
               likedThisPost ?
-                <img className="w-12 hover:cursor-pointer" src="pixelartheart.png" onClick={unlikePost} />
+                <img className="w-12 hover:cursor-pointer" src="/pixelartheart.png" onClick={unlikePost} />
                 :
-                <img className="w-12 hover:cursor-pointer" src="pixelartheart_empty.png" onClick={likePost} />
+                <img className="w-12 hover:cursor-pointer" src="/pixelartheart_empty.png" onClick={likePost} />
             }
             <h2 className="text-xl">{likes}</h2>
           </div>
@@ -103,7 +103,7 @@ const ListingInfo = ({ postId, title, author, licence, likes, tags, likePost, un
 
             {
               editingTags ?
-                <textarea ref={tagsTextAreaRef}>{tagsToString(tags)}</textarea>
+                <textarea placeholder="#tag1 #tag2 #tag3" ref={tagsTextAreaRef} defaultValue={tagsToString(tags)}></textarea>
                 :
                 <div className="overflow-y-auto space-y-2">
                   {

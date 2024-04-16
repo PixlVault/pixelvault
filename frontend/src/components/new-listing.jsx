@@ -7,7 +7,7 @@ import textToTags from '../utils/tags';
 
 const NewListing = ({ publish }) => {
   const [licence, setLicence] = useState(post.Licence.CreativeCommons);
-  const tagsTextAreaRef = useState(null)
+  const tagsTextAreaRef = useRef(null);
 
   return (
     <div>
