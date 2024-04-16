@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 
-const Popup = ({ children, onClose, title }) => {
+const Popup = ({ children, onClose, title, hiddenClose = false }) => {
   const overlayRef = useRef(null);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const Popup = ({ children, onClose, title }) => {
         <div className="flex">
           <div className="flex items-center justify-start grow">
           <span className='font-semibold text-lg ml-4'>{title}</span></div>
-          <button onClick={() => onClose()} className="bg-transparent text-black hover:bg-transparent">X</button>
+          <button hidden={hiddenClose} onClick={() => onClose()} className="bg-transparent text-black hover:bg-transparent">X</button>
         </div>
         <div className="w-full h-full min-w-lg min-h-lg">
           {children}
