@@ -43,7 +43,7 @@ const Canvas = ({
   const [isErasing, setIsErasing] = useState(false);
   const [colour, setColour] = useState([150, 160, 170, 255]);
   const [selectedTool, setSelectedTool] = useState(Tools.Pencil);
-  const [pixelSize, setPixelSize] = useState(PixelSize.Three);
+  const [pixelSize, setPixelSize] = useState(PixelSize.One);
 
   const getWidthScaleFactor = () => canvasRef.current.offsetWidth / width;
   const getHeightScaleFactor = () => canvasRef.current.offsetHeight / height;
