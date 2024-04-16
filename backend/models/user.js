@@ -14,7 +14,7 @@ const User = {
       return;
     }
 
-    db.query(`SELECT username, biography, experience, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers
+    db.query(`SELECT username, biography, experience, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers, is_banned = 1 AS is_banned
       FROM user WHERE username = ?;`,
     [username, username],
     (err, result) => {

@@ -29,13 +29,13 @@ export const remove = async (username) => {
  * Bans a user according to their username.
  * @param {string} username The username of the user being banned.
  */
-export const ban = async (username) => makeRequest('/ban', 'POST', { username });
+export const ban = async (username) => makeRequest('/user/ban', 'POST', { username });
 
 /**
  * Unbans a user according to their username.
  * @param {string} username The username of the user being banned.
  */
-export const unban = async (username) => makeRequest('/ban', 'DELETE', { username });
+export const unban = async (username) => makeRequest('/user/ban', 'DELETE', { username });
 
 /**
  * Updates the details of a user.

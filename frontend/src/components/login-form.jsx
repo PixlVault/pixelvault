@@ -25,7 +25,6 @@ const LoginForm = ({ setUser }) => {
       if (response.token !== null) {
         localStorage.setItem('user', username);
         localStorage.setItem('auth', response.token);
-        console.log(response.is_admin, response.is_admin === 1);
         localStorage.setItem('admin', response.is_admin === 1);
         setUser(username);
       }
