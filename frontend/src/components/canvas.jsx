@@ -25,7 +25,8 @@ const areAdjacent = (x0, y0, x1, y1) => {
 // Javascript doesn't have enums so this let's us do something like that.
 const Tools = {
   Pencil: "Pencil",
-  Eraser: "Eraser"
+  Eraser: "Eraser",
+  Eyedropper: "Eyedropper"
 };
 
 const PixelSize = {
@@ -209,7 +210,10 @@ const Canvas = ({
     const { offsetX: x, offsetY: y } = nativeEvent;
     prevMousePos = { x, y };
 
-    if (selectedTool == Tools.Eraser) {
+    if (selectedTool == Tools.Eyedropper) {
+      const colour = getColourAt(scale({x, y}));
+      setColour(colour);
+    } else if (selectedTool == Tools.Eraser) {
       setIsErasing(true);
       erasePixel(x, y);
     } else {
@@ -217,6 +221,10 @@ const Canvas = ({
       drawPixel(x, y);
     }
   };
+
+  const getColourAt =({x, y}) => {
+    return contextRef.current.getImageData(x, y, 1, 1).data;
+  }
 
   const scaledPointsBetween = (x0, y0, x1, y1) => {
     const scaledPoint0 = scale({ x: x0, y: y0 });
@@ -284,27 +292,14 @@ const Canvas = ({
 
   const mouseLeftCanvas = () => setIsDrawing(false);
 
-  const selectPencil = () => {
-    setSelectedTool(Tools.Pencil);
-  }
-
-  const selectErasor = () => {
-    setSelectedTool(Tools.Eraser);
-  }
-
-  const hexColour = rgba => '#'
-    + rgba[0].toString(16)
-    + rgba[1].toString(16)
-    + rgba[2].toString(16)
-    + rgba[3].toString(16);
 
   return (
     <div className="flex space-x-10">
       <div>
         <div className="flex flex-col w-10 bg-white rounded-md divide-y">
           <div>
-            <img className={`hover:cursor-pointer rounded-t-md hover:bg-gray-400 p-3 ${selectedTool == Tools.Pencil ? "bg-gray-400" : ""}`} title="Pencil Tool" src="/pencil.png" onClick={selectPencil} />
-            <img className={`hover:cursor-pointer hover:bg-gray-400 p-3 ${selectedTool == Tools.Eraser ? "bg-gray-400" : ""}`} title="Eraser Tool" src="/eraser.png" onClick={selectErasor} />
+            <img className={`hover:cursor-pointer rounded-t-md hover:bg-gray-400 p-3 ${selectedTool == Tools.Pencil ? "bg-gray-400" : ""}`} title="Pencil Tool" src="/pencil.png" onClick={() => setSelectedTool(Tools.Pencil)} />
+            <img className={`hover:cursor-pointer hover:bg-gray-400 p-3 ${selectedTool == Tools.Eraser ? "bg-gray-400" : ""}`} title="Eraser Tool" src="/eraser.png" onClick={() => setSelectedTool(Tools.Eraser)} />
 
             <Dropdown titleElement={<img className={`hover:cursor-pointer hover:bg-gray-400 p-3`} title="Pixel Size" src="/grid.png" />} width={8}>
               <div className={`block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer ${pixelSize == PixelSize.One ? "bg-gray-400" : ""}`} tabIndex="-1" onClick={() => setPixelSize(PixelSize.One)}>1px</div>
@@ -313,7 +308,9 @@ const Canvas = ({
               <div className={`block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer ${pixelSize == PixelSize.Four ? "bg-gray-400" : ""}`} tabIndex="-1" onClick={() => setPixelSize(PixelSize.Four)}>4px</div>
             </Dropdown>
 
-            <Dropdown titleElement={<div className="p-2 hover:cursor-pointer"><div className="w-5 h-5 p-3 m-auto" title="Colour Picker" style={{ backgroundColor: hexColour(colour) }}></div></div>}>
+            <img className={`hover:cursor-pointer hover:bg-gray-400 p-3 ${selectedTool == Tools.Eyedropper ? "bg-gray-400" : ""}`} title="Eyedropper Tool" src="/eyedropper.png" onClick={() => setSelectedTool(Tools.Eyedropper)} />
+
+            <Dropdown titleElement={<div className="p-2 hover:cursor-pointer"><div className="w-5 h-5 p-3 m-auto" title="Colour Picker" style={{ backgroundColor: `rgba(${colour[0]}, ${colour[1]}, ${colour[2]}, ${colour[3] / 255})` }}></div></div>}>
               <div className="flex justify-center">
                 <SketchPicker
                   color={{ r: colour[0], g: colour[1], b: colour[2], a: colour[3] / 255 }}
