@@ -15,6 +15,7 @@ const removeSensitiveData = (post) => {
 // POST for resource retrieval isn't entirely appropriate for a RESTful API,
 // but given GET requests do not have a request body we cannot avoid this.
 router.post('/search', async (req, res) => {
+  const isAdmin = req.token?.is_admin === 1;
   try {
     if (req.body.post_id !== undefined) {
       const post = (await Post.getById(req.body.post_id))
@@ -23,6 +24,11 @@ router.post('/search', async (req, res) => {
       if (post.length === 0) {
         return res.status(404).json({ error: `Post with id '${req.body.post_id}' could not be found` });
       }
+
+      if (post[0].is_hidden === 1 && !isAdmin) {
+        return res.status(404).json({ error: `Post with id '${req.body.post_id}' could not be found` });
+      }
+
       return res.status(200).json(post);
     }
 
@@ -42,11 +48,10 @@ router.post('/search', async (req, res) => {
       req.body.ascending !== false,
       req.body.only_show_followed === true,
       req.body.tags,
-      req.body.min_cost,
-      req.body.max_cost,
       req.body.title,
       req.body.limit,
       req.body.offset,
+      isAdmin,
     )).map((p) => removeSensitiveData(p));
 
     return res.status(200).json(posts);
@@ -104,7 +109,7 @@ router.delete('/', async (req, res) => {
     return res.status(401).json({ error: 'Must be logged in' });
   }
 
-  if (req.body === undefined || req.body.post_id === undefined) { 
+  if (req.body === undefined || req.body.post_id === undefined) {
     return res.status(400).json({ error: 'Missing required field: `post_id`' });
   }
 
