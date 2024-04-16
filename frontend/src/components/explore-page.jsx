@@ -60,19 +60,19 @@ const ExplorePage = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8"> {/* Padding based on screen size */}
+    <div className="px-4 sm:px-6 lg:px-8 w-6/12"> {/* Padding based on screen size */}
       <h2 className="text-center text-2xl font-bold mb-4">Gallery</h2>
       <SearchBar />
 
       <div className="flex flex-col md:flex-row overflow-x-auto border-b border-gray-200 pb-4">
         {/* Use flex-col for small screens and flex-row for medium and larger screens */}
         {mostLikedProjects.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center md:w-1/5`}>
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-3/12' : 'w-2/12'} flex flex-col justify-center items-center`}>
             {/* Use 1/5 width for medium and larger screens */}
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Most Liked</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
+              className={`w-full h-auto aspect-square object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-blue-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
@@ -90,12 +90,12 @@ const ExplorePage = () => {
       <div className="flex flex-col md:flex-row justify-center overflow-x-auto pb-4">
         {/* Use flex-col for small screens and flex-row for medium and larger screens */}
         {recentPosts.map((project, index) => (
-          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-40' : 'w-32'} flex flex-col justify-center items-center md:w-1/5`}>
+          <div key={project.post_id} className={`relative ${index === 0 ? 'p-2' : 'p-1'} ${index === 0 ? 'w-3/12' : 'w-2/12'} flex flex-col justify-center items-center`}>
             {/* Use 1/5 width for medium and larger screens */}
             {index === 0 && <div className="absolute top-0 left-0 bg-gray-800 text-white text-xs font-semibold py-1 px-2 rounded-tr-lg">Recent</div>}
             <img
               src={`${postImageBase}${project.post_id}.png`}
-              className={`w-full h-32 object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
+              className={`w-full h-auto aspect-square object-cover cursor-pointer hover:opacity-75 ${index === 0 ? 'h-40' : 'h-32'} border border-gray-300 ${index === 0 ? 'border-green-500' : ''}`}
               onClick={() => openPopup(project.post_id)}
               alt={`Image ${index + 1}`}
             />
