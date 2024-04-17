@@ -18,6 +18,11 @@ function report() {
   };
 
   const submit = (event) => {
+    if (loggedInUser == null) {
+      toast.error("Must be logged in to submit feedback");
+      return;
+    }
+    
     event.preventDefault();
 
     const recipient = "contact.pixelvault@gmail.com";
