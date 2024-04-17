@@ -85,6 +85,21 @@ const Listing = ({ postId }) => {
     setDataChanged(true);
   }
 
+  const deleteComment = async (commentId) => {
+    if (!confirm("Are you sure you want to delete your comment?")) {
+      return;
+    }
+
+    try {
+      await commentApi.deleteComment(commentId);
+      toast.success("Comment deleted");
+      
+      setDataChanged(true);
+    } catch(err) {
+      toast.error(`${err}`);
+    }
+  }
+
   const setTags = async (newTags) => {
     await postApi.edit(postId, {tags: newTags});
     setDataChanged(true);
@@ -173,10 +188,12 @@ const Listing = ({ postId }) => {
                 likes={c.likes}
                 likeComment={likeComment}
                 unlikeComment={unlikeComment}
+                deleteComment={deleteComment}
                 likedComments={likedComments}
                 visible={c.is_hidden === 0}
                 toggleVisible={() => toggleCommentVisible(c.comment_id)}
                 isAdmin={localStorage.getItem('admin') === 'true'}
+                isAuthor={localStorage.getItem('user') === c.author}
               />
             )}
           </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { userImageBase, defaultImageUrl } from '../api/account';
 
-const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment, likedComments, isAdmin, visible, toggleVisible,  }) => {
+const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment, deleteComment, likedComments, isAdmin, visible, toggleVisible, isAuthor }) => {
   const likedThisComment = likedComments.map(c => c.comment_id).includes(commentId);
 
   const imgClass = 'w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle'
@@ -37,11 +37,14 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
               }
             </div>
             <div className="flex items-center">{likes}</div>
-              {
-                isAdmin === true
-                  ? <img className={imgClass} src={visible ? '/visible.png' : '/hidden.png'} onClick={() => toggleVisible(commentId)} />
+            {
+              isAdmin === true
+                ? <img className={imgClass} src={visible ? '/visible.png' : '/hidden.png'} onClick={() => toggleVisible(commentId)} />
+                :
+                isAuthor === true
+                  ? <img className={imgClass} src='/bin.png' onClick={async () => await deleteComment(commentId)} />
                   : <img className={imgClass} src='/report.png' onClick={() => console.log('TODO: Report')} />
-              }
+            }
           </div>
         </div>
       </div>
