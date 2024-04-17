@@ -9,6 +9,7 @@ import { postImageBase } from '../api/post';
 import * as post from '../api/post';
 
 import textToTags from '../utils/tags';
+import React from 'react';
 
 const ListingInfo = ({
   postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost,
@@ -51,12 +52,21 @@ const ListingInfo = ({
     } catch (err) {
       toast.error(`${err}`);
     }
-  }
+  };
+
+  const download = () => {
+    const link = document.createElement('a');
+    link.href = `${postImageBase}${postId}.png`;
+    link.download = `${title}.png`;
+    link.click();
+    link.remove();
+  };
 
   return (
     <div className="w-full h-full grid grid-flow-row-dense grid-cols-2 grid-rows-1">
-      <div className="flex justify-center items-center">
+      <div className="flex flex-col justify-center items-center">
         <img className="pixelated w-48 h-48 border  border-gray-300" src={`${postImageBase}${postId}.png`} />
+        <button onClick={download} className='mt-2 mb-4'>Download</button>
       </div>
       <div>
         <div className="h-full grid grid-flow-row-dense grid-cols-2 grid-rows-3">
