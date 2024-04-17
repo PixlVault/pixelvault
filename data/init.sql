@@ -2,7 +2,6 @@ CREATE DATABASE IF NOT EXISTS marketplace;
 USE marketplace;
 
 DROP TABLE IF EXISTS
-    transaction, 
     comment_likes,
     comment,
     post_likes,
@@ -75,7 +74,6 @@ CREATE TABLE post (
     post_id         BINARY(16) PRIMARY KEY,
 
     licence         ENUM('Commercial', 'Education', 'Creative Commons'), 
-    cost            INTEGER NOT NULL DEFAULT 0,
 
     published_on    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_hidden       BIT NOT NULL DEFAULT 0,
@@ -127,17 +125,4 @@ CREATE TABLE comment_likes (
     FOREIGN KEY (comment_id) REFERENCES comment(comment_id) ON DELETE CASCADE,
     FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
     PRIMARY KEY (comment_id, username)
-);
-
-
-CREATE TABLE transaction (
-    transaction_id  INTEGER PRIMARY KEY AUTO_INCREMENT,
-
-    post_id         BINARY(16) NOT NULL,
-    username        VARCHAR(32) NOT NULL,
-    status          ENUM('complete', 'pending', 'refunded') NOT NULL DEFAULT 'pending',
-    timestamp       DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (username) REFERENCES user(username) ON DELETE CASCADE,
-    FOREIGN KEY (post_id) REFERENCES post(post_id)
 );

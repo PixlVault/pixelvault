@@ -7,8 +7,6 @@ const { db } = require('../utils/database');
 const api = supertest(app);
 
 beforeAll(async () => {
-  db.query('DELETE FROM transaction;');
-  db.query('DELETE FROM project_invite;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM follow;');
   db.query('DELETE FROM user;');

@@ -11,7 +11,7 @@ import { postImageBase } from '../api/post';
 
 const Tile = ({ post, clickHandler }) => (
   <div className='border rounded relative w-full h-auto aspect-square' onClick={clickHandler}>
-      <img className="pixelated w-full h-auto aspect-square object-cover rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
+      <img className="pixelated w-full min-w-[256px] h-auto aspect-square object-cover rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
       <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-2xl text-white font-semibold">
       <p className='mx-2 mb-1 truncate'>{post.title}</p>
       </div>

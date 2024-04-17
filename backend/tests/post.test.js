@@ -18,7 +18,6 @@ beforeAll(async () => {
   const img = { data: Array.from(buf), width, height };
   const compressed = LZString.compressToBase64(JSON.stringify(img));
 
-  db.query('DELETE FROM transaction;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM user;');
 
@@ -49,7 +48,7 @@ beforeAll(async () => {
 describe('Posts can be created', () => {
   test('from an existing project', async () => {
     let res = await api.post('/api/post')
-      .send({ post_id: projects[0], cost: 1, tags: ['tag1', 'tag2'] })
+      .send({ post_id: projects[0], tags: ['tag1', 'tag2'] })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(201);
 
@@ -58,7 +57,7 @@ describe('Posts can be created', () => {
 
     res = await api.post('/api/post')
       .send({
-        post_id: projects[1], cost: 7, licence: 'Creative Commons', tags: ['tag2'],
+        post_id: projects[1], licence: 'Creative Commons', tags: ['tag2'],
       })
       .set('Authorization', tokens.creator);
     expect(res.statusCode).toBe(201);
@@ -199,7 +198,6 @@ describe('Posts can be searched', () => {
       title: 'two',
       created_by: 'creator',
       licence: 'Creative Commons',
-      cost: 7,
     }]);
   });
 
@@ -220,7 +218,6 @@ describe('Posts can be searched', () => {
       title: 'one',
       created_by: 'creator',
       licence: null,
-      cost: 1,
     }]);
   });
 
@@ -235,21 +232,18 @@ describe('Posts can be searched', () => {
         title: 'one',
         created_by: 'creator',
         licence: null,
-        cost: 1,
       },
       {
         post_id: projects[1],
         title: 'two',
         created_by: 'creator',
         licence: 'Creative Commons',
-        cost: 7,
       },
       {
         post_id: projects[2],
         title: 'three',
         created_by: 'creator',
         licence: null,
-        cost: 0,
       },
     ]);
 
@@ -268,7 +262,6 @@ describe('Posts can be searched', () => {
       title: 'two',
       created_by: 'creator',
       licence: 'Creative Commons',
-      cost: 7,
     }]);
   });
 
@@ -283,14 +276,12 @@ describe('Posts can be searched', () => {
         title: 'one',
         created_by: 'creator',
         licence: null,
-        cost: 1,
       },
       {
         post_id: projects[2],
         title: 'three',
         created_by: 'creator',
         licence: null,
-        cost: 0,
       },
     ]);
   });
@@ -298,7 +289,7 @@ describe('Posts can be searched', () => {
   test('by multiple attributes', async () => {
     const res = await api.post('/api/post/search')
       .send({
-        title: 'one', tags: ['tag1'], min_cost: 0, max_cost: 1, author: 'creator',
+        title: 'one', tags: ['tag1'], author: 'creator',
       });
 
     expect(res.statusCode).toBe(200);
@@ -325,21 +316,18 @@ describe('Posts can be searched', () => {
         title: 'one',
         created_by: 'creator',
         licence: null,
-        cost: 1,
       },
       {
         post_id: projects[1],
         title: 'two',
         created_by: 'creator',
         licence: 'Creative Commons',
-        cost: 7,
       },
       {
         post_id: projects[2],
         title: 'three',
         created_by: 'creator',
         licence: null,
-        cost: 0,
       },
     ]);
   });
@@ -396,21 +384,18 @@ describe('Post queries can be sorted', () => {
         title: 'one',
         created_by: 'creator',
         licence: null,
-        cost: 1,
       },
       {
         post_id: projects[1],
         title: 'two',
         created_by: 'creator',
         licence: 'Creative Commons',
-        cost: 7,
       },
       {
         post_id: projects[2],
         title: 'three',
         created_by: 'creator',
         licence: null,
-        cost: 0,
       },
     ]);
   });
@@ -425,21 +410,18 @@ describe('Post queries can be sorted', () => {
         title: 'three',
         created_by: 'creator',
         licence: null,
-        cost: 0,
       },
       {
         post_id: projects[1],
         title: 'two',
         created_by: 'creator',
         licence: 'Creative Commons',
-        cost: 7,
       },
       {
         post_id: projects[0],
         title: 'one',
         created_by: 'creator',
         licence: null,
-        cost: 1,
       },
     ]);
   });
@@ -664,12 +646,10 @@ describe('Liked posts can be', () => {
       {
         post_id: projects[0],
         licence: null,
-        cost: 1,
       },
       {
         post_id: projects[1],
         licence: 'Creative Commons',
-        cost: 7,
       },
     ]);
   });
