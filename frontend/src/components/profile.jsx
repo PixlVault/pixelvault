@@ -12,7 +12,7 @@ const Profile = () => {
   const params = useParams();
 
   const loggedInUser = localStorage.getItem('user');
-  const userIsAdmin = localStorage.getItem('admin');
+  const userIsAdmin = localStorage.getItem('admin') === 'true';
 
   const navigate = useNavigate();
 
