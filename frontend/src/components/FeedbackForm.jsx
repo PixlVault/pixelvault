@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useParams } from 'react-router-dom';
+import Popup from './popup.jsx';
 
 function FeedbackForm() {
   const [inputFeedback, setFeedback] = useState();
   const [reasonFeedback, setReason] = useState();
   const [submitStatus, isSubmitted] = useState(false); // To show a message
+
+  const params = useParams();
 
   
 
@@ -15,10 +19,20 @@ function FeedbackForm() {
     setReason(event.target.value);
   };
 
+  const loggedInUser = localStorage.getItem('user');
+
   const submit = (event) =>  {
     event.preventDefault();
+    const subject = encodeURIComponent(`${reasonFeedback} - Feedback From User: ${loggedInUser}`);
+    const body = encodeURIComponent(inputFeedback);
+    const recipient = "contact.pixelvault@gmail.com";
+
+    const mailto = `mailto:${recipient}?subject=${subject}&body=${body}`;
     console.log("Feedback:", inputFeedback);
     console.log("Reason:", reasonFeedback);
+
+    window.location.href = mailto;
+
     isSubmitted(true);
   };
 
@@ -49,4 +63,4 @@ function FeedbackForm() {
   </div>
   )
 }
-export default FeedbackForm;
+export default FeedbackForm;  

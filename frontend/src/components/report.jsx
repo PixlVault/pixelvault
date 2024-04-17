@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useParams } from 'react-router-dom';
+import Popup from './popup.jsx';
 
 function report() {
   const [reportExplaination, setReport] = useState();
   const [reasonReport, setReason] = useState();
   const [userName, setUsername] = useState();
   const [submitStatus, isSubmitted] = useState(false); // To show a message
+  const params = useParams();
 
   
 
@@ -20,11 +23,21 @@ function report() {
     setReason(event.target.value);
   };
 
+  const loggedInUser = localStorage.getItem('user');
+  const targetedUser = localStorage.getItem('user');
+
   const submit = (event) =>  {
     event.preventDefault();
+    const subject = encodeURIComponent(`${reasonReport} - Report From User: ${loggedInUser} against user ${targetedUser}`);
+    const body = encodeURIComponent(reportExplaination);
+    const recipient = "contact.pixelvault@gmail.com";
+
+    const mailto = `mailto:${recipient}?subject=${subject}&body=${body}`;
     console.log("Reason:", reasonReport);
     console.log("Report explaination for user: ", reportExplaination);
     console.log("User: ", userName);
+
+    window.location.href = mailto;
 
     isSubmitted(true);
   };

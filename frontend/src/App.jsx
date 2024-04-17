@@ -7,7 +7,7 @@ import Header from './components/header.jsx';
 import Footer from './components/footer.jsx';
 import ExplorePage from './components/explore-page.jsx';
 import Profile from './components/profile.jsx';
-import FeedbackForm from './components/FeedbackForm.jsx';
+import FeedbackForm from './components/feedbackformpopup.jsx';
 import Report from './components/report.jsx';
 import Search from './components/Search.jsx'; // Import Search component
 
