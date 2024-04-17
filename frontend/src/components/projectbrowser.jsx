@@ -57,7 +57,7 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
                 {
                   x.is_published === 0
                     ? <Link
-                        className = "no-underline hover:underline"
+                        className = "underline"
                         onClick={closeProjectBrowser}
                         to={`../edit/${x.project_id}`}>
                           <p className="text-wrap break-words max-w-40">{x.title}</p>
