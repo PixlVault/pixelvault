@@ -43,7 +43,8 @@ const Collaboration = {
       title,
       project_invite.last_modified,
       accepted = 1 AS accepted,
-      BIN_TO_UUID(project_invite.project_id, TRUE) AS project_id
+      BIN_TO_UUID(project_invite.project_id, TRUE) AS project_id,
+      project.created_by AS sender
   FROM
       project_invite
           JOIN
