@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 
 import toast from 'react-hot-toast';
 
-function FeedbackForm() {
+function Feedback() {
   const [feedback, setFeedback] = useState();
   const [submitStatus, isSubmitted] = useState(false);
   const [count, changeCount] = useState(0);
@@ -28,7 +28,6 @@ function FeedbackForm() {
       return;
     }
 
-
     const recipient = "contact.pixelvault@gmail.com";
     const subject = encodeURIComponent(`Feedback sent by user "${loggedInUser}"`);
 
@@ -51,7 +50,6 @@ function FeedbackForm() {
             <h1 className="text-black text-center font-roboto text-2xl">Customer Service</h1>
 
             <select className="flex mt-10" name="reason" id="feedback" ref={reasonSelectRef}>
-              <option disabled>Select your reason...</option>
               <option value="Report bug">Report bug</option>
               <option value="Z">My reason is not listed</option>
             </select>
@@ -80,4 +78,5 @@ function FeedbackForm() {
     </div>
   )
 }
-export default FeedbackForm;  
+
+export default Feedback;

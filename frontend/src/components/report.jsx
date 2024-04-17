@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useLocation } from 'react-router-dom';
 
-function report() {
+function Report() {
   const [additionalInfo, setAdditionalInfo] = useState();
   const [submitted, setSubmitted] = useState(false);
   const [count, changeCount] = useState(0);
@@ -22,7 +22,7 @@ function report() {
       toast.error("Must be logged in to submit feedback");
       return;
     }
-    
+
     event.preventDefault();
 
     const recipient = "contact.pixelvault@gmail.com";
@@ -94,4 +94,5 @@ function report() {
     </div>
   )
 }
-export default report;
+
+export default Report;
