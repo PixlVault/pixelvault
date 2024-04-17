@@ -17,16 +17,16 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
             <div>
               {
                 likedThisComment ?
-                  <img className={imgClass} src="pixelartheart.png" onClick={() => unlikeComment(commentId)} />
+                  <img className={imgClass} src="/pixelartheart.png" onClick={() => unlikeComment(commentId)} />
                   :
-                  <img className={imgClass} src="pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
+                  <img className={imgClass} src="/pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
               }
             </div>
             <div>{likes}</div>
               {
                 isAdmin === true
-                  ? <img className={imgClass} src={visible ? 'visible.png' : 'hidden.png'} onClick={() => toggleVisible(commentId)} />
-                  : <img className={imgClass} src='report.png' onClick={() => console.log('TODO: Report')} />
+                  ? <img className={imgClass} src={visible ? '/visible.png' : '/hidden.png'} onClick={() => toggleVisible(commentId)} />
+                  : <img className={imgClass} src='/report.png' onClick={() => console.log('TODO: Report')} />
               }
             <div>...</div> {/* TODO: Get this to align in the middle*/}
           </div>
