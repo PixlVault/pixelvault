@@ -2,11 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, } from 'react-router-dom';
 import Api from '../api';
 import { userImageBase, defaultImageUrl } from '../api/account/';
-import Tile from './tile';
+// import Tile from './tile';
 import Popup from './popup';
 import Listing from './listing';
 import ProfileOptions from './profile-options';
 import toast from 'react-hot-toast';
+import { postImageBase } from '../api/post';
+
+const Tile = ({ post, clickHandler }) => (
+  <div className='border rounded relative w-full h-auto aspect-square' onClick={clickHandler}>
+      <img className="pixelated w-full h-auto aspect-square object-cover rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
+      <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-2xl text-white font-semibold">
+      <p className='mx-2 mb-1 truncate'>{post.title}</p>
+      </div>
+  </div>
+);
 
 const Profile = () => {
   const params = useParams();
@@ -127,7 +137,6 @@ const Profile = () => {
   };
 
   return (
-
     <div className='mt-4 w-full md:w-1/2 2xl:w-1/3 mx-auto'>
       <div className='flex mx-auto mb-4'>
         <div>
@@ -218,9 +227,9 @@ const Profile = () => {
 
       <div className='flex flex-col justify-center my-4'>
         <h2 className="text-xl text-center">Most Recent</h2>
-        <div className='flex flex-col md:flex-row justify-center my-4'>
+        <div className='flex flex-col lg:flex-row justify-center my-4'>
           {
-            newest.map((post) => <div className='m-2 max-w-6/12 aspect-square' key={post.post_id}>
+            newest.map((post) => <div className='m-2 aspect-square' key={post.post_id}>
               <Tile post={post} clickHandler={() => openPopup(post.post_id)} />
             </div>)
           }
@@ -234,9 +243,9 @@ const Profile = () => {
 
       <div className='flex flex-col justify-center my-4'>
         <h2 className="text-xl text-center">Most Liked</h2>
-        <div className='flex flex-col md:flex-row justify-center my-4'>
+        <div className='flex flex-col lg:flex-row justify-center my-4'>
           {
-            mostLiked.map((post) => <div className='m-2 max-w-6/12 aspect-square' key={post.post_id}>
+            mostLiked.map((post) => <div className='m-2 aspect-square' key={post.post_id}>
               <Tile post={post} clickHandler={() => openPopup(post.post_id)} />
             </div>)
           }
