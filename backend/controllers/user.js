@@ -10,6 +10,14 @@ const router = express.Router();
 router.get('/:username', async (req, res) => {
   try {
     const user = await User.get(req.params.username);
+
+    // Prevent non-admins from viewing a banned user's profile:
+    if (user?.is_banned === 1) {
+      if (req?.token?.is_admin !== 1) {
+        return res.status(404).json({ error: 'User does not exist' });
+      }
+    }
+
     return user === null
       ? res.status(404).json({ error: 'User does not exist' })
       : res.status(200).json(user);
@@ -91,7 +99,7 @@ const setBanned = async (req, res) => {
 
   try {
     if (req.method === 'POST') {
-      await User.ban(req.body.username);
+      await User.ban(req.body.username, req.token.username);
       return res.status(201).send();
     }
     if (req.method === 'DELETE') {

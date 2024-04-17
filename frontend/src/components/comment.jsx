@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment, likedComments }) => {
+const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment, likedComments, isAdmin, visible, toggleVisible,  }) => {
   const likedThisComment = likedComments.map(c => c.comment_id).includes(commentId);
+
+  const imgClass = 'w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle'
 
   return (
     <div className="flex flex-col w-full justify-center items-center px-5">
@@ -15,12 +17,17 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
             <div>
               {
                 likedThisComment ?
-                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle" src="pixelartheart.png" onClick={() => unlikeComment(commentId)} />
+                  <img className={imgClass} src="pixelartheart.png" onClick={() => unlikeComment(commentId)} />
                   :
-                  <img className="w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle" src="pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
+                  <img className={imgClass} src="pixelartheart_empty.png" onClick={() => likeComment(commentId)} />
               }
             </div>
             <div>{likes}</div>
+              {
+                isAdmin === true
+                  ? <img className={imgClass} src={visible ? 'visible.png' : 'hidden.png'} onClick={() => toggleVisible(commentId)} />
+                  : <img className={imgClass} src='report.png' onClick={() => console.log('TODO: Report')} />
+              }
             <div>...</div> {/* TODO: Get this to align in the middle*/}
           </div>
         </div>

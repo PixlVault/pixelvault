@@ -13,6 +13,7 @@ const Header = ({ user, setUser }) => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('auth');
+    localStorage.removeItem('admin');
   };
 
   const [loginFormOpen, setLoginFormOpen] = useState(false);

@@ -1,45 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Link, Navigate, useNavigate, useParams,
-} from 'react-router-dom';
+import { useNavigate, useParams, } from 'react-router-dom';
 import Api from '../api';
 import { userImageBase, defaultImageUrl } from '../api/account/';
 import Tile from './tile';
 import Popup from './popup';
 import Listing from './listing';
 import ProfileOptions from './profile-options';
+import toast from 'react-hot-toast';
 
 const Profile = () => {
-  const loggedInUser = localStorage.getItem('user');
-  const navigate = useNavigate();
   const params = useParams();
+
+  const loggedInUser = localStorage.getItem('user');
+  const userIsAdmin = localStorage.getItem('admin');
+
+  const navigate = useNavigate();
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [listingOpen, setListingOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   const [profile, setProfile] = useState({});
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  const [mostLiked, setMostLiked] = useState([]);
-  const [newest, setNewest] = useState([]);
-
   useEffect(() => {
     Api.account.get(params.username)
       .then((user) => setProfile(user))
       .catch((e) => console.error(e));
-  }, [params.username]);
+  }, [navigate, params.username]);
+  const [isBanned, setIsBanned] = useState(profile?.is_banned === 1);
 
+  const [isFollowing, setIsFollowing] = useState(false);
   useEffect(() => {
     if (loggedInUser !== null) {
       Api.account.following(loggedInUser)
         .then((followList) => {
-          console.log(followList, followList.includes(params.username));
           setIsFollowing(followList.includes(params.username));
         })
         .catch((e) => console.error(e));
     }
   }, [loggedInUser, params.username]);
+
+  const [mostLiked, setMostLiked] = useState([]);
+  const [newest, setNewest] = useState([]);
 
   useEffect(() => {
     if (params.username === undefined) return;
@@ -47,7 +48,7 @@ const Profile = () => {
       .then((posts) => setMostLiked(posts))
       .catch((error) => console.error(error));
 
-    Api.post.search({ author: params.username, limit: 5})
+    Api.post.search({ author: params.username, limit: 5, ascending: false })
       .then((posts) => setNewest(posts))
       .catch((error) => console.error(error));
   }, [params]);
@@ -87,7 +88,46 @@ const Profile = () => {
     setListingOpen(true);
   };
 
+  const ban = async () => {
+    if (profile.username === undefined) {
+      toast.error('Could not ban user; invalid username provided.');
+      return;
+    }
+
+    const proceed = confirm(`Are you sure you want to ban '${profile.username}'?`);
+    if (proceed) {
+      try {
+        await Api.account.ban(profile.username);
+        toast.success(`User ${profile.username} successfully banned.`);
+        setIsBanned(true);
+      } catch (error) {
+        console.error(error);
+        toast.error('Error: Could not ban user');
+      }
+    }
+  };
+
+  const unban = async () => {
+    if (profile.username === undefined) {
+      toast.error('Could not unban user; invalid username provided.');
+      return;
+    }
+
+    const proceed = confirm(`Are you sure you want to unban '${profile.username}'?`);
+    if (proceed) {
+      try {
+        await Api.account.unban(profile.username);
+        toast.success(`User ${profile.username} successfully unbanned.`);
+        setIsBanned(false);
+      } catch (error) {
+        console.error(error);
+        toast.error('Error: Could not unban user');
+      }
+    }
+  };
+
   return (
+
     <div className='mt-4 w-full md:w-1/2 2xl:w-1/3 mx-auto'>
       <div className='flex mx-auto mb-4'>
         <div>
@@ -110,21 +150,34 @@ const Profile = () => {
             </div>
             <div className=' ml-auto max-h-10 justify-end'>
               <FollowButton />
-              <button className="bg-red-500" onClick={() => navigate('/report')}>Report</button>
+              {
+                // eslint-disable-next-line no-nested-ternary
+                userIsAdmin
+                  ? (isBanned
+                    ? <button className="bg-red-500" onClick={unban}>Unban</button>
+                    : <button className="bg-red-500" onClick={ban}>Ban</button>)
+                  : <button className="bg-red-500" onClick={() => navigate('/report')}>Report</button>
+              }
             </div>
           </div>
           <div>
             <p className='text-wrap break-words'>{profile.biography === null ? 'This user has provided no biography.' : profile.biography}</p>
           </div>
-
-          <div className='p-1 flex flex-row'>
-            <img
-              src='../tiktok.png'
-              className='rounded w-[30px] min-w-[30px] mr-4'
-            />
-            <a href= {`https://www.tiktok.com/@${profile.tiktok}`} >{profile.tiktok === null ? '' : `tiktok.com/@${profile.tiktok}`}</a>
-          </div>
-
+          {
+            profile.tiktok
+              ?
+                <div className='p-1 flex flex-row'>
+                  <img
+                    src='../tiktok.png'
+                    className='rounded w-[30px] min-w-[30px] mr-4'
+                  />
+                  <a href= {`https://www.tiktok.com/@${profile.tiktok}`} >{profile.tiktok === null ? '' : `tiktok.com/@${profile.tiktok}`}</a>
+                </div>
+              : null
+          }
+          {
+            profile.youtube
+              ?
           <div className='p-1 flex flex-row'>
             <img
               src='../youtube.png'
@@ -132,7 +185,11 @@ const Profile = () => {
             />
             <a href= {`https://www.youtube.com/@${profile.youtube}`} >{profile.youtube === null ? '' : `youtube.com/@${profile.youtube}`}</a>
           </div>
-
+              : null
+          }
+          {
+            profile.instagram
+              ?
           <div className='p-1 flex flex-row'>
             <img
               src='../instagram.png'
@@ -140,6 +197,11 @@ const Profile = () => {
             />
             <a href= {`https://www.instagram.com/${profile.instagram}`}>{profile.instagram === null ? '' : `instagram.com/${profile.instagram}`}</a>
           </div>
+              : null
+          }
+          {
+            profile.twitter
+              ?
           <div className='p-1 flex flex-row'>
             <img
               src='../twitter.png'
@@ -147,6 +209,8 @@ const Profile = () => {
             />
             <a href= {`https://www.x.com/${profile.twitter}`}>{profile.twitter === null ? '' : `x.com/${profile.twitter}`}</a>
           </div>
+              : null
+        }
         </div>
       </div>
 
