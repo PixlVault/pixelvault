@@ -253,7 +253,7 @@ const Post = {
       return;
     }
 
-    var deleteQuery = `DELETE FROM post_tags
+    let deleteQuery = `DELETE FROM post_tags
       WHERE post_id = UUID_TO_BIN(?, TRUE)`;
     deleteQuery += tags.length > 0 ? ` AND tag NOT IN (${tags.map(() => '?').join(', ')});` : ';';
 

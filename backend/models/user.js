@@ -14,7 +14,7 @@ const User = {
       return;
     }
 
-    db.query(`SELECT username, biography, experience, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers, is_banned = 1 AS is_banned
+    db.query(`SELECT username, biography, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers, is_banned = 1 AS is_banned
       FROM user WHERE username = ?;`,
     [username, username],
     (err, result) => {
@@ -122,7 +122,6 @@ const User = {
    * @param {{
    *    password: string | undefined,
    *    biography: string | undefined,
-   *    experience: number | undefined,
    *    twitter: string | undefined,
    *    instagram: string | undefined,
    *    tiktok: string | undefined,
@@ -148,7 +147,7 @@ const User = {
     const fields = {
       required: [],
       optional: [
-        'password_hash', 'biography', 'experience',
+        'password_hash', 'biography',
         'twitter', 'instagram', 'tiktok', 'youtube',
       ],
     };
@@ -259,7 +258,7 @@ const User = {
       return;
     }
 
-    db.query('SELECT username, password_hash, email, biography, experience, is_verified = 1 AS is_verified, is_banned = 1 AS is_banned, is_admin = 1 AS is_admin, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
+    db.query('SELECT username, password_hash, email, biography, is_banned = 1 AS is_banned, is_admin = 1 AS is_admin, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
       else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
     });

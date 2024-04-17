@@ -19,10 +19,8 @@ CREATE TABLE user (
     created_on      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     email           VARCHAR(255) UNIQUE NOT NULL,
     biography       VARCHAR(255),
-    experience      INTEGER NOT NULL DEFAULT 0,
 
     -- User Flags
-    is_verified     BIT NOT NULL DEFAULT 0,
     is_banned       BIT NOT NULL DEFAULT 0,
     is_admin        BIT NOT NULL DEFAULT 0,
 
