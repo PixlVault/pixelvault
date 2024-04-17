@@ -163,9 +163,9 @@ const Profile = () => {
                 // eslint-disable-next-line no-nested-ternary
                 userIsAdmin
                   ? (isBanned
-                    ? <button className="ml-2 bg-red-500" onClick={unban}>Unban</button>
-                    : <button className="ml-2 bg-red-500" onClick={ban}>Ban</button>)
-                  : <button className="ml-2 bg-red-500" onClick={() => navigate('/report')}>Report</button>
+                    ? <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={unban}>Unban</button>
+                    : <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={ban}>Ban</button>)
+                  : <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={() => navigate('/report')}>Report</button>
               }
             </div>
           </div>

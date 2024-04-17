@@ -164,7 +164,7 @@ const Listing = ({ postId, closeListing }) => {
   }
 
   return (
-    <div>
+    <div className='mb-4'>
       {loadedPost !== null ?
         <div className="flex flex-col max-w-xl px-3">
           <ListingInfo
@@ -208,13 +208,8 @@ const Listing = ({ postId, closeListing }) => {
               />
             )}
           </div>
-
-          <div className="flex justify-center">
-            <Link to="#">More like this...</Link> {/* TODO: Link to an appropriate search. */}
-          </div>
         </div>
-        :
-        ""}
+        : ''}
     </div>
   );
 };

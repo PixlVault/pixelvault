@@ -181,7 +181,7 @@ const ProfileOptions = ({ profile }) => {
         <button type='submit' onClick={removeHandles}>Remove Socials</button>
       </div>
       <div className='flex justify-end m-2'>
-        <button className='bg-red-500' onClick={deleteAccount}>Delete Account</button>
+        <button className='bg-red-600 hover:bg-red-700' onClick={deleteAccount}>Delete Account</button>
       </div>
     </div>
   );
