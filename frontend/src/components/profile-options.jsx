@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import Api from '../api';
 import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
@@ -16,6 +17,8 @@ const ProfileOptions = ({ profile }) => {
   const [newInstagram, setNewInstagram] = useState('');
   const [newTikTok, setNewTikTok] = useState('');
   const [newYoutube, setNewYoutube] = useState('');
+
+  const navigate = useNavigate();
 
   const update = (updates, successMessage) => {
     Api.account.update(profile.username, updates)
@@ -72,6 +75,7 @@ const ProfileOptions = ({ profile }) => {
       update({ tiktok: newTikTok }, 'Successfully set TikTok.');
     }
   };
+
   const removeHandles = () => {
     Api.account.update(profile.username,
       { 
@@ -79,11 +83,25 @@ const ProfileOptions = ({ profile }) => {
         youtube: null,
         tiktok: null,
         instagram: null,
-      }).then(() => toast.success('Sucessully deleted socials.'))
+      }).then(() => toast.success('Successfully deleted socials.'))
       .catch((e) => {
         toast.error('Failed to save details.');
         console.error(e);
       });
+  };
+
+  const deleteAccount = async () => {
+    const proceed = confirm('Are you sure you want to delete your account?');
+    if (proceed) {
+      await Api.account.remove(profile.username);
+      toast.success('Account successfully deleted.');
+      localStorage.removeItem('auth');
+      localStorage.removeItem('admin');
+      localStorage.removeItem('user');
+      navigate('../explore');
+    } else {
+      toast.error('Account could not be deleted.');
+    }
   };
 
   const fileInput = useRef();
@@ -161,6 +179,9 @@ const ProfileOptions = ({ profile }) => {
       <div className='inline-flex items-center justify-between w-full rounded p-2'>
         <button type='submit' onClick={saveHandles}>Save</button>
         <button type='submit' onClick={removeHandles}>Remove Socials</button>
+      </div>
+      <div className='flex justify-end m-2'>
+        <button className='bg-red-500' onClick={deleteAccount}>Delete Account</button>
       </div>
     </div>
   );
