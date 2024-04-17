@@ -43,7 +43,7 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
                 :
                 isAuthor === true
                   ? <img className={imgClass} src='/bin.png' onClick={async () => await deleteComment(commentId)} />
-                  : <img className={imgClass} src='/report.png' onClick={() => console.log('TODO: Report')} />
+                  : <Link to="/report"><img className={imgClass} src='/report.png' /></Link>
             }
           </div>
         </div>
