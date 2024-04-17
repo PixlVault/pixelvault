@@ -170,7 +170,9 @@ const Profile = () => {
             </div>
           </div>
           <div>
-            <p className='text-wrap break-words'>{profile.biography === null ? 'This user has provided no biography.' : profile.biography}</p>
+            <p className='text-wrap break-words'>
+              {profile.biography === null || profile?.biography?.length === 0 ? 'This user has provided no biography.' : profile.biography}
+            </p>
           </div>
           {
             profile.tiktok
