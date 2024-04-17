@@ -19,7 +19,8 @@ const ListingInfo = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const tagsTextAreaRef = useRef(null);
   const titleTextAreaRef = useRef(null);
-  const isOwner = author == localStorage.getItem('user');
+  const loggedInUser = localStorage.getItem('user');
+  const isOwner = author == loggedInUser;
   const isAdmin = localStorage.getItem('admin') === 'true';
 
   if (tags != null) {
@@ -128,10 +129,10 @@ const ListingInfo = ({
               {
                 isOwner
                   ? <Dropdown titleElement={<img className="w-3 h-3 hover:cursor-pointer" title="Edit Licence" src="/pencil.png" />}>
-                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.CreativeCommons)}>{post.Licence.CreativeCommons}</div>
-                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Commercial)}>{post.Licence.Commercial}</div>
-                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Education)}>{post.Licence.Education}</div>
-                    </Dropdown>
+                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.CreativeCommons)}>{post.Licence.CreativeCommons}</div>
+                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Commercial)}>{post.Licence.Commercial}</div>
+                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Education)}>{post.Licence.Education}</div>
+                  </Dropdown>
                   : ""
               }
 
@@ -144,7 +145,9 @@ const ListingInfo = ({
                 ? <button className="bg-red-600 hover:bg-red-700" onClick={deletePost}>Delete</button>
                 : isAdmin
                   ? <button className="bg-red-600 hover:bg-red-700" onClick={toggleVisible}>{isVisible ? 'Hide' : 'Unhide'}</button>
-                  : <button className="bg-red-600 hover:bg-red-700">Report</button>
+                  : loggedInUser != null
+                    ? <button className="bg-red-600 hover:bg-red-700"><Link to="/report" state={{ postId: postId, postTitle: title }}>Report</Link></button>
+                    : ""
             }
           </div>
           <div className="flex flex-col col-span-2 space-y-2 max-h-[70px] px-4">
@@ -154,11 +157,11 @@ const ListingInfo = ({
                 // eslint-disable-next-line no-nested-ternary
                 editingTags
                   ? <div className="flex space-x-2">
-                      <img className="w-3 h-3 hover:cursor-pointer" title="Confirm" src="/tick.png" onClick={confirmTags} />
-                      <img className="w-3 h-3 hover:cursor-pointer" title="Cancel" src="/bin.png" onClick={() => setEditingTags(false)} />
-                    </div>
+                    <img className="w-3 h-3 hover:cursor-pointer" title="Confirm" src="/tick.png" onClick={confirmTags} />
+                    <img className="w-3 h-3 hover:cursor-pointer" title="Cancel" src="/bin.png" onClick={() => setEditingTags(false)} />
+                  </div>
                   : isOwner
-                    ? <img className="w-3 h-3 hover:cursor-pointer" title="Edit Tags" src="/pencil.png" onClick={() => setEditingTags(true)} /> 
+                    ? <img className="w-3 h-3 hover:cursor-pointer" title="Edit Tags" src="/pencil.png" onClick={() => setEditingTags(true)} />
                     : ""
               }
             </div>
