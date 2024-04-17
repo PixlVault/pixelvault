@@ -4,11 +4,11 @@ import { useLocation } from 'react-router-dom';
 function report() {
   const [additionalInfo, setAdditionalInfo] = useState();
   const [submitted, setSubmitted] = useState(false);
+  const [count, changeCount] = useState(0);
   const reasonSelectRef = useRef(null);
 
   let { state } = useLocation();
-  let { username, postTitle, comment } = state;
-  const [count, changeCount] = useState(0);
+  let { username, postId, postTitle, commentId, comment } = state;
 
   const loggedInUser = localStorage.getItem('user');
 
@@ -20,25 +20,26 @@ function report() {
   const submit = (event) => {
     event.preventDefault();
 
-    const reason = reasonSelectRef.current.value;
+    const recipient = "contact.pixelvault@gmail.com";
 
     let subject = "";
     if (username != null) {
-      subject = encodeURIComponent(`User "${username}" reported by ${loggedInUser} - ${reason}`);
+      subject = encodeURIComponent(`User "${username}" reported by ${loggedInUser}`);
     } else if (postTitle != null) {
-      subject = encodeURIComponent(`Post "${postTitle}" reported by ${loggedInUser} - ${reason}`);
+      subject = encodeURIComponent(`Post "${postTitle}" (ID: ${postId}) reported by ${loggedInUser}`);
     } else if (comment != null) {
-      subject = encodeURIComponent(`Comment "${comment}" reported by ${loggedInUser} - ${reason}`);
+      subject = encodeURIComponent(`Comment "${comment}" (ID: ${commentId}) reported by ${loggedInUser}`);
     } else {
       console.error("Invalid report target.");
     }
 
-    const body = encodeURIComponent(additionalInfo);
-    const recipient = "contact.pixelvault@gmail.com";
+    const reason = reasonSelectRef.current.value;
+    const bodyText = `Reason:\n${reason}\n\nAdditional Information:\n${additionalInfo}`;
+    const body = encodeURIComponent(bodyText);
+    
     const mailto = `mailto:${recipient}?subject=${subject}&body=${body}`;
 
     window.location.href = mailto;
-
     setSubmitted(true);
   };
 
