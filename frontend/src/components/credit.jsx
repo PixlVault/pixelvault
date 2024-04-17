@@ -14,6 +14,7 @@ const Credit = () => (
     <a href="https://www.flaticon.com/free-icons/warning" title="warning icons">Warning icons created by Good Ware - Flaticon</a>
     <a href="https://www.flaticon.com/free-icons/ui" title="grid icons">Grid icon created by Saepul Nahwan - Flaticon</a>
     <a href="https://www.flaticon.com/free-icons/color-picker" title="eyedropper icons">Eyedropper icon created by AriqStock - Flaticon</a>
+    <a href="https://www.flaticon.com/free-icons/color" title="color icons">Color icons created by Freepik - Flaticon</a>
   </div>
 );
 
