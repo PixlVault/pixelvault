@@ -46,7 +46,7 @@ const Header = ({ user, setUser }) => {
                 <div>
                   <Dropdown titleElement={
                     <img
-                      className='rounded-full w-[30px] h-[30px] hover:cursor-pointer align-middle '
+                      className='pixelated rounded-full w-[30px] h-[30px] hover:cursor-pointer align-middle '
                       src={`${userImageBase}${user}.png`}
                       onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
