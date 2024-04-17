@@ -9,10 +9,9 @@ export const defaultImageUrl = `${urlBase}/img/user-default.png`;
  * @param {string} password
  * @returns The token returned by the API, or null (on failure).
  */
-export const login = async (username, password) => {
-  const response = await makeRequest('/login', 'POST', { username, password }, false);
-  return response.token;
-};
+export const login = async (username, password) => (
+  makeRequest('/login', 'POST', { username, password }, false)
+);
 
 export const follow = async (follower, followee) => (
   makeRequest(`/user/${follower}/following`, 'POST', { followee })
@@ -26,6 +25,24 @@ export const remove = async (username) => {
   await makeRequest('/user', 'delete', { username });
 }; // TEST
 
+/**
+ * Bans a user according to their username.
+ * @param {string} username The username of the user being banned.
+ */
+export const ban = async (username) => makeRequest('/user/ban', 'POST', { username });
+
+/**
+ * Unbans a user according to their username.
+ * @param {string} username The username of the user being banned.
+ */
+export const unban = async (username) => makeRequest('/user/ban', 'DELETE', { username });
+
+/**
+ * Updates the details of a user.
+ * @param {string} username The username of the user.
+ * @param {object} updates An object (i.e. key-value pairs) of the fields to be
+ *                         updated, and their new values.
+ */
 export const update = async (username, updates) => makeRequest('/user', 'PUT', { username, ...updates });
 
 /**

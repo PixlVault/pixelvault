@@ -6,7 +6,6 @@ const projectRouter = require('./project');
 const collaborationRouter = require('./collaboration');
 const postRouter = require('./post');
 const commentRouter = require('./comment');
-const transactionRouter = require('./transaction');
 
 const router = express.Router();
 
@@ -16,7 +15,6 @@ router.use('/project', projectRouter);
 router.use('/collaboration', collaborationRouter);
 router.use('/post', postRouter);
 router.use('/comment', commentRouter);
-router.use('/transaction', transactionRouter);
 
 router.use('/img', express.static('img/assets'));
 

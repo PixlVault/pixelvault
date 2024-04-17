@@ -13,6 +13,7 @@ const Header = ({ user, setUser }) => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('auth');
+    localStorage.removeItem('admin');
   };
 
   const [loginFormOpen, setLoginFormOpen] = useState(false);
@@ -20,11 +21,12 @@ const Header = ({ user, setUser }) => {
 
   return (
     <div className="z-20 sticky top-0">
-      <nav className="flex flex-col text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
-        <div>
+      <nav className="flex text-center sm:flex-row sm:text-left sm:justify-between py-4 px-6 sm:items-baseline w-full bg-gray-300">
+        <div className="flex space-x-2 justify-center items-center">
+          <img className="w-6 h-6 align-middle" src="/appicon.png" />
           <Link to="/explore" className="text-2xl no-underline">PixelVault</Link>
         </div>
-        <div className='flex divide-x justify-center items-center m-y-auto'>
+        <div className='flex divide-x justify-center items-center'>
           <Link to="/explore" className="text-lg no-underline px-2">Explore</Link>
           <Link to="/edit" className="text-lg no-underline px-2">Edit</Link>
 
@@ -44,7 +46,7 @@ const Header = ({ user, setUser }) => {
                 <div>
                   <Dropdown titleElement={
                     <img
-                      className='rounded-full w-[30px] h-[30px] hover:cursor-pointer align-middle '
+                      className='pixelated rounded-full w-[30px] h-[30px] hover:cursor-pointer align-middle '
                       src={`${userImageBase}${user}.png`}
                       onError={({ currentTarget }) => {
                         currentTarget.onerror = null;
@@ -54,7 +56,7 @@ const Header = ({ user, setUser }) => {
                   }>
                     <div className="divide-y">
                       <Link to={`/profile/${user}`}>
-                        <div title="asdasd" className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1">My Profile</div>
+                        <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1">My Profile</div>
                       </Link>
                       <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={logOut}>Log out</div>
                     </div>

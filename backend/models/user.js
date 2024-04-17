@@ -14,7 +14,7 @@ const User = {
       return;
     }
 
-    db.query(`SELECT username, biography, experience, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers
+    db.query(`SELECT username, biography, twitter, instagram, tiktok, youtube, (SELECT COUNT(*) FROM follow WHERE follows = ?) AS followers, is_banned = 1 AS is_banned
       FROM user WHERE username = ?;`,
     [username, username],
     (err, result) => {
@@ -39,11 +39,28 @@ const User = {
     });
   }),
 
-  ban: (username) => new Promise((resolve, reject) => {
+  /**
+   * Bans a user - includes hiding all of their posts and comments.
+   * @param {string} username The user to ban.
+   * @param {string} bannedBy The admin banning them.
+   */
+  ban: (username, bannedBy) => new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Invalid username provided'));
       return;
     }
+
+    db.query(
+      'UPDATE post SET is_hidden = 1, hidden_by = ? WHERE post_id IN (SELECT project_id FROM project WHERE created_by = ?)',
+      [bannedBy, username],
+      (err) => { if (err) reject(err); },
+    );
+
+    db.query(
+      'UPDATE comment SET is_hidden = 1, hidden_by = ? WHERE author = ?',
+      [bannedBy, username],
+      (err) => { if (err) reject(err); },
+    );
 
     db.query('UPDATE user SET is_banned = 1 WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
@@ -51,11 +68,27 @@ const User = {
     });
   }),
 
+  /**
+   * Unbans a user - includes unhiding all of their posts and comments.
+   * @param {string} username The user to unban.
+   */
   unban: (username) => new Promise((resolve, reject) => {
     if (username === undefined) {
       reject(new Error('Invalid username provided'));
       return;
     }
+
+    db.query(
+      'UPDATE post SET is_hidden = 0, hidden_by = NULL WHERE post_id IN (SELECT project_id FROM project WHERE created_by = ?)',
+      [username],
+      (err) => { if (err) reject(err); },
+    );
+
+    db.query(
+      'UPDATE comment SET is_hidden = 0, hidden_by = NULL WHERE author = ?',
+      [username],
+      (err) => { if (err) reject(err); },
+    );
 
     db.query('UPDATE user SET is_banned = 0 WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
@@ -89,7 +122,6 @@ const User = {
    * @param {{
    *    password: string | undefined,
    *    biography: string | undefined,
-   *    experience: number | undefined,
    *    twitter: string | undefined,
    *    instagram: string | undefined,
    *    tiktok: string | undefined,
@@ -115,7 +147,7 @@ const User = {
     const fields = {
       required: [],
       optional: [
-        'password_hash', 'biography', 'experience',
+        'password_hash', 'biography',
         'twitter', 'instagram', 'tiktok', 'youtube',
       ],
     };
@@ -226,7 +258,7 @@ const User = {
       return;
     }
 
-    db.query('SELECT username, password_hash, email, biography, experience, is_verified = 1 AS is_verified, is_banned = 1 AS is_banned, is_admin = 1 AS is_admin, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
+    db.query('SELECT username, password_hash, email, biography, is_banned = 1 AS is_banned, is_admin = 1 AS is_admin, twitter, instagram, tiktok, youtube FROM user WHERE username = ?;', [username], (err, result) => {
       if (err) reject(err);
       else resolve(result.length === 0 ? null : JSON.parse(JSON.stringify(result[0])));
     });

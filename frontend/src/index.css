@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 button {
-    @apply bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-4 rounded
+    @apply bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-1 px-4 rounded
 }
 
 .max-w-third {
@@ -18,3 +18,9 @@ button {
     0% { opacity: 0; }
     100% { opacity: 1; }
 }
+
+@layer utilities {
+    .pixelated {
+      image-rendering: pixelated;
+    }
+  }

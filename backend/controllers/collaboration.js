@@ -64,8 +64,8 @@ router.post('/', async (req, res) => {
     }
 
     const invites = await Collaboration.projectInvitations(projectId);
-    if (invites.filter(i => i.username == username).length > 0) {
-      return res.status(400).json({ error: 'User has already been invited to the project' })
+    if (invites.filter((i) => i.username.toLowerCase() === username.toLowerCase()).length > 0) {
+      return res.status(400).json({ error: 'User has already been invited to the project' });
     }
 
     await Collaboration.invite(username, projectId);
@@ -76,7 +76,7 @@ router.post('/', async (req, res) => {
     }
 
     log.error(error);
-    return res.status(400).send({ error: error.message });
+    return res.status(400).send({ error: 'Error inviting user' });
   }
 });
 

@@ -7,8 +7,6 @@ const { db } = require('../utils/database');
 const api = supertest(app);
 
 beforeAll(async () => {
-  db.query('DELETE FROM transaction;');
-  db.query('DELETE FROM project_invite;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM follow;');
   db.query('DELETE FROM user;');
@@ -123,6 +121,31 @@ describe('Banned users cannot interact with the site', () => {
       .set('Authorization', bannedUserToken);
     expect(res.statusCode).toBe(401);
   });
+
+  test('banned users cannot be retrieved', async () => {
+    const res = await api.get('/api/user/user');
+    expect(res.statusCode).toBe(404);
+  });
+
+  test('banned users can be retrieved by admins', async () => {
+    let res = await api.post('/api/login')
+      .send({ username: process.env.ROOT_USERNAME, password: process.env.ROOT_PASSWORD });
+    const userAuth = `token ${res.body.token}`;
+
+    res = await api.get('/api/user/user')
+      .set('Authorization', userAuth);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({
+      username: 'user',
+      followers: 0,
+      biography: null,
+      twitter: null,
+      instagram: null,
+      tiktok: null,
+      youtube: null,
+      is_banned: 1,
+    });
+  });
 });
 
 describe('Users can be unbanned', () => {
@@ -229,11 +252,11 @@ describe('Users can be retrieved by their username', () => {
       username: 'user',
       followers: 0,
       biography: null,
-      experience: 0,
       twitter: null,
       instagram: null,
       tiktok: null,
       youtube: null,
+      is_banned: 0,
     });
   });
 

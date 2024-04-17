@@ -5,12 +5,20 @@ const path = require('path');
 const log = require('../utils/logger');
 
 const POST_IMG_DIR = path.join(__dirname, '/../img/post_img/');
+const PROFILE_IMG_DIR = path.join(__dirname, '/../img/profile_img/');
 
 if (!fs.existsSync(POST_IMG_DIR)) {
   fs.mkdirSync(POST_IMG_DIR);
   log.info(`Created new directory for images at ${POST_IMG_DIR}`);
 } else {
   log.info(`Directory for images already exists at ${POST_IMG_DIR}.`);
+}
+
+if (!fs.existsSync(PROFILE_IMG_DIR)) {
+  fs.mkdirSync(PROFILE_IMG_DIR);
+  log.info(`Created new directory for images at ${PROFILE_IMG_DIR}`);
+} else {
+  log.info(`Directory for images already exists at ${PROFILE_IMG_DIR}.`);
 }
 
 /**

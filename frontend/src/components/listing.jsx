@@ -6,12 +6,15 @@ import ListingInfo from './listing-info.jsx';
 
 import * as postApi from './../api/post.js';
 import * as commentApi from './../api/comment.js';
+import * as projectApi from './../api/project.js';
+import toast from 'react-hot-toast';
 
-const Listing = ({ postId }) => {
+const Listing = ({ postId, closeListing }) => {
   const [loadedPost, setLoadedPost] = useState(null);
   const [likedThisPost, setLikedThisPost] = useState(false);
   const [likedComments, setLikedComments] = useState([]);
   const [dataChanged, setDataChanged] = useState(false);
+
   const newCommentRef = useRef(null);
 
   useEffect(() => {
@@ -58,7 +61,7 @@ const Listing = ({ postId }) => {
     }
 
     await commentApi.addComment(postId, content);
-    
+
     newCommentRef.current.value = "";
     setDataChanged(true);
   }
@@ -83,10 +86,93 @@ const Listing = ({ postId }) => {
     setDataChanged(true);
   }
 
+  const deleteComment = async (commentId) => {
+    if (!confirm('Are you sure you want to delete your comment?')) {
+      return;
+    }
+
+    try {
+      await commentApi.deleteComment(commentId);
+      toast.success('Comment deleted');
+      setDataChanged(true);
+    } catch(err) {
+      toast.error(`${err}`);
+    }
+  }
+
+  const setTitle = async (newTitle) => {
+    await projectApi.update(postId, newTitle);
+    setDataChanged(true);
+  }
+
+  const setTags = async (newTags) => {
+    await postApi.edit(postId, {tags: newTags});
+    setDataChanged(true);
+  }
+
+  const setLicence = async (newLicence) => {
+    await postApi.edit(postId, {licence: newLicence});
+    setDataChanged(true);
+  }
+
+  const toggleVisible = async () => {
+    if (!(loadedPost?.is_hidden === 0 || loadedPost?.is_hidden === 1)) {
+      toast.error('Error: Could not hide post.');
+      return;
+    }
+
+    try {
+      if (loadedPost.is_hidden === 0) {
+        await postApi.hide(loadedPost.post_id);
+        toast.success('Post has been hidden.');
+      } else {
+        await postApi.unhide(loadedPost.post_id);
+        toast.success('Post has been made visible.');
+      }
+      setDataChanged(true);
+    } catch (error) {
+      console.error(error);
+      toast.error('Error: Could not hide post.');
+    }
+  }
+
+  const toggleCommentVisible = async (commentId) => {
+    const comment = loadedPost.comments.find((c) => c.comment_id === commentId);
+    if (comment === undefined) {
+      toast.error('Error: Could not hide post.');
+      return;
+    }
+
+    try {
+      if (comment.is_hidden === 1) {
+        await commentApi.unhideComment(commentId);
+        toast.success('Successfully made comment visible.');
+      } else {
+        await commentApi.hideComment(commentId);
+        toast.success('Successfully hid comment.');
+      }
+      setDataChanged(true);
+    } catch (e) {
+      console.error(e);
+      toast.error('Error: Could not hide post.');
+    }
+  };
+
+  const deletePost = async () => {
+    try {
+      await postApi.remove(postId);
+      toast.error('Post successfully deleted.');
+      closeListing();
+    } catch (error) {
+      console.error(error);
+      toast.error('Error: Could not delete post.');
+    }
+  }
+
   return (
-    <div>
+    <div className='mb-4'>
       {loadedPost !== null ?
-        <div className="flex flex-col">
+        <div className="flex flex-col max-w-xl px-3">
           <ListingInfo
             postId={postId}
             title={loadedPost.title}
@@ -96,14 +182,21 @@ const Listing = ({ postId }) => {
             tags={loadedPost.tags}
             likePost={likePost}
             unlikePost={unlikePost}
-            likedThisPost={likedThisPost} />
+            likedThisPost={likedThisPost}
+            setTags={setTags}
+            setLicence={setLicence}
+            setTitle={setTitle}
+            isVisible={loadedPost.is_hidden === 0}
+            toggleVisible={toggleVisible}
+            deletePost={deletePost}
+          />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
             <textarea ref={newCommentRef} className="w-full h-12 resize-y border rounded-md p-2 max-h-32" placeholder="Add a comment..."></textarea>
             <button className="max-w-third mx-auto" onClick={submitComment}>Comment</button>
           </div>
 
-          <div className="max-h-80 overflow-auto divide-y">
+          <div className="max-h-60 overflow-auto divide-y">
             {loadedPost.comments && loadedPost.comments.map(c =>
               <Comment
                 key={c.comment_id}
@@ -113,16 +206,17 @@ const Listing = ({ postId }) => {
                 likes={c.likes}
                 likeComment={likeComment}
                 unlikeComment={unlikeComment}
-                likedComments={likedComments} />
+                deleteComment={deleteComment}
+                likedComments={likedComments}
+                visible={c.is_hidden === 0}
+                toggleVisible={() => toggleCommentVisible(c.comment_id)}
+                isAdmin={localStorage.getItem('admin') === 'true'}
+                isAuthor={localStorage.getItem('user') === c.author}
+              />
             )}
           </div>
-
-          <div className="flex justify-center">
-            <Link to="#">More like this...</Link> {/* TODO: Link to an appropriate search. */}
-          </div>
         </div>
-        :
-        ""}
+        : ''}
     </div>
   );
 };

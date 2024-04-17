@@ -1,17 +1,24 @@
 import React, { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import Api from '../api';
 import { uploadProfilePicture, userImageBase, defaultImageUrl } from '../api/account';
 
 const BIOGRAPHY_LIMIT = 255;
 
-const ProfileOptiions = ({ profile }) => {
+const ProfileOptions = ({ profile }) => {
   const [imageToggle, setImageToggle] = useState(Date.now());
   const refreshImage = () => setImageToggle(Date.now());
 
   const [biography, setBiography] = useState(profile.biography === null ? '' : profile.biography);
   const [newPassword, setNewPassword] = useState('');
+  const [newTwitter, setNewTwitter] = useState('');
+  const [newInstagram, setNewInstagram] = useState('');
+  const [newTikTok, setNewTikTok] = useState('');
+  const [newYoutube, setNewYoutube] = useState('');
+
+  const navigate = useNavigate();
 
   const update = (updates, successMessage) => {
     Api.account.update(profile.username, updates)
@@ -53,18 +60,62 @@ const ProfileOptiions = ({ profile }) => {
     refreshImage();
   };
 
+  const saveHandles = (e) => {
+    e.preventDefault();
+    if (newYoutube && (newYoutube.length < 31)) {
+      update({ youtube: newYoutube }, 'Successfully set Youtube.');
+    }
+    if (newTwitter && (newTwitter.length < 16)) {
+      update({ twitter: newTwitter }, 'Successfully set X.');
+    }
+    if (newInstagram && (newInstagram.length < 31)) {
+      update({ instagram: newInstagram }, 'Successfully set Instagram.');
+    }
+    if (newTikTok && (newTikTok.length < 25)) {
+      update({ tiktok: newTikTok }, 'Successfully set TikTok.');
+    }
+  };
+
+  const removeHandles = () => {
+    Api.account.update(profile.username,
+      { 
+        twitter: null,
+        youtube: null,
+        tiktok: null,
+        instagram: null,
+      }).then(() => toast.success('Successfully deleted socials.'))
+      .catch((e) => {
+        toast.error('Failed to save details.');
+        console.error(e);
+      });
+  };
+
+  const deleteAccount = async () => {
+    const proceed = confirm('Are you sure you want to delete your account?');
+    if (proceed) {
+      await Api.account.remove(profile.username);
+      toast.success('Account successfully deleted.');
+      localStorage.removeItem('auth');
+      localStorage.removeItem('admin');
+      localStorage.removeItem('user');
+      navigate('../explore');
+    } else {
+      toast.error('Account could not be deleted.');
+    }
+  };
+
   const fileInput = useRef();
 
   return (
-    <div>
-      <div className='mx-4 mb-4 flex gap-4'>
+    <div className='w-full'>
+      <div className='mx-4 mb-4 gap-4'>
         <div className='flex flex-col items-center'>
           <label htmlFor='file-upload' className='font-semibold'>
             Avatar
           </label>
           <div className='relative' onClick={() => fileInput.current.click()}>
             <img
-              className='rounded w-[100px] min-w-[100px]'
+              className='aspect-square object-cover rounded max-w-[100px] w-[100px] min-w-[100px] h-auto'
               src={`${userImageBase}${profile.username}.png?r=${imageToggle}`}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
@@ -77,7 +128,8 @@ const ProfileOptiions = ({ profile }) => {
           </div>
           <input ref={fileInput} id='file-upload' type='file' className='hidden' onChange={uploadImage} name='avatar' />
         </div>
-        <div className='w-full'>
+
+        <div>
           <form>
             <label htmlFor='biography-entry' className='block font-semibold'>
               Biography
@@ -99,10 +151,40 @@ const ProfileOptiions = ({ profile }) => {
               <button className='max-h-8' type='submit' onClick={savePassword}>Save</button>
             </div>
           </form>
+          <div className="flex py-5 items-center">
+            <div className="flex-grow border-t border-gray-400"></div>
+            <span className="flex-shrink mx-4 text-gray-400">Social Media</span>
+            <div className="flex-grow border-t border-gray-400"></div>
+          </div>
+          <form className='grid gap-1 mb-2 md:grid-cols-1'>
+            <label htmlFor='youtube' className='block font-semibold'>
+              YouTube:
+            </label>
+              <input value={newYoutube} id='youtube' className='w-full py-1' onChange={(e) => setNewYoutube(e.target.value)}></input>
+            <label htmlFor='x' className='block font-semibold'>
+              X:
+            </label>
+              <input value={newTwitter} id='x' className='w-full py-1' onChange={(e) => setNewTwitter(e.target.value)}></input>
+            <label htmlFor='instagram' className='block font-semibold'>
+              Instagram:
+            </label>
+              <input value={newInstagram} id='instagram' className='w-full py-1' onChange={(e) => setNewInstagram(e.target.value)}></input>
+            <label htmlFor='tiktok' className='block font-semibold'>
+              TikTok:
+            </label>
+              <input value={newTikTok} id='tiktok' className='w-full py-1' onChange={(e) => setNewTikTok(e.target.value)}></input>
+          </form>
         </div>
+      </div>
+      <div className='inline-flex items-center justify-between w-full rounded p-2'>
+        <button type='submit' onClick={saveHandles}>Save</button>
+        <button type='submit' onClick={removeHandles}>Remove Socials</button>
+      </div>
+      <div className='flex justify-end m-2'>
+        <button className='bg-red-600 hover:bg-red-700' onClick={deleteAccount}>Delete Account</button>
       </div>
     </div>
   );
 };
 
-export default ProfileOptiions;
+export default ProfileOptions;

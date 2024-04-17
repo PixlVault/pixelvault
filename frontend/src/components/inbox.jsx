@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 import * as collaboration from '../api/collaboration';
@@ -18,7 +17,7 @@ const Inbox = () => {
       try {
         const response = await collaboration.getInvitationsToUser();
         setInvites(response.filter(i => i.accepted === false));
-      } catch(err) {
+      } catch (err) {
         toast.error(`${err}`);
       }
     };
@@ -33,12 +32,12 @@ const Inbox = () => {
       await collaboration.acceptInvitation(projectId);
 
       toast.success(`Invitation to ${projectTitle} accepted.`);
-    } catch(err) {
+    } catch (err) {
       toast.error(`${err}`);
     }
 
     setDataChanged(true);
-  }
+  };
 
   const decline = async (projectId, projectTitle) => {
     try {
@@ -48,12 +47,12 @@ const Inbox = () => {
       // This isn't an error but it makes sense to show a red icon on decline
       // and a green one on accept.
       toast.error(`Invitation to ${projectTitle} declined.`);
-    } catch(err) {
+    } catch (err) {
       toast.error(`${err}`);
     }
 
     setDataChanged(true);
-  }
+  };
 
   return (
     <div className="flex flex-col w-full px-8 pt-6 pb-4 mb-4 space-y-2">
@@ -63,7 +62,7 @@ const Inbox = () => {
             ? invites.map(i =>
               <div className="flex space-x-5 hover:bg-white rounded-md p-2" key={i.project_id}>
                 <div className="grow">
-                  You have been invited to collaborate on <div className="italic font-bold">{i.title}</div>
+                  &lsquo;{i.sender}&rsquo; has invited you to collaborate on &lsquo;<p className="inline italic font-bold">{i.title}</p>&rsquo;.
                   <div className="text-xs">{(new Date(i.last_modified)).toLocaleString()}</div>
                 </div>
                 <div className="flex space-x-3">

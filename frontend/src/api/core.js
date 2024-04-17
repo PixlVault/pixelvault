@@ -32,14 +32,7 @@ export const makeRequest = async (endpoint, method, body = undefined, auth = tru
     request.body = JSON.stringify(body);
   }
 
-  if (auth === true) {
-    const token = localStorage.getItem('auth');
-    if (token === null) {
-      console.error('Authentication required, but not logged in');
-      return null;
-    }
-    headers.Authorization = `token ${localStorage.getItem('auth')}`;
-  }
+  headers.Authorization = `token ${localStorage.getItem('auth')}`;
 
   if (Object.entries(headers).length > 0) request.headers = headers;
 

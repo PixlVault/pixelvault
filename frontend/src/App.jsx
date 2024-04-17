@@ -10,6 +10,7 @@ import Profile from './components/profile.jsx';
 import FeedbackForm from './components/feedbackformpopup.jsx';
 import Report from './components/report.jsx';
 import Search from './components/Search.jsx'; // Import Search component
+import Credit from './components/credit.jsx';
 
 function App() {
   const [user, setUser] = useState(localStorage.getItem('user'));
@@ -85,6 +86,18 @@ function App() {
           <Header user={user} setUser={setUser}/>
         <div className="flex flex-col min-h-screen items-center bg-gray-100">
           <Search user={user} />
+        </div>
+          <Footer/>
+        </>
+      ),
+    },
+    {
+      path: '/credit',
+      element: (
+        <>
+          <Header user={user} setUser={setUser}/>
+        <div className="flex flex-col min-h-screen items-center bg-gray-100">
+          <Credit />
         </div>
           <Footer/>
         </>

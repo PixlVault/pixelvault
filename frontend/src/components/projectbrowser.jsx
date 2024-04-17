@@ -16,11 +16,6 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
     fetchProjects().catch(console.error);
   }, [username]);
 
-  const setProject = (project) => {
-    setCurrentProject(project);
-    closeProjectBrowser();
-  };
-
   const setTitle = async (projectId) => {
     const newTitle = prompt('Please enter a new title');
     if (projectId !== undefined && newTitle !== null) {
@@ -62,8 +57,8 @@ const ProjectBrowser = ({ username, currentProject, setCurrentProject, closeProj
                 {
                   x.is_published === 0
                     ? <Link
-                        className = "no-underline hover:underline"
-                        onClick={() => setProject(x)}
+                        className = "underline"
+                        onClick={closeProjectBrowser}
                         to={`../edit/${x.project_id}`}>
                           <p className="text-wrap break-words max-w-40">{x.title}</p>
                       </Link>

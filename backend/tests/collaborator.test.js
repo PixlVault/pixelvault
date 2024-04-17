@@ -18,7 +18,6 @@ beforeAll(async () => {
   const img = { data: Array.from(buf), width, height };
   const compressed = LZString.compressToBase64(JSON.stringify(img));
 
-  db.query('DELETE FROM transaction;');
   db.query('DELETE FROM project;');
   db.query('DELETE FROM follow;');
   db.query('DELETE FROM user;');
