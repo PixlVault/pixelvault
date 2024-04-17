@@ -262,7 +262,7 @@ const Profile = () => {
       {
         listingOpen
           ? <Popup onClose={() => setListingOpen(false)}>
-            <Listing postId={selectedPost} closeListing={() => setPopupOpen(false)} />
+            <Listing postId={selectedPost} closeListing={() => setListingOpen(false)} />
           </Popup>
           : null
       }
