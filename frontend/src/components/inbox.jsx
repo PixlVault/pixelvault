@@ -65,7 +65,7 @@ const Inbox = () => {
             ? invites.map(i =>
               <div className="flex space-x-5 hover:bg-white rounded-md p-2" key={i.project_id}>
                 <div className="grow">
-                  You have been invited to collaborate on &lsquo;<p className="inline italic font-bold">{i.title}</p>&rsquo; by &lsquo;{i.sender}&rsquo;.
+                  &lsquo;{i.sender}&rsquo; has invited you to collaborate on &lsquo;<p className="inline italic font-bold">{i.title}</p>&rsquo;.
                   <div className="text-xs">{(new Date(i.last_modified)).toLocaleString()}</div>
                 </div>
                 <div className="flex space-x-3">
