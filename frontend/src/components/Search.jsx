@@ -94,7 +94,7 @@ const Search = ({ user }) => {
       {
         popupOpen
           ? <Popup onClose={() => setPopupOpen(false)}>
-              <Listing user={user} postId={selectedPost} />
+              <Listing user={user} postId={selectedPost} closeListing={() => setPopupOpen(false)} />
             </Popup>
           : null
       }

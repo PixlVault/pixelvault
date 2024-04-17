@@ -13,10 +13,11 @@ import React from 'react';
 
 const ListingInfo = ({
   postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost,
-  setTags, setLicence, isVisible, toggleVisible
+  setTags, setLicence, isVisible, toggleVisible, deletePost
 }) => {
   const [editingTags, setEditingTags] = useState(false);
   const tagsTextAreaRef = useRef(null);
+
   const isOwner = author == localStorage.getItem('user');
   const isAdmin = localStorage.getItem('admin') === 'true';
 
@@ -92,12 +93,12 @@ const ListingInfo = ({
               <Link to="#"><h4 className="hover:underline">{licence}</h4></Link>
 
               {
-                isOwner ?
-                  <Dropdown titleElement={<img className="w-3 h-3 hover:cursor-pointer" title="Edit Licence" src="/pencil.png" />}>
-                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.CreativeCommons)}>{post.Licence.CreativeCommons}</div>
-                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Commercial)}>{post.Licence.Commercial}</div>
-                    <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Education)}>{post.Licence.Education}</div>
-                  </Dropdown>
+                isOwner
+                  ? <Dropdown titleElement={<img className="w-3 h-3 hover:cursor-pointer" title="Edit Licence" src="/pencil.png" />}>
+                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.CreativeCommons)}>{post.Licence.CreativeCommons}</div>
+                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Commercial)}>{post.Licence.Commercial}</div>
+                      <div className="block px-4 py-2 text-sm hover:bg-gray-400 hover:cursor-pointer" tabIndex="-1" onClick={() => confirmLicence(post.Licence.Education)}>{post.Licence.Education}</div>
+                    </Dropdown>
                   : ""
               }
 
@@ -105,24 +106,27 @@ const ListingInfo = ({
           </div>
           <div className="flex flex-col justify-center items-center">
             {
-              isAdmin
-              ? <button className="bg-red-600" onClick={toggleVisible}>{isVisible ? 'Hide' : 'Unhide'}</button>
-              : <button className="bg-red-600">Report</button>
-            
+              // eslint-disable-next-line no-nested-ternary
+              isOwner
+                ? <button className="bg-red-600 hover:bg-red-700" onClick={deletePost}>Delete</button>
+                : isAdmin
+                  ? <button className="bg-red-600 hover:bg-red-700" onClick={toggleVisible}>{isVisible ? 'Hide' : 'Unhide'}</button>
+                  : <button className="bg-red-600 hover:bg-red-700">Report</button>
             }
-            
           </div>
           <div className="flex flex-col col-span-2 space-y-2 max-h-[70px] px-4">
             <div className="flex">
               <div className="grow"></div>
               {
-                editingTags ?
-                  <div className="flex space-x-2">
-                    <img className="w-3 h-3 hover:cursor-pointer" title="Confirm" src="/tick.png" onClick={confirmTags} />
-                    <img className="w-3 h-3 hover:cursor-pointer" title="Cancel" src="/bin.png" onClick={() => setEditingTags(false)} />
-                  </div>
-                  :
-                  isOwner ? <img className="w-3 h-3 hover:cursor-pointer" title="Edit Tags" src="/pencil.png" onClick={() => setEditingTags(true)} /> : ""
+                // eslint-disable-next-line no-nested-ternary
+                editingTags
+                  ? <div className="flex space-x-2">
+                      <img className="w-3 h-3 hover:cursor-pointer" title="Confirm" src="/tick.png" onClick={confirmTags} />
+                      <img className="w-3 h-3 hover:cursor-pointer" title="Cancel" src="/bin.png" onClick={() => setEditingTags(false)} />
+                    </div>
+                  : isOwner
+                    ? <img className="w-3 h-3 hover:cursor-pointer" title="Edit Tags" src="/pencil.png" onClick={() => setEditingTags(true)} /> 
+                    : ""
               }
             </div>
 

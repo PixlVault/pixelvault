@@ -166,7 +166,7 @@ const ExplorePage = () => {
 
       {popupOpen && (
         <Popup onClose={() => setPopupOpen(false)}>
-          <Listing postId={selectedPost} />
+          <Listing postId={selectedPost} closeListing={() => setPopupOpen(false)} />
         </Popup>
       )}
     </div>

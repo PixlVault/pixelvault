@@ -8,7 +8,7 @@ import * as postApi from './../api/post.js';
 import * as commentApi from './../api/comment.js';
 import toast from 'react-hot-toast';
 
-const Listing = ({ postId }) => {
+const Listing = ({ postId, closeListing }) => {
   const [loadedPost, setLoadedPost] = useState(null);
   const [likedThisPost, setLikedThisPost] = useState(false);
   const [likedComments, setLikedComments] = useState([]);
@@ -60,7 +60,7 @@ const Listing = ({ postId }) => {
     }
 
     await commentApi.addComment(postId, content);
-    
+
     newCommentRef.current.value = "";
     setDataChanged(true);
   }
@@ -86,14 +86,13 @@ const Listing = ({ postId }) => {
   }
 
   const deleteComment = async (commentId) => {
-    if (!confirm("Are you sure you want to delete your comment?")) {
+    if (!confirm('Are you sure you want to delete your comment?')) {
       return;
     }
 
     try {
       await commentApi.deleteComment(commentId);
-      toast.success("Comment deleted");
-      
+      toast.success('Comment deleted');
       setDataChanged(true);
     } catch(err) {
       toast.error(`${err}`);
@@ -153,6 +152,17 @@ const Listing = ({ postId }) => {
     }
   };
 
+  const deletePost = async () => {
+    try {
+      await postApi.remove(postId);
+      toast.error('Post successfully deleted.');
+      closeListing();
+    } catch (error) {
+      console.error(error);
+      toast.error('Error: Could not delete post.');
+    }
+  }
+
   return (
     <div>
       {loadedPost !== null ?
@@ -171,6 +181,7 @@ const Listing = ({ postId }) => {
             setLicence={setLicence}
             isVisible={loadedPost.is_hidden === 0}
             toggleVisible={toggleVisible}
+            deletePost={deletePost}
           />
 
           <div className="flex flex-col w-full max-w-md mx-auto space-y-5">
