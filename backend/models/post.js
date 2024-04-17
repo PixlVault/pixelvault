@@ -105,8 +105,6 @@ const Post = {
       return;
     }
 
-    console.log('show hidden', showHiddenComments);
-
     db.query(
       `SELECT *, BIN_TO_UUID(post_id, TRUE) AS post_id, project.created_by AS author,
         is_hidden = 1 AS is_hidden,

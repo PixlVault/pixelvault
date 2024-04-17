@@ -21,7 +21,6 @@ const Listing = ({ postId }) => {
       try {
         const posts = await postApi.search({ post_id: postId });
         const post = posts[0];
-        console.log(post);
 
         if (!post) {
           console.error("Failed to retrieve post data.");

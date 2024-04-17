@@ -33,7 +33,6 @@ const ListingInfo = ({
 
   const confirmTags = async () => {
     var tags = textToTags(tagsTextAreaRef.current.value);
-    console.log(tags);
 
     try {
       await setTags(tags);
