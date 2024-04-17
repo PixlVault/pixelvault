@@ -11,10 +11,10 @@ import { postImageBase } from '../api/post';
 
 const Tile = ({ post, clickHandler }) => (
   <div className='border rounded relative w-full h-auto aspect-square' onClick={clickHandler}>
-      <img className="pixelated w-full min-w-[256px] h-auto aspect-square object-cover rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
-      <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-2xl text-white font-semibold">
+    <img className="pixelated w-full min-w-[256px] h-auto aspect-square object-cover rounded-lg" src={`${postImageBase}${post.post_id}.png`} alt="" />
+    <div className="rounded-lg opacity-0 hover:bg-black/50 hover:opacity-100 duration-300 flex justify-normal items-end absolute inset-0 z-10  text-2xl text-white font-semibold">
       <p className='mx-2 mb-1 truncate'>{post.title}</p>
-      </div>
+    </div>
   </div>
 );
 
@@ -54,7 +54,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (params.username === undefined) return;
-    Api.post.search({ author: params.username, order_by: 'likes', ascending: false, limit: 5})
+    Api.post.search({ author: params.username, order_by: 'likes', ascending: false, limit: 5 })
       .then((posts) => setMostLiked(posts))
       .catch((error) => console.error(error));
 
@@ -165,7 +165,9 @@ const Profile = () => {
                   ? (isBanned
                     ? <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={unban}>Unban</button>
                     : <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={ban}>Ban</button>)
-                  : <button className="ml-2 bg-red-600 hover:bg-red-700"><Link to="/report" state={{ username: profile.username }}>Report</Link></button>
+                  : loggedInUser != null && loggedInUser != profile.username
+                    ? <button className="ml-2 bg-red-600 hover:bg-red-700"><Link to="/report" state={{ username: profile.username }}>Report</Link></button>
+                    : ""
               }
             </div>
           </div>
@@ -177,51 +179,51 @@ const Profile = () => {
           {
             profile.tiktok
               ?
-                <div className='p-1 flex flex-row'>
-                  <img
-                    src='../tiktok.png'
-                    className='rounded w-[30px] min-w-[30px] mr-4'
-                  />
-                  <a href= {`https://www.tiktok.com/@${profile.tiktok}`} >{profile.tiktok === null ? '' : `tiktok.com/@${profile.tiktok}`}</a>
-                </div>
+              <div className='p-1 flex flex-row'>
+                <img
+                  src='../tiktok.png'
+                  className='rounded w-[30px] min-w-[30px] mr-4'
+                />
+                <a href={`https://www.tiktok.com/@${profile.tiktok}`} >{profile.tiktok === null ? '' : `tiktok.com/@${profile.tiktok}`}</a>
+              </div>
               : null
           }
           {
             profile.youtube
               ?
-          <div className='p-1 flex flex-row'>
-            <img
-              src='../youtube.png'
-              className='rounded w-[30px] min-w-[30px] mr-4'
-            />
-            <a href= {`https://www.youtube.com/@${profile.youtube}`} >{profile.youtube === null ? '' : `youtube.com/@${profile.youtube}`}</a>
-          </div>
+              <div className='p-1 flex flex-row'>
+                <img
+                  src='../youtube.png'
+                  className='rounded w-[30px] min-w-[30px] mr-4'
+                />
+                <a href={`https://www.youtube.com/@${profile.youtube}`} >{profile.youtube === null ? '' : `youtube.com/@${profile.youtube}`}</a>
+              </div>
               : null
           }
           {
             profile.instagram
               ?
-          <div className='p-1 flex flex-row'>
-            <img
-              src='../instagram.png'
-              className='rounded w-[30px] min-w-[30px] mr-4'
-            />
-            <a href= {`https://www.instagram.com/${profile.instagram}`}>{profile.instagram === null ? '' : `instagram.com/${profile.instagram}`}</a>
-          </div>
+              <div className='p-1 flex flex-row'>
+                <img
+                  src='../instagram.png'
+                  className='rounded w-[30px] min-w-[30px] mr-4'
+                />
+                <a href={`https://www.instagram.com/${profile.instagram}`}>{profile.instagram === null ? '' : `instagram.com/${profile.instagram}`}</a>
+              </div>
               : null
           }
           {
             profile.twitter
               ?
-          <div className='p-1 flex flex-row'>
-            <img
-              src='../twitter.png'
-              className='rounded w-[30px] min-w-[30px] mr-4'
-            />
-            <a href= {`https://www.x.com/${profile.twitter}`}>{profile.twitter === null ? '' : `x.com/${profile.twitter}`}</a>
-          </div>
+              <div className='p-1 flex flex-row'>
+                <img
+                  src='../twitter.png'
+                  className='rounded w-[30px] min-w-[30px] mr-4'
+                />
+                <a href={`https://www.x.com/${profile.twitter}`}>{profile.twitter === null ? '' : `x.com/${profile.twitter}`}</a>
+              </div>
               : null
-        }
+          }
         </div>
       </div>
 
@@ -260,16 +262,16 @@ const Profile = () => {
       {
         listingOpen
           ? <Popup onClose={() => setListingOpen(false)}>
-              <Listing postId={selectedPost} closeListing={() => setPopupOpen(false)} />
-            </Popup>
+            <Listing postId={selectedPost} closeListing={() => setPopupOpen(false)} />
+          </Popup>
           : null
       }
 
       {
         optionsOpen && (loggedInUser === params.username)
           ? <Popup title='Options' onClose={() => setOptionsOpen(false)}>
-              <ProfileOptions profile={profile} />
-            </Popup>
+            <ProfileOptions profile={profile} />
+          </Popup>
           : null
       }
     </div>

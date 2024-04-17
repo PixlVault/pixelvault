@@ -19,7 +19,8 @@ const ListingInfo = ({
   const [editingTitle, setEditingTitle] = useState(false);
   const tagsTextAreaRef = useRef(null);
   const titleTextAreaRef = useRef(null);
-  const isOwner = author == localStorage.getItem('user');
+  const loggedInUser = localStorage.getItem('user');
+  const isOwner = author == loggedInUser;
   const isAdmin = localStorage.getItem('admin') === 'true';
 
   if (tags != null) {
@@ -144,7 +145,9 @@ const ListingInfo = ({
                 ? <button className="bg-red-600 hover:bg-red-700" onClick={deletePost}>Delete</button>
                 : isAdmin
                   ? <button className="bg-red-600 hover:bg-red-700" onClick={toggleVisible}>{isVisible ? 'Hide' : 'Unhide'}</button>
-                  : <button className="bg-red-600 hover:bg-red-700"><Link to="/report" state={{ postId: postId, postTitle: title }}>Report</Link></button>
+                  : loggedInUser != null
+                    ? <button className="bg-red-600 hover:bg-red-700"><Link to="/report" state={{ postId: postId, postTitle: title }}>Report</Link></button>
+                    : ""
             }
           </div>
           <div className="flex flex-col col-span-2 space-y-2 max-h-[70px] px-4">

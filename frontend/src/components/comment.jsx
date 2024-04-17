@@ -4,6 +4,7 @@ import { userImageBase, defaultImageUrl } from '../api/account';
 
 const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment, deleteComment, likedComments, isAdmin, visible, toggleVisible, isAuthor }) => {
   const likedThisComment = likedComments.map(c => c.comment_id).includes(commentId);
+  const loggedInUser = localStorage.getItem('user');
 
   const imgClass = 'w-4 h-4 space-x-0 hover:cursor-pointer inline-block align-middle'
 
@@ -43,7 +44,9 @@ const Comment = ({ commentId, author, content, likes, likeComment, unlikeComment
                 :
                 isAuthor === true
                   ? <img className={imgClass} src='/bin.png' onClick={async () => await deleteComment(commentId)} />
-                  : <Link to="/report" state={{ commentId, comment: content }}><img className={imgClass} src='/report.png'/></Link>
+                  : loggedInUser != null
+                    ? <Link to="/report" state={{ commentId, comment: content }}><img className={imgClass} src='/report.png' /></Link>
+                    : ""
             }
           </div>
         </div>
