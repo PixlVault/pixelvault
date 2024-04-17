@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import Api from '../api';
 import { userImageBase, defaultImageUrl } from '../api/account/';
 // import Tile from './tile';
@@ -165,7 +165,7 @@ const Profile = () => {
                   ? (isBanned
                     ? <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={unban}>Unban</button>
                     : <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={ban}>Ban</button>)
-                  : <button className="ml-2 bg-red-600 hover:bg-red-700" onClick={() => navigate('/report')}>Report</button>
+                  : <button className="ml-2 bg-red-600 hover:bg-red-700"><Link to="/report" state={{ username: profile.username }}>Report</Link></button>
               }
             </div>
           </div>
