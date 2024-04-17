@@ -8,11 +8,12 @@ function report() {
   const [userName, setUsername] = useState();
   const [submitStatus, isSubmitted] = useState(false); // To show a message
   const params = useParams();
-
+  const [count, changeCount] = useState(0);
   
 
   const inputHandle = event => {
     setReport(event.target.value);
+    changeCount(event.target.value.length);
   };
 
   const userNameHandle = event => {     // Dummy for now but get user from report / profile page
@@ -56,8 +57,17 @@ function report() {
       </select>
       <div className="flex flex-col">
         <h3 className="text-black text-center font-roboto mt-10 text-2xl">Additional Info</h3>
-        <textarea className="resize-none w-80 h-80" placeholder="Type here..." onChange={inputHandle}></textarea>
-        <button type="submit" onClick={submit} style={{backgroundColor: 'red'}} className="text-whitew-auto h-auto mt-12">Submit Report</button>
+        <textarea className="resize-none w-80 h-80 border border-gray-800" style={{width: "25vh", maxWidth:"100%", resize: "none"}} maxLength={500} placeholder="Type here..." onChange={inputHandle}></textarea>
+        {(count < 200 && count < 300) && (
+        <p className="text-xl text-gray-500 bottom-2 right-2">{count} / 500</p>
+        )}
+        {(count >= 200 && count <= 400) && (
+        <p className="text-xl text-amber-500 bottom-2 right-2">{count} / 500</p>
+        )}
+        {count > 400 && (
+        <p className="text-xl text-red-500 bottom-2 right-2">{count} / 500</p>
+        )}
+        <button type="submit" onClick={submit} style={{position: "relative", bottom: "90%", backgroundColor: 'red'}} className="text-white w-auto h-auto mt-12">Submit Report</button>
       </div>
     </div>
   </form>

@@ -6,6 +6,7 @@ function FeedbackForm() {
   const [inputFeedback, setFeedback] = useState();
   const [reasonFeedback, setReason] = useState();
   const [submitStatus, isSubmitted] = useState(false); // To show a message
+  const [count, changeCount] = useState(0);
 
   const params = useParams();
 
@@ -13,6 +14,7 @@ function FeedbackForm() {
 
   const inputHandle = event => {
     setFeedback(event.target.value);
+    changeCount(event.target.value.length);
   };
 
   const reasonHandle = event => {
@@ -50,8 +52,17 @@ function FeedbackForm() {
       </select>
       <div className="flex flex-col">
         <h3 className="text-black text-center font-roboto mt-10 text-2xl">How can we help?*</h3>
-        <textarea className="resize-none w-80 h-80" placeholder="Type here..." onChange={inputHandle}></textarea>
-        <button type="submit" onClick={submit} className="text-white bg-black w-auto h-auto mt-12">Submit Feedback</button>
+        <textarea className="resize-none w-80 h-80" placeholder="Type here..." maxLength={500} onChange={inputHandle}></textarea>
+        {(count < 200 && count < 300) && (
+          <p className="text-xl text-gray-500 bottom-2 right-2">{count} / 500</p>
+        )}
+        {(count >= 200 && count <= 400) && (
+          <p className="text-xl text-amber-500 bottom-2 right-2">{count} / 500</p>
+        )}
+        {count > 400 && (
+          <p className="text-xl text-red-500 bottom-2 right-2">{count} / 500</p>
+        )}
+        <button type="submit" onClick={submit} className="text-white bg-black w-45 h-15 mt-12">Submit Feedback</button>
       </div>
     </div>
   </form>
