@@ -6,6 +6,7 @@ import ListingInfo from './listing-info.jsx';
 
 import * as postApi from './../api/post.js';
 import * as commentApi from './../api/comment.js';
+import * as projectApi from './../api/project.js';
 import toast from 'react-hot-toast';
 
 const Listing = ({ postId, closeListing }) => {
@@ -99,6 +100,11 @@ const Listing = ({ postId, closeListing }) => {
     }
   }
 
+  const setTitle = async (newTitle) => {
+    await projectApi.update(postId, newTitle);
+    setDataChanged(true);
+  }
+
   const setTags = async (newTags) => {
     await postApi.edit(postId, {tags: newTags});
     setDataChanged(true);
@@ -179,6 +185,7 @@ const Listing = ({ postId, closeListing }) => {
             likedThisPost={likedThisPost}
             setTags={setTags}
             setLicence={setLicence}
+            setTitle={setTitle}
             isVisible={loadedPost.is_hidden === 0}
             toggleVisible={toggleVisible}
             deletePost={deletePost}

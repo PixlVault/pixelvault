@@ -13,11 +13,12 @@ import React from 'react';
 
 const ListingInfo = ({
   postId, title, author, licence, likes, tags, likePost, unlikePost, likedThisPost,
-  setTags, setLicence, isVisible, toggleVisible, deletePost
+  setTitle, setTags, setLicence, isVisible, toggleVisible, deletePost
 }) => {
   const [editingTags, setEditingTags] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
   const tagsTextAreaRef = useRef(null);
-
+  const titleTextAreaRef = useRef(null);
   const isOwner = author == localStorage.getItem('user');
   const isAdmin = localStorage.getItem('admin') === 'true';
 
@@ -31,6 +32,19 @@ const ListingInfo = ({
 
   const tagsToString = (tags) => {
     return tags.reduce((acc, tag) => acc += `#${tag} `, "");
+  }
+
+  const confirmTitle = async () => {
+    var title = titleTextAreaRef.current.value;
+
+    try {
+      await setTitle(title);
+      toast.success("Title changed");
+    } catch (err) {
+      toast.error(`${err}`);
+    }
+
+    setEditingTitle(false);
   }
 
   const confirmTags = async () => {
@@ -66,16 +80,35 @@ const ListingInfo = ({
   return (
     <div className="w-full h-full grid grid-flow-row-dense grid-cols-2 grid-rows-1">
       <div className="flex flex-col justify-center items-center">
-        <img className="pixelated w-48 h-48 border  border-gray-300" src={`${postImageBase}${postId}.png`} />
+        <img className="pixelated w-48 h-48 border border-gray-300" src={`${postImageBase}${postId}.png`} />
         <button onClick={download} className='mt-2 mb-4'>Download</button>
       </div>
       <div>
         <div className="h-full grid grid-flow-row-dense grid-cols-2 grid-rows-3">
           <div className="flex flex-col justify-center items-center">
             <div className="flex space-x-3">
-              <div className="flex flex-col justify-center items-center">
-                <h2 title={title} className="text-xl font-bold truncate max-w-40">{title}</h2>
-                <h4><Link to={`/profile/${author}`}>{author}</Link></h4>
+              <div className="flex flex-col space-y-1  justify-center items-center">
+                <div className="flex">
+                  {
+                    editingTitle ?
+                      <div className="flex space-x-2">
+                        <img className="w-3 h-3 hover:cursor-pointer" title="Confirm" src="/tick.png" onClick={confirmTitle} />
+                        <img className="w-3 h-3 hover:cursor-pointer" title="Cancel" src="/bin.png" onClick={() => setEditingTitle(false)} />
+                      </div>
+                      :
+                      isOwner ? <img className="w-3 h-3 hover:cursor-pointer" title="Edit Title" src="/pencil.png" onClick={() => setEditingTitle(true)} />
+                        : ""
+                  }
+                </div>
+
+                <div className="justify-center items-center text-center">
+                  {
+                    editingTitle
+                      ? <textarea className="max-h-8 rounded-md max-w-40" ref={titleTextAreaRef} defaultValue={title}></textarea>
+                      : <h2 title={title} className="text-xl font-bold truncate max-w-40">{title}</h2>
+                  }
+                  <h4><Link to={`/profile/${author}`}>{author}</Link></h4>
+                </div>
               </div>
             </div>
           </div>
