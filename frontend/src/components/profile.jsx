@@ -143,7 +143,7 @@ const Profile = () => {
           <img
             /* TODO: Only specific sizes work here and it's not clear as to why;
                establish a better definite size. */
-            className='aspect-square object-cover rounded w-[100px] min-w-[100px] mr-4'
+            className='pixelated aspect-square object-cover rounded w-[100px] min-w-[100px] mr-4'
             src={`${userImageBase}${params.username}.png`}
             onError={({ currentTarget }) => {
               currentTarget.onerror = null;
