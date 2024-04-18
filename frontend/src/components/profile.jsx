@@ -31,12 +31,21 @@ const Profile = () => {
   const [optionsOpen, setOptionsOpen] = useState(false);
 
   const [profile, setProfile] = useState({});
+  const [isBanned, setIsBanned] = useState(false);
+
   useEffect(() => {
-    Api.account.get(params.username)
-      .then((user) => setProfile(user))
-      .catch((e) => console.error(e));
+    const fetchData = async () => {
+      try {
+        const user = await Api.account.get(params.username)
+        setProfile(user);
+        setIsBanned(user?.is_banned === 1);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, [navigate, params.username]);
-  const [isBanned, setIsBanned] = useState(profile?.is_banned === 1);
 
   const [isFollowing, setIsFollowing] = useState(false);
   useEffect(() => {
