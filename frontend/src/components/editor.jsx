@@ -299,7 +299,7 @@ const OnlineCanvasContainer = ({ currentProject, setCurrentProject, setIsProject
       socket.off('error');
       socket.disconnect();
     };
-  }, [projectId]);
+  }, [height, navigate, projectId, setCurrentProject, width]);
 
   if (canvasReady && !connected) toast.error('Disconnected from server! Changes will not be saved.');
 
