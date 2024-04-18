@@ -7,15 +7,19 @@ const host = process.env.NODE_ENV === 'test'
   ? process.env.MYSQL_TEST_HOST
   : process.env.MYSQL_HOST;
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
 });
+db.on('error', (error) => log.error(error));
 
-db.connect();
-log.info('Connecting to DB:', host);
+// Test the connection by running a simple query:
+db.query('SELECT 1', (err) => {
+  if (err) log.error('Database cannot be reached');
+  else log.info('Connected to DB:', host);
+});
 
 /**
  * Creates a root account according to `.env` variables - if it doesn't already exist.
@@ -39,7 +43,7 @@ const tryCreateRootAccount = () => {
         );
         log.info('root user inserted, or already existed.');
       })
-      .catch((err) => {
+      .catch(() => {
         log.error('Error in generating password hash for root user');
       });
   }
