@@ -4,7 +4,7 @@ const LZString = require('lz-string');
 const log = require('../utils/logger');
 const { db, extractArgs } = require('../utils/database');
 const Project = require('./project');
-const { writePostImage } = require('../utils/image');
+const { writePostImage, deletePostImage } = require('../utils/image');
 
 const Post = {
   /** Search for posts according to some criteria.
@@ -232,7 +232,7 @@ const Post = {
   }),
 
   /**
-   * Deletes a project.
+   * Deletes a post.
    * @param {string} postId The ID of the project to delete.
    */
   delete: (postId) => new Promise((resolve, reject) => {
@@ -240,6 +240,8 @@ const Post = {
       if (err) reject(err);
       else resolve(result);
     });
+
+    deletePostImage(postId)
   }),
 
   setTags: (postId, tags) => new Promise((resolve, reject) => {

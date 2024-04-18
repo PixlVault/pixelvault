@@ -2,6 +2,7 @@ const argon2 = require('argon2');
 
 const { db, extractArgs } = require('../utils/database');
 const log = require('../utils/logger');
+const { deleteUserImage } = require('../utils/image');
 
 const User = {
   /**
@@ -37,6 +38,8 @@ const User = {
       if (err) reject(err);
       else resolve(result);
     });
+
+    deleteUserImage(username);
   }),
 
   /**
@@ -66,6 +69,8 @@ const User = {
       if (err) reject(err);
       else resolve(result);
     });
+
+    deleteUserImage(username);
   }),
 
   /**
