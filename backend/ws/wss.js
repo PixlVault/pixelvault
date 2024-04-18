@@ -78,8 +78,13 @@ const attachWebSocketService = (server) => {
     }
 
     const projectId = socket.handshake.query.pid;
+    const collaborators = await Project.collaborators(projectId);
+
+    if (sessions[projectId] !== undefined) {
+      sessions[projectId].collaborators = collaborators;
+    }
+
     if (sessions[projectId] === undefined) {
-      const collaborators = await Project.collaborators(projectId);
       // If it has no collaborators, the project does not exist:
       if (collaborators.length === 0) {
         socket.emit('error', 'Project could not be found.');
