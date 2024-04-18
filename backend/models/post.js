@@ -68,7 +68,7 @@ const Post = {
       params.push(licence);
     }
 
-    query = ` ${query} is_hidden = 0 ${showHidden === true ? 'OR is_hidden = 1 ' : ''}`;
+    query = ` (${query} is_hidden = 0${showHidden === true ? ' OR is_hidden = 1' : ''}) `;
 
     if (orderByField !== undefined) {
       if (['title', 'published_on', 'likes'].includes(orderByField)) {
