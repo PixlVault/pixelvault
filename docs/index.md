@@ -81,9 +81,6 @@ By Sukh Sareen, Luke Bradley, Matt Davies, Josh Kay, Ryan Raulia, and Elliott Wa
     - [What exactly is Licensing?](#what-exactly-is-licensing)
     - [What Kind of Licences Can I Choose for my Artwork?](#what-kind-of-licences-can-i-choose-for-my-artwork)
 
-* Mention downloading means you agree to licensing terms.
-
-
 # Introduction
 
 Hello and welcome to PixelVault! PixelVault is a web-based Pixel art editor and gallery, which  allows users to create, share and sell [pixel art](#what-is-pixel-art). 
