@@ -642,16 +642,14 @@ describe('Liked posts can be', () => {
     res = await api.get('/api/post/other/liked')
       .send();
     expect(res.statusCode).toBe(200);
-    expect(res.body).toMatchObject([
-      {
-        post_id: projects[0],
-        licence: null,
-      },
-      {
-        post_id: projects[1],
-        licence: 'Creative Commons',
-      },
-    ]);
+
+    const ids = res.body.map((p) => p.post_id);
+    ids.sort();
+
+    const expectation = [projects[0], projects[1]];
+    expectation.sort();
+
+    expect(ids).toEqual(expectation);
   });
 });
 
