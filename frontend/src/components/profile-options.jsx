@@ -115,7 +115,7 @@ const ProfileOptions = ({ profile }) => {
           </label>
           <div className='relative' onClick={() => fileInput.current.click()}>
             <img
-              className='aspect-square object-cover rounded max-w-[100px] w-[100px] min-w-[100px] h-auto'
+              className='pixelated aspect-square object-cover rounded max-w-[100px] w-[100px] min-w-[100px] h-auto'
               src={`${userImageBase}${profile.username}.png?r=${imageToggle}`}
               onError={({ currentTarget }) => {
                 currentTarget.onerror = null;
