@@ -30,7 +30,7 @@ router.post('/', async (req, res) => {
 
     if (await argon2.verify(user.password_hash, password)) {
       delete user.password_hash;
-      const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign(user, process.env.JWT_SECRET);
       return res.status(200).send({ token, is_admin: user.is_admin });
     }
     return res.status(401).json({ error: 'Invalid username or password provided' });
